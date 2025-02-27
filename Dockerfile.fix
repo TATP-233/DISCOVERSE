@@ -1,0 +1,69 @@
+FROM nvidia/cuda:12.1.0-devel-ubuntu20.04
+
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV PYTHON_VERSION=3.10
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install \
+    git \
+    curl \
+    software-properties-common \
+    libgl1-mesa-dev \
+    libglew-dev \ 
+    libegl1-mesa-dev \ 
+    libgles2-mesa-dev \ 
+    libnvidia-egl-wayland1 \
+    libosmesa6-dev \
+    xvfb \ 
+    libx11-6 \ 
+    libxext6 \ 
+    libglfw3-dev \ 
+    libglu1-mesa-dev \ 
+    libglm-dev \
+    pkg-config \ 
+    -y --no-install-recommends && \
+    apt-get clean
+
+ENV PATH=/opt/conda/bin:$PATH
+RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    chmod +x ~/miniconda.sh && \
+    ~/miniconda.sh -b -p /opt/conda && \
+    rm ~/miniconda.sh && \
+    conda init && \
+    conda install -y python="$PYTHON_VERSION" && \
+    conda clean -ya
+
+
+RUN conda install pytorch==2.5.1 torchvision==0.20.1 numpy=1.26.4 pytorch-cuda=12.1 -c pytorch -c nvidia
+# Fix Unrecognized option 'qp'
+RUN conda install -c conda-forge ffmpeg=4.2.2 
+
+COPY . /workspace
+
+# Install base dependencies
+RUN python3 -m pip install --no-cache-dir \
+    scipy \
+    mediapy \
+    opencv-python \
+    mujoco
+
+# Install 3DGS related dependencies
+RUN python3 -m pip install --no-cache-dir \
+    plyfile \
+    PyGlm
+
+# Install diff-gaussian-rasterization
+ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
+WORKDIR /workspace/submodules/diff-gaussian-rasterization
+RUN python3 -m pip install .
+
+WORKDIR /workspace
+RUN python3 -m pip install -e .
+
+# Fix Rendering Issue
+ENV MUJOCO_GL=egl
+RUN mkdir -p /usr/share/glvnd/egl_vendor.d/ && \
+   echo '{\n    "file_format_version" : "1.0.0",\n    "ICD" : {\n        "library_path" : "libEGL_nvidia.so.0"\n    }\n}' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+
+CMD ["/bin/bash"]

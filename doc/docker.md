@@ -177,3 +177,15 @@ docker rmi discoverse/<YOUR-TAG>
 ```bash
 docker builder prune
 ```
+
+## Dockerfile 变体说明
+
+本项目提供两种 Dockerfile 配置：
+
+### Dockerfile.fix
+这是基础的 Dockerfile 配置，用于构建标准的 DISCOVERSE 环境。它包含了运行系统所需的所有基础组件和依赖项。使用这个配置时，你需要直接在宿主机上通过 X11 转发来显示图形界面。
+
+### Dockerfile.vnc
+这是支持 VNC 远程访问的配置版本。它在基础配置的基础上添加了 VNC 服务器支持，允许你通过 VNC 客户端远程访问容器的图形界面。这对于远程开发或在没有本地显示服务器的环境中特别有用。
+
+注意：无论使用哪个 Dockerfile，都需要确保按照上述步骤正确配置 `models` 目录结构并下载所需资源文件。代码的实际执行需要在容器内进行。在构建过程中，Dockerfile 会 COPY 整个项目目录（包括 models），这会导致镜像体积较大。如果想要减小镜像体积，可以选择不将 models 目录包含在镜像中，而是在运行容器时通过 `-v` 参数将宿主机的 models 目录挂载到容器内的对应位置。
