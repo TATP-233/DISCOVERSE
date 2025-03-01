@@ -49,3 +49,13 @@ python3 policies/infer.py dp --config-path=configs --config-name=block_place mod
 - `--config-name`: 配置文件名
 - `mode`: 指定训练或是推理
 - `model_path`: 模型权重路径
+
+### 真机推理
+
+```bash
+python3 policies/dp/infer_real.py --config-path=configs --config-name=block_place
+```
+其中:
+- `--config-path`: 配置文件所在路径
+- `--config-name`: 配置文件名
+- 需要注意，真机推理的`config.yaml`相较于`sim`中的`config.yaml`，需要增加`global_camid`和`wrist_camid`，分别指向对应的相机编号
