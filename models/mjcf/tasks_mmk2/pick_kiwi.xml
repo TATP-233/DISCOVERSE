@@ -1,0 +1,159 @@
+<mujoco model="pick_kiwi">
+
+  <include file="../scene.xml"/>
+  <include file="../mmk2/mmk2_options.xml"/>
+  <include file="../mmk2/mmk2_dependencies.xml"/>
+
+  <compiler meshdir="../../meshes/" texturedir="../../textures/"/>
+
+  <include file="../object/plate_white_dependencies.xml"/>
+  <include file="../object/kiwi_dependencies.xml"/>
+
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name='mmk2' pos="0.75 -0.5 1" euler="0 0 -1.57">
+      <joint type="free" frictionloss="0.0001" />
+      <include file="../mmk2/mmk2.xml"/>
+    </body>
+
+    <!-- ======= plate_white ======= -->
+    <body name="plate_white" pos="0.72 -1.035 0.8" euler="0 0 0">
+      <include file="../object/plate_white.xml"/>
+    </body>
+
+    <!-- ======= jujube ======= -->
+    <body name="kiwi" pos="0.54 -1.1 0.8" euler="0 0 0">
+      <include file="../object/kiwi.xml"/>
+    </body>
+
+    <!-- 场景 -->
+    <body name="table_60_120" pos="0.75 -1.21 0">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.74" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 1 1 1"/>
+      <geom size="0.02 0.02 0.37" pos=" 0.55  0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.55 -0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.55  0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.55 -0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="table_60_180" pos="-1. -1.21 0">
+      <geom size="0.3 0.9 0.01" pos="0 0 0.74" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 1 1 1"/>
+      <geom size="0.02 0.02 0.37" pos=" 0.85  0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.85 -0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.00  0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.00 -0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.85  0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.85 -0.25 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="table_80_160" pos="-1.2 -0.11 0" euler="0 0 -1.5708">
+      <geom size="0.4 0.8 0.01" pos="0 0 0.74" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 1 1 1"/>
+      <geom size="0.02 0.02 0.37" pos=" 0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="displayer" pos="-1.1 1.1 0">
+      <geom size="0.7 0.015 0.4" pos="0 0 1.4" type="box" rgba=".1 .1 .1 1"/>
+    </body>
+
+    <body name="front_wall" pos="1.415 -0.03 0">
+      <geom size="1.0 0.44 0.015" pos="0  0.0 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0  0.9 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.9 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -1.8 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body>
+
+    <body name="left_wall" pos="-0.03 1.415 0" euler="0 0 -1.5708">
+      <geom size="1.0 0.44 0.015" pos="0  0.0 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0  0.9 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.9 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -1.8 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -2.7 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -3.6 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body>
+    
+    <!-- <body name="cabinet_1" pos="0.36 1.22 0" euler="0 0 1.5708"> -->
+    <body name="cabinet_1" pos="0.665 1.22 0" euler="0 0 1.5708">
+      <geom size="0.15 0.01 1.015" pos="0  0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.01 1.015" pos="0 -0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.01 0.40 1.015" pos="0.14 0.0 1.015" type="box" rgba="0.9 0.9 0.9 1" />
+
+      <geom size="0.15 0.4 0.01" pos="0 0 0.09" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.44" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.73" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.06" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.40" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.69"  type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 2.02"  type="box" rgba="0.9 0.9 0.9 1" />
+    </body>
+
+    <!-- <body name="cabinet_2" pos="1.03 1.03 0" euler="0 0 0.7854"> -->
+    <body name="cabinet_2" pos="1.23 0.86 0" euler="0 0 0">
+      <geom size="0.15 0.01 1.015" pos="0  0.2 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.01 1.015" pos="0 -0.2 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.01 0.20 1.015" pos="0.14 0.0 1.015" type="box" rgba="0.9 0.9 0.9 1" />
+
+      <geom size="0.15 0.2 0.01" pos="0 0 0.09" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 0.44" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 0.73" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 1.06" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 1.40" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 1.69"  type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.2 0.01" pos="0 0 2.02"  type="box" rgba="0.9 0.9 0.9 1" />
+    </body>
+
+    <!-- <body name="cabinet_3" pos="1.22 0.36 0"> -->
+    <body name="cabinet_3" pos="1.23 0.238 0">
+      <geom size="0.15 0.01 1.015" pos="0  0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.01 1.015" pos="0 -0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.01 0.40 1.015" pos="0.14 0.0 1.015" type="box" rgba="0.9 0.9 0.9 1" />
+
+      <geom size="0.15 0.4 0.01" pos="0 0 0.09" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.44" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.73" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.06" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.40" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.69"  type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 2.02"  type="box" rgba="0.9 0.9 0.9 1" />
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="../mmk2/mmk2_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="../mmk2/mmk2_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="pick" qpos='
+       0.7 -0.5 0  1 0 0 -1
+       0 0 0  0 0
+
+       0.    -0.166  0.032  0.     1.571  2.223  0 0
+
+      -0.    -0.166  0.032  0.    -1.571 -2.223  0 0
+
+       0.65 -1 0.8  1 0 0 0
+       0.4 -1.5 0.8 1 0 0 1'
+      ctrl = '
+       0 0 0  0 0
+       0.    -0.166  0.032  0.     1.571  2.223  0
+      -0.    -0.166  0.032  0.    -1.571 -2.223  0
+      '
+    />
+  </keyframe>
+
+
+</mujoco>
