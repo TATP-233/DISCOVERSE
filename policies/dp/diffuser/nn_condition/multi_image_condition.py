@@ -10,9 +10,10 @@ from diffuser.nn_condition import BaseNNCondition
 
 
 def replace_submodules(
-        root_module: nn.Module, 
-        predicate: Callable[[nn.Module], bool], 
-        func: Callable[[nn.Module], nn.Module]) -> nn.Module:
+    root_module: nn.Module,
+    predicate: Callable[[nn.Module], bool],
+    func: Callable[[nn.Module], nn.Module],
+) -> nn.Module:
     """
     predicate: Return true if the module is to be replaced.
     func: Return new module to use.
@@ -20,13 +21,15 @@ def replace_submodules(
     if predicate(root_module):
         return func(root_module)
 
-    bn_list = [k.split('.') for k, m 
-        in root_module.named_modules(remove_duplicate=True) 
-        if predicate(m)]
+    bn_list = [
+        k.split(".")
+        for k, m in root_module.named_modules(remove_duplicate=True)
+        if predicate(m)
+    ]
     for *parent, k in bn_list:
         parent_module = root_module
         if len(parent) > 0:
-            parent_module = root_module.get_submodule('.'.join(parent))
+            parent_module = root_module.get_submodule(".".join(parent))
         if isinstance(parent_module, nn.Sequential):
             src_module = parent_module[int(k)]
         else:
@@ -37,9 +40,11 @@ def replace_submodules(
         else:
             setattr(parent_module, k, tgt_module)
     # verify that all BN are replaced
-    bn_list = [k.split('.') for k, m 
-        in root_module.named_modules(remove_duplicate=True) 
-        if predicate(m)]
+    bn_list = [
+        k.split(".")
+        for k, m in root_module.named_modules(remove_duplicate=True)
+        if predicate(m)
+    ]
     assert len(bn_list) == 0
     return root_module
 
@@ -54,6 +59,7 @@ def get_resnet(name, weights=None, **kwargs):
     resnet.fc = torch.nn.Identity()
     return resnet
 
+
 def get_clip_model(model_name="ViT-B/32", **kwargs):
     """
     model_name: CLIP model name, e.g., "ViT-B/32", "RN50"
@@ -61,6 +67,7 @@ def get_clip_model(model_name="ViT-B/32", **kwargs):
     model, preprocess = clip.load(model_name, **kwargs)
     model.visual.fc = torch.nn.Identity()
     return model
+
 
 class MultiImageObsCondition(BaseNNCondition):
 
@@ -71,29 +78,31 @@ class MultiImageObsCondition(BaseNNCondition):
 
     Output:
         - condition: (b, *cond_out_shape)
-    
+
     Assumes rgb input: B, C, H, W or B, seq_len, C,H,W
     Assumes low_dim input: B, D or B, seq_len, D
     """
-    def __init__(self,
-            shape_meta: dict,
-            rgb_model_name: str,
-            emb_dim: int = 256, 
-            resize_shape: Union[Tuple[int,int], Dict[str,tuple], None]=None,
-            crop_shape: Union[Tuple[int,int], Dict[str,tuple], None]=None,
-            random_crop: bool=True,
-            # replace BatchNorm with GroupNorm
-            use_group_norm: bool=False,
-            # use single rgb model for all rgb inputs
-            share_rgb_model: bool=False,
-            # renormalize rgb input with imagenet normalization
-            # assuming input in [0,1]
-            imagenet_norm: bool=False,
-            # use_seq: B, seq_len, C, H, W or B, C, H, W
-            use_seq=False, 
-            # if True: (bs, seq_len, embed_dim)
-            keep_horizon_dims=False
-        ):
+
+    def __init__(
+        self,
+        shape_meta: dict,
+        rgb_model_name: str,
+        emb_dim: int = 256,
+        resize_shape: Union[Tuple[int, int], Dict[str, tuple], None] = None,
+        crop_shape: Union[Tuple[int, int], Dict[str, tuple], None] = None,
+        random_crop: bool = True,
+        # replace BatchNorm with GroupNorm
+        use_group_norm: bool = False,
+        # use single rgb model for all rgb inputs
+        share_rgb_model: bool = False,
+        # renormalize rgb input with imagenet normalization
+        # assuming input in [0,1]
+        imagenet_norm: bool = False,
+        # use_seq: B, seq_len, C, H, W or B, C, H, W
+        use_seq=False,
+        # if True: (bs, seq_len, embed_dim)
+        keep_horizon_dims=False,
+    ):
         super().__init__()
         rgb_keys = list()
         low_dim_keys = list()
@@ -102,10 +111,10 @@ class MultiImageObsCondition(BaseNNCondition):
         key_shape_map = dict()
 
         # rgb_model
-        if 'resnet' in rgb_model_name:
+        if "resnet" in rgb_model_name:
             rgb_model = get_resnet(rgb_model_name, "IMAGENET1K_V1")
             # rgb_model = get_resnet(rgb_model_name)
-        elif 'clip' in rgb_model_name:
+        elif "clip" in rgb_model_name:
             rgb_model = get_clip_model()
         else:
             raise ValueError("Fatal rgb_model")
@@ -113,15 +122,15 @@ class MultiImageObsCondition(BaseNNCondition):
         # handle sharing vision backbone
         if share_rgb_model:
             assert isinstance(rgb_model, nn.Module)
-            key_model_map['rgb'] = rgb_model
+            key_model_map["rgb"] = rgb_model
 
-        obs_shape_meta = shape_meta['obs']
+        obs_shape_meta = shape_meta["obs"]
         for key, attr in obs_shape_meta.items():
             # print(key, attr)
-            shape = tuple(attr['shape'])
-            type = attr.get('type', 'low_dim')
+            shape = tuple(attr["shape"])
+            type = attr.get("type", "low_dim")
             key_shape_map[key] = shape
-            if type == 'rgb':
+            if type == "rgb":
                 rgb_keys.append(key)
                 # configure model for this key
                 this_model = None
@@ -133,18 +142,19 @@ class MultiImageObsCondition(BaseNNCondition):
                         assert isinstance(rgb_model, nn.Module)
                         # have a copy of the rgb model
                         this_model = copy.deepcopy(rgb_model)
-                
+
                 if this_model is not None:
                     if use_group_norm:
                         this_model = replace_submodules(
                             root_module=this_model,
                             predicate=lambda x: isinstance(x, nn.BatchNorm2d),
                             func=lambda x: nn.GroupNorm(
-                                num_groups=x.num_features//16, 
-                                num_channels=x.num_features)
+                                num_groups=x.num_features // 16,
+                                num_channels=x.num_features,
+                            ),
                         )
                     key_model_map[key] = this_model
-                
+
                 # configure resize
                 input_shape = shape
                 this_resizer = nn.Identity()
@@ -153,9 +163,7 @@ class MultiImageObsCondition(BaseNNCondition):
                         h, w = resize_shape[key]
                     else:
                         h, w = resize_shape
-                    this_resizer = torchvision.transforms.Resize(
-                        size=(h, w)
-                    )
+                    this_resizer = torchvision.transforms.Resize(size=(h, w))
                     input_shape = (shape[0], h, w)
 
                 # configure randomizer
@@ -171,21 +179,22 @@ class MultiImageObsCondition(BaseNNCondition):
                             crop_height=h,
                             crop_width=w,
                             num_crops=1,
-                            pos_enc=False
+                            pos_enc=False,
                         )
                     else:
-                        this_randomizer = torchvision.transforms.CenterCrop(
-                            size=(h,w)
-                        )
+                        this_randomizer = torchvision.transforms.CenterCrop(size=(h, w))
                 # configure normalizer
                 this_normalizer = nn.Identity()
                 if imagenet_norm:
                     this_normalizer = torchvision.transforms.Normalize(
-                        mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-                
-                this_transform = nn.Sequential(this_resizer, this_randomizer, this_normalizer)
+                        mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                    )
+
+                this_transform = nn.Sequential(
+                    this_resizer, this_randomizer, this_normalizer
+                )
                 key_transform_map[key] = this_transform
-            elif type == 'low_dim':
+            elif type == "low_dim":
                 low_dim_keys.append(key)
             else:
                 raise RuntimeError(f"Unsupported obs type: {type}")
@@ -203,7 +212,10 @@ class MultiImageObsCondition(BaseNNCondition):
         self.use_seq = use_seq
         self.keep_horizon_dims = keep_horizon_dims
         self.mlp = nn.Sequential(
-            nn.Linear(self.output_shape(), emb_dim), nn.LeakyReLU(), nn.Linear(emb_dim, emb_dim))
+            nn.Linear(self.output_shape(), emb_dim),
+            nn.LeakyReLU(),
+            nn.Linear(emb_dim, emb_dim),
+        )
 
     def multi_image_forward(self, obs_dict):
         batch_size = None
@@ -230,13 +242,13 @@ class MultiImageObsCondition(BaseNNCondition):
             # (N*B,C,H,W)
             imgs = torch.cat(imgs, dim=0)
             # (N*B,D)
-            feature = self.key_model_map['rgb'](imgs)
+            feature = self.key_model_map["rgb"](imgs)
             # (N,B,D)
-            feature = feature.reshape(-1,batch_size,*feature.shape[1:])
+            feature = feature.reshape(-1, batch_size, *feature.shape[1:])
             # (B,N,D)
-            feature = torch.moveaxis(feature,0,1)
+            feature = torch.moveaxis(feature, 0, 1)
             # (B,N*D)
-            feature = feature.reshape(batch_size,-1)
+            feature = feature.reshape(batch_size, -1)
             features.append(feature)
         else:
             # run each rgb obs to independent models
@@ -251,7 +263,7 @@ class MultiImageObsCondition(BaseNNCondition):
                 img = self.key_transform_map[key](img)
                 feature = self.key_model_map[key](img)
                 features.append(feature)
-        
+
         # process lowdim input
         for key in self.low_dim_keys:
             data = obs_dict[key]
@@ -261,7 +273,7 @@ class MultiImageObsCondition(BaseNNCondition):
                 assert batch_size == data.shape[0]
             assert data.shape[1:] == self.key_shape_map[key]
             features.append(data)
-        
+
         # concatenate all features
         features = torch.cat(features, dim=-1)
         return features
@@ -277,27 +289,24 @@ class MultiImageObsCondition(BaseNNCondition):
             else:
                 result = result.reshape(ori_batch_size, -1)
         return result
-    
+
     @torch.no_grad()
     def output_shape(self):
         example_obs_dict = dict()
-        obs_shape_meta = self.shape_meta['obs']
+        obs_shape_meta = self.shape_meta["obs"]
         batch_size = 1
         for key, attr in obs_shape_meta.items():
-            shape = tuple(attr['shape'])
+            shape = tuple(attr["shape"])
             if self.use_seq:
                 prefix = (batch_size, 1)
             else:
                 prefix = (batch_size,)
-            this_obs = torch.zeros(
-                prefix + shape, 
-                dtype=self.dtype,
-                device=self.device)
+            this_obs = torch.zeros(prefix + shape, dtype=self.dtype, device=self.device)
             example_obs_dict[key] = this_obs
         example_output = self.multi_image_forward(example_obs_dict)
         output_shape = example_output.shape[1:]
         return output_shape[0]
-    
+
     def get_batch_size(self, obs_dict):
         any_key = next(iter(obs_dict))
         any_tensor = obs_dict[any_key]
@@ -311,11 +320,11 @@ class MultiImageObsCondition(BaseNNCondition):
     @property
     def device(self):
         return next(iter(self.parameters())).device
-    
+
     @property
     def dtype(self):
         return next(iter(self.parameters())).dtype
-    
+
 
 # if __name__ == "__main__":
 #     shape_meta = {

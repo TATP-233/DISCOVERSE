@@ -6,7 +6,7 @@ from .utils import at_least_ndim
 
 
 class EmptyNormalizer:
-    """ Empty Normalizer
+    """Empty Normalizer
 
     Does nothing to the input data.
     """
@@ -19,7 +19,7 @@ class EmptyNormalizer:
 
 
 class GaussianNormalizer(EmptyNormalizer):
-    """ Gaussian Normalizer
+    """Gaussian Normalizer
 
     Normalizes data to have zero mean and unit variance.
     For those dimensions with zero variance, the normalized value will be zero.
@@ -53,11 +53,13 @@ class GaussianNormalizer(EmptyNormalizer):
 
         self.mean = np.mean(X, axis=axes)
         self.std = np.std(X, axis=axes)
-        self.std[self.std == 0] = 1.
+        self.std[self.std == 0] = 1.0
 
     def normalize(self, x: np.ndarray):
         ndim = x.ndim
-        return (x - at_least_ndim(self.mean, ndim, 1)) / at_least_ndim(self.std, ndim, 1)
+        return (x - at_least_ndim(self.mean, ndim, 1)) / at_least_ndim(
+            self.std, ndim, 1
+        )
 
     def unnormalize(self, x: np.ndarray):
         ndim = x.ndim
@@ -65,7 +67,7 @@ class GaussianNormalizer(EmptyNormalizer):
 
 
 class MinMaxNormalizer(EmptyNormalizer):
-    """ MinMax Normalizer
+    """MinMax Normalizer
 
     Normalizes data from range [min, max] to [-1, 1].
     For those dimensions with zero range, the normalized value will be zero.
@@ -97,8 +99,12 @@ class MinMaxNormalizer(EmptyNormalizer):
     """
 
     def __init__(
-            self, X: np.ndarray, start_dim: int = -1,
-            X_max: Optional[np.ndarray] = None, X_min: Optional[np.ndarray] = None):
+        self,
+        X: np.ndarray,
+        start_dim: int = -1,
+        X_max: Optional[np.ndarray] = None,
+        X_min: Optional[np.ndarray] = None,
+    ):
         total_dims = X.ndim
         if start_dim < 0:
             start_dim = total_dims + start_dim
@@ -109,8 +115,8 @@ class MinMaxNormalizer(EmptyNormalizer):
         self.min = np.min(X, axis=axes) if X_min is None else X_min
         self.mask = np.ones_like(self.max)
         self.range = self.max - self.min
-        self.mask[self.max == self.min] = 0.
-        self.range[self.range == 0] = 1.
+        self.mask[self.max == self.min] = 0.0
+        self.range[self.range == 0] = 1.0
 
     def normalize(self, x: np.ndarray):
         ndim = x.ndim

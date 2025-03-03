@@ -7,9 +7,9 @@
     <geom size="0.005 0.015" pos="-0.015 -0.195  0.055" euler="0 1.5708 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="1 0.005 0.0001" rgba=".1 .1 .1 1"/>
     <geom size="0.005 0.015" pos="-0.015 -0.195 -0.055" euler="0 1.5708 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="1 0.005 0.0001" rgba=".1 .1 .1 1"/>
     <geom size="0.005 0.055" pos="-0.03 -0.195 0" euler="0 0 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="10 10 10" rgba=".1 .1 .1 1"/>
-  
+
     <site name="cabinet_door_handle" pos='-0.03 -0.195 0' euler="0 0 3.1416" size='0.001' type='sphere'/>
-  
+
   </body>
 
   <body name="cabinet_drawer" pos="-0.172 0 0.078">
@@ -26,7 +26,7 @@
     <geom size="0.005 0.045" pos="-0.03 0 0" euler="1.5708 0 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="10 10 10" rgba=".1 .1 .1 1"/>
 
     <site name="cabinet_drawer_handle" pos='-0.03 0 0' euler="0 0 3.1416" size='0.001' type='sphere'/>
-      
+
   </body>
 
   <body pos="0 0 0">

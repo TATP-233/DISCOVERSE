@@ -19,7 +19,7 @@ class SimpleStateMachine:
 
     def update(self):
         self.state_cnt += 1
-    
+
     def reset(self):
         self.state_idx = 0
         self.state_cnt = 0

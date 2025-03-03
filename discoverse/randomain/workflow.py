@@ -19,10 +19,11 @@ def disable_comfy_args():
     Hacky injection to disable comfy args parsing.
     """
     import comfy.options
+
     def enable_args_parsing(enable=False):
         global args_parsing
         args_parsing = enable
-        
+
     comfy.options.enable_args_parsing = enable_args_parsing
 
 
@@ -57,7 +58,6 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
         background_strength: float
 
     """
-
 
     width = 1080
     height = 1080
@@ -94,7 +94,9 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
         )
 
         checkpointloadersimple = CheckpointLoaderSimple()
-        self.checkpoint = checkpointloadersimple.load_checkpoint(ckpt_name=self.checkpoint_path)
+        self.checkpoint = checkpointloadersimple.load_checkpoint(
+            ckpt_name=self.checkpoint_path
+        )
         self.clip_text_encode = CLIPTextEncode()
         self.empty_latent = EmptyLatentImage()
 
@@ -102,7 +104,9 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
         self.ksampler = ksamplerselect.get_sampler(sampler_name="lcm")
 
         controlnetloader = ControlNetLoader()
-        self.controlnet = controlnetloader.load_controlnet(control_net_name=self.control_path)
+        self.controlnet = controlnetloader.load_controlnet(
+            control_net_name=self.control_path
+        )
 
         self.imagetomask = NODE_CLASS_MAPPINGS["ImageToMask"]()
         self.growmask = NODE_CLASS_MAPPINGS["GrowMask"]()
@@ -118,13 +122,13 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
     #     return torch.Tensor(np_img) / 255.0
 
     def generate(
-            self,
-            _deps=None,
-            *,
-            depth,
-            masks,
-            prompt,
-            **deps,
+        self,
+        _deps=None,
+        *,
+        depth,
+        masks,
+        prompt,
+        **deps,
     ):
 
         from nodes import (
@@ -137,16 +141,16 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
         # we reference the class to take advantage of the namespacing
         ImageGen._update(_deps, **deps)
 
-        fore_objs = [obj for obj in list(masks.keys()) if obj != 'background']
+        fore_objs = [obj for obj in list(masks.keys()) if obj != "background"]
 
         # transfer to torch
-        masks_t={}
+        masks_t = {}
         for k, mask in masks.items():
             mask = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY)
-            mask_t = (torch.Tensor(mask)/255.0)[None, ..., None].repeat([1, 1, 1, 3])
+            mask_t = (torch.Tensor(mask) / 255.0)[None, ..., None].repeat([1, 1, 1, 3])
             masks_t[k] = mask_t
         depth = cv2.cvtColor(depth, cv2.COLOR_RGB2GRAY)
-        depth_t = (torch.Tensor(depth)/255.0)[None, ..., None].repeat([1, 1, 1, 3])
+        depth_t = (torch.Tensor(depth) / 255.0)[None, ..., None].repeat([1, 1, 1, 3])
 
         with torch.inference_mode():
             emptylatentimage = self.empty_latent.generate(
@@ -156,10 +160,9 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
             )
 
             textencodes = {}
-            for obj in (fore_objs+["background", "negative"]):
+            for obj in fore_objs + ["background", "negative"]:
                 textencodes[obj] = self.clip_text_encode.encode(
-                    text=prompt[obj],
-                    clip=get_value_at_index(self.checkpoint, 1)
+                    text=prompt[obj], clip=get_value_at_index(self.checkpoint, 1)
                 )
 
             conditioningsetmask = ConditioningSetMask()
@@ -170,35 +173,45 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
 
             # condition
             conditions = {}
-            for obj in (fore_objs+['background']):
+            for obj in fore_objs + ["background"]:
 
-                expand = ImageGen.grow_mask_amount if obj=='background' else ImageGen.fore_grow_mask_amount
-                image2mask = self.imagetomask.image_to_mask(channel="red", image=get_value_at_index([masks_t[obj]], 0))
+                expand = (
+                    ImageGen.grow_mask_amount
+                    if obj == "background"
+                    else ImageGen.fore_grow_mask_amount
+                )
+                image2mask = self.imagetomask.image_to_mask(
+                    channel="red", image=get_value_at_index([masks_t[obj]], 0)
+                )
                 growmask = self.growmask.expand_mask(
-                        expand=expand,
-                        tapered_corners=True,
-                        mask=get_value_at_index(image2mask, 0)
+                    expand=expand,
+                    tapered_corners=True,
+                    mask=get_value_at_index(image2mask, 0),
                 )
 
-                strength = ImageGen.background_strength if obj=='background' else ImageGen.fore_strength
+                strength = (
+                    ImageGen.background_strength
+                    if obj == "background"
+                    else ImageGen.fore_strength
+                )
                 conditions[obj] = conditioningsetmask.append(
-                        strength=strength,
-                        set_cond_area="default",
-                        conditioning=get_value_at_index(textencodes[obj], 0),
-                        mask=get_value_at_index(growmask, 0),
+                    strength=strength,
+                    set_cond_area="default",
+                    conditioning=get_value_at_index(textencodes[obj], 0),
+                    mask=get_value_at_index(growmask, 0),
                 )
 
             # cobination of conditions
             conditions_list = list(conditions.values())
             final_combine = conditioningcombine.combine(
-                        conditioning_1=get_value_at_index(conditions_list[0], 0),
-                        conditioning_2=get_value_at_index(conditions_list[1], 0),
-                    )
+                conditioning_1=get_value_at_index(conditions_list[0], 0),
+                conditioning_2=get_value_at_index(conditions_list[1], 0),
+            )
             for condition in conditions_list[2:]:
-                    final_combine = conditioningcombine.combine(
-                        conditioning_1=get_value_at_index(final_combine, 0),
-                        conditioning_2=get_value_at_index(condition, 0),
-                    )
+                final_combine = conditioningcombine.combine(
+                    conditioning_1=get_value_at_index(final_combine, 0),
+                    conditioning_2=get_value_at_index(condition, 0),
+                )
 
             # control
             controlnetapply = controlnetapply.apply_controlnet(
@@ -216,11 +229,11 @@ class ImageGen(ParamsProto, prefix="imagen", cli=False):
 
             samplercustom = samplercustom.sample(
                 add_noise=True,
-                noise_seed=random.randint(1, 2 ** 64),
+                noise_seed=random.randint(1, 2**64),
                 cfg=1,
                 model=get_value_at_index(self.checkpoint, 0),
                 positive=get_value_at_index(controlnetapply, 0),
-                negative=get_value_at_index(textencodes['negative'], 0),
+                negative=get_value_at_index(textencodes["negative"], 0),
                 sampler=get_value_at_index(self.ksampler, 0),
                 sigmas=get_value_at_index(sdturboscheduler, 0),
                 latent_image=get_value_at_index(emptylatentimage, 0),

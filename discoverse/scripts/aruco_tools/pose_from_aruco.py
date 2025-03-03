@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 class ArucoDetector:
     def __init__(self, aruco_dict, camera_matrix, dist_coeffs, marker_size):
         aruco_dict_pre = cv2.aruco.getPredefinedDictionary(aruco_dict)
@@ -11,7 +12,7 @@ class ArucoDetector:
         self.marker_size = marker_size
 
     def estimatePoseSingleMarkers(self, corners, marker_size, mtx, distortion):
-        '''
+        """
         This will estimate the rvec and tvec for each of the marker corners detected by:
         corners, ids, rejectedImgPoints = detector.detectMarkers(image)
         corners - is an array of detected corners for each detected marker in the image
@@ -19,16 +20,23 @@ class ArucoDetector:
         mtx - is the camera matrix
         distortion - is the camera distortion matrix
         RETURN list of rvecs, tvecs, and trash (so that it corresponds to the old estimatePoseSingleMarkers())
-        '''
-        marker_points = np.array([[-marker_size / 2,  marker_size / 2, 0],
-                                  [ marker_size / 2,  marker_size / 2, 0],
-                                  [ marker_size / 2, -marker_size / 2, 0],
-                                  [-marker_size / 2, -marker_size / 2, 0]], dtype=np.float32)
+        """
+        marker_points = np.array(
+            [
+                [-marker_size / 2, marker_size / 2, 0],
+                [marker_size / 2, marker_size / 2, 0],
+                [marker_size / 2, -marker_size / 2, 0],
+                [-marker_size / 2, -marker_size / 2, 0],
+            ],
+            dtype=np.float32,
+        )
         rvecs = []
         Rmats = []
         tvecs = []
         for c in corners:
-            _, r, t = cv2.solvePnP(marker_points, c, mtx, distortion, False, cv2.SOLVEPNP_IPPE_SQUARE)
+            _, r, t = cv2.solvePnP(
+                marker_points, c, mtx, distortion, False, cv2.SOLVEPNP_IPPE_SQUARE
+            )
             R, _ = cv2.Rodrigues(r)
             rvecs.append(r)
             Rmats.append(R)
@@ -39,8 +47,19 @@ class ArucoDetector:
         cv2.drawContours(image, corners_int, -1, (0, 255, 0), 3)
         # Draw the marker axes on the image
         for i in range(len(rvecs)):
-            cv2.drawFrameAxes(image, self.camera_matrix, self.dist_coeffs, rvecs[i], tvecs[i], 0.02)
-            cv2.putText(image, str(ids[i][0]), tuple(corners_int[i][0][0]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.drawFrameAxes(
+                image, self.camera_matrix, self.dist_coeffs, rvecs[i], tvecs[i], 0.02
+            )
+            cv2.putText(
+                image,
+                str(ids[i][0]),
+                tuple(corners_int[i][0][0]),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 255),
+                2,
+                cv2.LINE_AA,
+            )
         return image
 
     def detect(self, image, putAxis=True):
@@ -48,7 +67,9 @@ class ArucoDetector:
         corners, ids, _ = self.detector.detectMarkers(gray)
         if len(corners) > 0:
             # Estimate the pose of each marker
-            rvecs, Rmats, tvecs = self.estimatePoseSingleMarkers(corners, self.marker_size, self.camera_matrix, self.dist_coeffs)
+            rvecs, Rmats, tvecs = self.estimatePoseSingleMarkers(
+                corners, self.marker_size, self.camera_matrix, self.dist_coeffs
+            )
             if putAxis:
                 corners_int = np.array(corners).astype(np.int32)
                 self.draw_aruco_axis(image, corners_int, ids, rvecs, tvecs)
@@ -77,14 +98,16 @@ if __name__ == "__main__":
 
     camera_intrinsic = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
     camera_distCoeffs = np.array([k1, k2, p1, p2, k3])
-    marker_size = 0.03 # meter
+    marker_size = 0.03  # meter
 
-    det = ArucoDetector(cv2.aruco.DICT_4X4_50, camera_intrinsic, camera_distCoeffs, marker_size)
+    det = ArucoDetector(
+        cv2.aruco.DICT_4X4_50, camera_intrinsic, camera_distCoeffs, marker_size
+    )
 
     img, Rmats, rvecs, tvecs, ids, _ = det.detect(img)
-    print(Rmats) # 旋转
-    print(tvecs) # 平移
-    print(ids)   # aruco id
+    print(Rmats)  # 旋转
+    print(tvecs)  # 平移
+    print(ids)  # aruco id
 
     cv2.namedWindow("img")
     cv2.imshow("img", img)

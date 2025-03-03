@@ -14,7 +14,7 @@
       <default class="collision">
         <geom group="3" type="mesh"/>
       </default>
-    </default> 
+    </default>
     <!-- <default class="sensor_unit">
       <site size="0.0005 0.001 0.001" rgba="1 0 1 1" type="box"/>
     </default> -->
@@ -65,7 +65,7 @@
               <joint name="index_dip" range="-0.366 2.042" actuatorfrcrange="-5 5"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="visual"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="collision"/>
-              <include file="index_sensor_array.xml"/>  
+              <include file="index_sensor_array.xml"/>
             </body>
           </body>
         </body>
@@ -94,7 +94,7 @@
               <joint name="mid_dip" range="-0.366 2.042" actuatorfrcrange="-5 5"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="visual"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="collision"/>
-              <include file="mid_sensor_array.xml"/>  
+              <include file="mid_sensor_array.xml"/>
             </body>
           </body>
         </body>
@@ -123,7 +123,7 @@
               <joint name="ring_dip" range="-0.366 2.042" actuatorfrcrange="-5 5"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="visual"/>
               <geom pos="0.0132864 -0.00611424 0.0145" quat="0 1 0 0" mesh="fingertip" class="collision"/>
-              <include file="ring_sensor_array.xml"/>  
+              <include file="ring_sensor_array.xml"/>
             </body>
           </body>
         </body>
@@ -151,7 +151,7 @@
               <joint name="thumb_dip" range="-1.34 1.88" actuatorfrcrange="-5 5"/>
               <geom pos="0.0625595 0.0784597 0.0489929" quat="1 0 0 0" mesh="thumb_fingertip" class="visual"/>
               <geom pos="0.0625595 0.0784597 0.0489929" quat="1 0 0 0" mesh="thumb_fingertip" class="collision"/>
-              <include file="thumb_sensor_array.xml"/>  
+              <include file="thumb_sensor_array.xml"/>
             </body>
           </body>
         </body>
@@ -191,6 +191,6 @@
   </actuator>
 
   <sensor>
-    <include file="sensor_include.xml"/>  
+    <include file="sensor_include.xml"/>
   </sensor>
 </mujoco>

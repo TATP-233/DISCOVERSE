@@ -2,10 +2,10 @@ The robot has the following primitive actions, where each primitive action can t
 - ["approach", "obj_name", x]: move the gripper x meters above obj_name, where x is ranged from 0.0 to 0.15.
 - ["close_gripper", "obj_name"]: close the gripper to grasp the target object obj_name
 - ["open_gripper"]: open the gripper to let whatever the object the gripper is holding down
-- ["move_to", "obj_name"]: move the gripper to the target object obj_name so that the gripper is at a correct position where it can grasp obj_name successfully if it is closed. 
+- ["move_to", "obj_name"]: move the gripper to the target object obj_name so that the gripper is at a correct position where it can grasp obj_name successfully if it is closed.
 
-Please generate a full plan made up of the primitive actions step-by-step that helps the robot arm meets the goal requirements. 
-You need to properly select the parameter for each motion primitives based on the position and the rotation of each object given in the environment descriptions to avoid collisions and meanwhile ensure the gripper can successfull grasp the object. 
+Please generate a full plan made up of the primitive actions step-by-step that helps the robot arm meets the goal requirements.
+You need to properly select the parameter for each motion primitives based on the position and the rotation of each object given in the environment descriptions to avoid collisions and meanwhile ensure the gripper can successfull grasp the object.
 Please organize the output following the json format below:
 {
     "explaination": "To achieve the goal of ..., we need to ... The first step is to .... The second is to ..."

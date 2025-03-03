@@ -44,7 +44,7 @@
         <site name="laptop_cam_site" pos="-0.24 0 0" euler="0 0 3.1416" size='0.001' type='sphere'/>
       </body>
     </body>
-    
+
     <body name="cabinet" pos="0.915 0.58 0.01">
       <include file="../object/cabinet.xml"/>
     </body>
@@ -67,7 +67,7 @@
 
   <keyframe>
     <key name="ready" qpos='
-     -0.055 -0.547 0.905 1.599 -1.398 -1.599  0 0 
+     -0.055 -0.547 0.905 1.599 -1.398 -1.599  0 0
       1.33
       0 0'
       ctrl="-0.055 -0.547 0.905 1.599 -1.398 -1.599  0"

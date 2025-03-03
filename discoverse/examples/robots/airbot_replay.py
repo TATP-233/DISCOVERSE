@@ -10,18 +10,21 @@ from threading import Thread
 # pip install python-can
 import can
 
+
 class AirbotEncoder:
     """
     AIRBOT Encoder class to operate encoder
     """
 
-    def __init__(self,
-                 can_channel: str = "can0",
-                 id: int = 1,
-                 auto_control: bool = False,
-                 control_period: float = 0.01,
-                 normalize: bool = False,
-                 limits: tuple = (0, 2 * math.pi)):
+    def __init__(
+        self,
+        can_channel: str = "can0",
+        id: int = 1,
+        auto_control: bool = False,
+        control_period: float = 0.01,
+        normalize: bool = False,
+        limits: tuple = (0, 2 * math.pi),
+    ):
         """
         Initialize the AIRBOT Encoder class
 
@@ -32,17 +35,17 @@ class AirbotEncoder:
         control_period (float): The control period
         """
         self.can_channel = can_channel
-        self.bus = can.interface.Bus(channel=self.can_channel,
-                                     bustype="socketcan")
+        self.bus = can.interface.Bus(channel=self.can_channel, bustype="socketcan")
         self.id = id
-        self.pos = 0.
+        self.pos = 0.0
         self.normalize = normalize
         self.limits = limits
         self.thread = Thread(target=self.receive_messages)
         self.thread.start()
         if auto_control:
-            self.control_thread = Thread(target=self.control_loop,
-                                         args=(control_period,))
+            self.control_thread = Thread(
+                target=self.control_loop, args=(control_period,)
+            )
             self.control_thread.start()
 
     def receive_messages(self):
@@ -54,13 +57,16 @@ class AirbotEncoder:
                 # print(msg)
                 if msg.data[0] == 0x11:
                     pos_ptr = msg.data[2:6]
-                    pos = struct.unpack('<f',
-                                        bytes(pos_ptr))[0] / 360.0 * 2 * math.pi
+                    pos = struct.unpack("<f", bytes(pos_ptr))[0] / 360.0 * 2 * math.pi
                     if self.normalize:
                         pos = min(
                             1,
-                            max(0, (pos - self.limits[0]) /
-                                (self.limits[1] - self.limits[0])))
+                            max(
+                                0,
+                                (pos - self.limits[0])
+                                / (self.limits[1] - self.limits[0]),
+                            ),
+                        )
                     self.pos = pos
 
     def control_loop(self, control_period: float):
@@ -78,9 +84,7 @@ class AirbotEncoder:
         """
         Send a read request to the encoder
         """
-        msg = can.Message(arbitration_id=self.id,
-                          data=[0x11],
-                          is_extended_id=False)
+        msg = can.Message(arbitration_id=self.id, data=[0x11], is_extended_id=False)
         self.bus.send(msg)
 
 
@@ -89,11 +93,13 @@ class AirbotReplay:
     AIRBOT Replay class
     """
 
-    def __init__(self,
-                 can_channel: str = "can0",
-                 with_eef: bool = True,
-                 auto_control: bool = False,
-                 control_period: float = 0.01):
+    def __init__(
+        self,
+        can_channel: str = "can0",
+        with_eef: bool = True,
+        auto_control: bool = False,
+        control_period: float = 0.01,
+    ):
         """
         Initialize the AIRBOT Replay class
 
@@ -104,8 +110,7 @@ class AirbotReplay:
         control_period (float): The control period
         """
         self.can_channel = can_channel
-        self.bus = can.interface.Bus(channel=self.can_channel,
-                                     bustype="socketcan")
+        self.bus = can.interface.Bus(channel=self.can_channel, bustype="socketcan")
         self.with_eef = with_eef
         self.encoders = [
             AirbotEncoder(can_channel, i, auto_control, control_period)
@@ -113,12 +118,15 @@ class AirbotReplay:
         ]
         if with_eef:
             self.encoders.append(
-                AirbotEncoder(can_channel,
-                              7,
-                              auto_control,
-                              control_period,
-                              normalize=True,
-                              limits=(0, -2.76)))
+                AirbotEncoder(
+                    can_channel,
+                    7,
+                    auto_control,
+                    control_period,
+                    normalize=True,
+                    limits=(0, -2.76),
+                )
+            )
 
     def read_request(self):
         """
@@ -132,10 +140,7 @@ def main():
     """
     Main function
     """
-    replay = AirbotReplay("can0",
-                          with_eef=True,
-                          auto_control=True,
-                          control_period=0.1)
+    replay = AirbotReplay("can0", with_eef=True, auto_control=True, control_period=0.1)
     for _ in range(100):
         time.sleep(0.1)
         print([encoder.pos for encoder in replay.encoders])

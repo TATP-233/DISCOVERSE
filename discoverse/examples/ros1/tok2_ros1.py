@@ -9,9 +9,11 @@ from discoverse.utils.joy_stick_ros1 import JoyTeleopRos1
 
 from discoverse import DISCOVERSE_ASSERT_DIR
 
+
 class TOK2JOY(TOK2Base):
 
     target_control = np.zeros(16)
+
     def __init__(self, config: TOK2Cfg):
         self.arm_action = config.init_key
         self.tctr_base = self.target_control[:2]
@@ -29,31 +31,36 @@ class TOK2JOY(TOK2Base):
         self.teleop.reset()
 
     def teleopProcess(self):
-        linear_vel  = 1.0 * self.teleop.joy_cmd.axes[1]**2 * np.sign(self.teleop.joy_cmd.axes[1])
-        angular_vel = 2.0 * self.teleop.joy_cmd.axes[0]**2 * np.sign(self.teleop.joy_cmd.axes[0])
+        linear_vel = (
+            1.0
+            * self.teleop.joy_cmd.axes[1] ** 2
+            * np.sign(self.teleop.joy_cmd.axes[1])
+        )
+        angular_vel = (
+            2.0
+            * self.teleop.joy_cmd.axes[0] ** 2
+            * np.sign(self.teleop.joy_cmd.axes[0])
+        )
         self.base_move(linear_vel, angular_vel)
 
     def base_move(self, linear_vel, angular_vel):
         self.tctr_base[0] = linear_vel
         self.tctr_base[1] = angular_vel
 
+
 if __name__ == "__main__":
-    rospy.init_node('mmk2_mujoco_node', anonymous=True)
+    rospy.init_node("mmk2_mujoco_node", anonymous=True)
 
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 
     cfg = TOK2Cfg()
-    
+
     cfg.init_key = "pick"
     cfg.use_gaussian_renderer = False
     cfg.obs_rgb_cam_id = None
     cfg.obs_depth_cam_id = None
 
-    cfg.render_set     = {
-        "fps"    : 30,
-        "width"  : 1920,
-        "height" : 1080
-    }
+    cfg.render_set = {"fps": 30, "width": 1920, "height": 1080}
     cfg.mjcf_file_path = "mjcf/tok2_floor.xml"
 
     exec_node = TOK2JOY(cfg)

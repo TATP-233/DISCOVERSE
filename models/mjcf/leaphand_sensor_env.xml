@@ -19,7 +19,7 @@
     <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
   </asset>
 
-  <worldbody> 
+  <worldbody>
     <light pos="0 0.5 1" dir="0 -1 -1" directional="true"/>
     <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
 
@@ -56,8 +56,3 @@
   </keyframe>
 
 </mujoco>
-
-
-
-
-

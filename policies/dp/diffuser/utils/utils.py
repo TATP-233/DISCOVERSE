@@ -9,7 +9,7 @@ import torch.nn as nn
 
 
 def set_seed(seed: int):
-    """ Set seed for reproducibility """
+    """Set seed for reproducibility"""
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
@@ -18,8 +18,10 @@ def set_seed(seed: int):
     torch.cuda.manual_seed_all(seed)
 
 
-def at_least_ndim(x: Union[np.ndarray, torch.Tensor, int, float], ndim: int, pad: int = 0):
-    """ Add dimensions to the input tensor to make it at least ndim-dimensional.
+def at_least_ndim(
+    x: Union[np.ndarray, torch.Tensor, int, float], ndim: int, pad: int = 0
+):
+    """Add dimensions to the input tensor to make it at least ndim-dimensional.
 
     Args:
         x: Union[np.ndarray, torch.Tensor, int, float], input tensor
@@ -114,14 +116,18 @@ def inverse_linear_noise_schedule(
 ):
     assert (logSNR is not None) or (alpha is not None and sigma is not None)
     lmbda = (alpha / sigma).log() if logSNR is None else logSNR
-    t_diffusion = (2 * (1 + (-2 * lmbda).exp()).log() /
-                   (beta0 + (beta0**2 + 2 * (beta1 - beta0) * (1 + (-2 * lmbda).exp()).log())))
+    t_diffusion = (
+        2
+        * (1 + (-2 * lmbda).exp()).log()
+        / (beta0 + (beta0**2 + 2 * (beta1 - beta0) * (1 + (-2 * lmbda).exp()).log()))
+    )
     return t_diffusion
 
 
 def cosine_noise_schedule(t_diffusion: torch.Tensor, s: float = 0.008):
-    alpha = (np.pi / 2.0 * ((t_diffusion).clip(0., 0.9946) + s) / (1 + s)).cos() / np.cos(
-        np.pi / 2.0 * s / (1 + s))
+    alpha = (
+        np.pi / 2.0 * ((t_diffusion).clip(0.0, 0.9946) + s) / (1 + s)
+    ).cos() / np.cos(np.pi / 2.0 * s / (1 + s))
     sigma = (1.0 - alpha**2).sqrt()
     return alpha, sigma
 
@@ -135,9 +141,17 @@ def inverse_cosine_noise_schedule(
     assert (logSNR is not None) or (alpha is not None and sigma is not None)
     lmbda = (alpha / sigma).log() if logSNR is None else logSNR
     t_diffusion = (
-        2 * (1 + s) / np.pi * torch.arccos((
-            -0.5 * (1 + (-2 * lmbda).exp()).log()
-            + np.log(np.cos(np.pi * s / 2 / (s + 1)))).exp()) - s)
+        2
+        * (1 + s)
+        / np.pi
+        * torch.arccos(
+            (
+                -0.5 * (1 + (-2 * lmbda).exp()).log()
+                + np.log(np.cos(np.pi * s / 2 / (s + 1)))
+            ).exp()
+        )
+        - s
+    )
     return t_diffusion
 
 
@@ -166,7 +180,8 @@ def uniform_sampling_step_schedule_continuous(trange=None, sampling_steps: int =
 
 def quad_sampling_step_schedule(T: int = 1000, sampling_steps: int = 10, n: int = 1.5):
     schedule = (T - 1) * (
-        torch.linspace(0, 1, sampling_steps + 1, dtype=torch.float32) ** n)
+        torch.linspace(0, 1, sampling_steps + 1, dtype=torch.float32) ** n
+    )
     return schedule.to(torch.long)
 
 
@@ -185,7 +200,10 @@ def cat_cos_sampling_step_schedule(
     T: int = 1000, sampling_steps: int = 10, n: int = 2.0
 ):
     idx = torch.linspace(0, 1, sampling_steps + 1, dtype=torch.float32)
-    idx = (0.5 * (2 * (idx > 0.5) - 1) * torch.sin(np.pi * torch.abs(idx - 0.5)) ** (1 / n) + 0.5)
+    idx = (
+        0.5 * (2 * (idx > 0.5) - 1) * torch.sin(np.pi * torch.abs(idx - 0.5)) ** (1 / n)
+        + 0.5
+    )
     schedule = (T - 1) * idx
     return schedule.to(torch.long)
 
@@ -196,7 +214,10 @@ def cat_cos_sampling_step_schedule_continuous(
     if trange is None:
         trange = [1e-3, 1.0]
     idx = torch.linspace(0, 1, sampling_steps + 1, dtype=torch.float32)
-    idx = (0.5 * (2 * (idx > 0.5) - 1) * torch.sin(np.pi * torch.abs(idx - 0.5)) ** (1 / n) + 0.5)
+    idx = (
+        0.5 * (2 * (idx > 0.5) - 1) * torch.sin(np.pi * torch.abs(idx - 0.5)) ** (1 / n)
+        + 0.5
+    )
     schedule = (trange[1] - trange[0]) * idx + trange[0]
     return schedule
 
@@ -272,10 +293,11 @@ class UntrainablePositionalEmbedding(nn.Module):
 
     def forward(self, x):
         freqs = torch.arange(
-            start=0, end=self.dim // 2, dtype=torch.float32, device=x.device)
+            start=0, end=self.dim // 2, dtype=torch.float32, device=x.device
+        )
         freqs = freqs / (self.dim // 2 - (1 if self.endpoint else 0))
         freqs = (1 / self.max_positions) ** freqs
-        x = torch.einsum('...i,j->...ij', x, freqs.to(x.dtype))
+        x = torch.einsum("...i,j->...ij", x, freqs.to(x.dtype))
         # x = x.ger(freqs.to(x.dtype))
         x = torch.cat([x.cos(), x.sin()], dim=1)
         return x
@@ -293,7 +315,7 @@ class SinusoidalEmbedding(nn.Module):
         half_dim = self.dim // 2
         emb = math.log(10000) / (half_dim - 1)
         emb = torch.exp(torch.arange(half_dim, device=device) * -emb)
-        emb = torch.einsum('...i,j->...ij', x, emb.to(x.dtype))
+        emb = torch.einsum("...i,j->...ij", x, emb.to(x.dtype))
         # emb = x[:, None] * emb[None, :]
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
@@ -310,7 +332,7 @@ class FourierEmbedding(nn.Module):
         )
 
     def forward(self, x: torch.Tensor):
-        emb = torch.einsum('...i,j->...ij', x, (2 * np.pi * self.freqs).to(x.dtype))
+        emb = torch.einsum("...i,j->...ij", x, (2 * np.pi * self.freqs).to(x.dtype))
         # emb = x.ger((2 * np.pi * self.freqs).to(x.dtype))
         emb = torch.cat([emb.cos(), emb.sin()], -1)
         return self.mlp(emb)
@@ -322,7 +344,7 @@ class UntrainableFourierEmbedding(nn.Module):
         self.freqs = nn.Parameter(torch.randn(dim // 2) * scale, requires_grad=False)
 
     def forward(self, x: torch.Tensor):
-        emb = torch.einsum('...i,j->...ij', x, (2 * np.pi * self.freqs).to(x.dtype))
+        emb = torch.einsum("...i,j->...ij", x, (2 * np.pi * self.freqs).to(x.dtype))
         # emb = x.ger((2 * np.pi * self.freqs).to(x.dtype))
         emb = torch.cat([emb.cos(), emb.sin()], -1)
         return emb
@@ -463,8 +485,7 @@ class TrainModules:
 
 
 def dict_apply(
-        x: Dict[str, torch.Tensor],
-        func: Callable[[torch.Tensor], torch.Tensor]
+    x: Dict[str, torch.Tensor], func: Callable[[torch.Tensor], torch.Tensor]
 ) -> Dict[str, torch.Tensor]:
     result = dict()
     for key, value in x.items():

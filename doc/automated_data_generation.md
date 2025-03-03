@@ -73,4 +73,4 @@
      python discoverse/examples/tasks_mmk2/gendata_from_json.py --task_name plate_coffeecup --scheme_json /path/to/your/scheme_plate_coffeecup.json --vis
      ```
 
-     
+

@@ -1,14 +1,14 @@
 <mujoco model="urdf_right_2025_1_17">
   <compiler angle="radian"/>
-  
+
   <option solver="Newton" tolerance="1e-6" timestep=".001" integrator="RK4"/>
-  
+
   <visual>
     <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
     <rgba haze="0.15 0.25 0.35 1"/>
     <global offwidth="1920" offheight="1080" azimuth="-35" elevation="-50" fovy="8"/>
   </visual>
-  
+
   <asset>
     <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
     <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
@@ -44,7 +44,7 @@
     <body name="base_link" quat="0.707388 0 0 0.706825">
       <include file="convex_dec_include/base_link_geom_include.xml"/>
     </body>
-    
+
     <body name="palm_link" pos="0 0 0.041" quat="0.707388 0 0 0.706825">
       <include file="convex_dec_include/palm_Link_geom_include.xml"/>
       <include file="sensor_include/palm_site_include.xml"/>
@@ -110,7 +110,7 @@
       <inertial pos="-0.00240481 0.0122572 -0.00664924" quat="0.472873 0.525725 -0.472833 0.52577" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
       <joint name="right_ring_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-10 10"/>
       <include file="convex_dec_include/right_ring_1_geom_include.xml"/>
-      
+
       <body name="right_ring_2" pos="-0.0031431 0.032624 -0.00055">
         <inertial pos="0.000666831 0.0256973 -0.00609277" quat="0.703985 0.703327 0.0680113 0.0714909" mass="0.00968594" diaginertia="2.34184e-06 2.30201e-06 3.04584e-07"/>
         <joint name="right_ring_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10"/>
@@ -138,7 +138,7 @@
   <sensor>
     <include file="sensor_include/palm_touch_include.xml"/>
   </sensor>
-  
+
   <keyframe>
     <key name="0" qpos='0 0 0 0 0 0 0 0 0 0 0 0'/>
     <key name="1" qpos='0.322 0.452629 0.584079 0.390745 0.0807463 0.0882835 0.0808664 0.0895169 1.49839 1.50633 1.50595 1.51428'/>

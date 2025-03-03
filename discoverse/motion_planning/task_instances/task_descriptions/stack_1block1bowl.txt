@@ -1,3 +1,2 @@
-The tabletop environment has a robot arm equipped with a gripper, a pink bowl (obj_name: bowl_pink), a green block (obj_name: block_green). 
+The tabletop environment has a robot arm equipped with a gripper, a pink bowl (obj_name: bowl_pink), a green block (obj_name: block_green).
 The goal is to move the block into the bowl.
-

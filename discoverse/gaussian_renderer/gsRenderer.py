@@ -9,8 +9,9 @@ from discoverse.gaussian_renderer.renderer_cuda import CUDARenderer
 
 from discoverse import DISCOVERSE_ASSERT_DIR
 
+
 class GSRenderer:
-    def __init__(self, models_dict:dict, render_width=1920, render_height=1080):
+    def __init__(self, models_dict: dict, render_width=1920, render_height=1080):
         self.width = render_width
         self.height = render_height
 
@@ -18,13 +19,13 @@ class GSRenderer:
 
         self.update_gauss_data = False
 
-        self.scale_modifier = 1.
+        self.scale_modifier = 1.0
 
         self.renderer = CUDARenderer(self.camera.w, self.camera.h)
         self.camera_tran = np.zeros(3)
         self.camera_quat = np.zeros(4)
 
-        self.gaussians_all:dict[util_gau.GaussianData] = {}
+        self.gaussians_all: dict[util_gau.GaussianData] = {}
         self.gaussians_idx = {}
         self.gaussians_size = {}
         idx_sum = 0
@@ -36,7 +37,9 @@ class GSRenderer:
         gs = util_gau.load_ply(data_path)
         if "background_env" in models_dict.keys():
             bgenv_key = "background_env"
-            bgenv_gs = util_gau.load_ply(Path(os.path.join(gs_model_dir, models_dict[bgenv_key])))
+            bgenv_gs = util_gau.load_ply(
+                Path(os.path.join(gs_model_dir, models_dict[bgenv_key]))
+            )
             gs.xyz = np.concatenate([gs.xyz, bgenv_gs.xyz], axis=0)
             gs.rot = np.concatenate([gs.rot, bgenv_gs.rot], axis=0)
             gs.scale = np.concatenate([gs.scale, bgenv_gs.scale], axis=0)
@@ -79,15 +82,32 @@ class GSRenderer:
         self.renderer.set_render_reso(self.camera.w, self.camera.h)
 
     def set_obj_pose(self, obj_name, trans, quat_wzyx):
-        if not ((self.gaussians_all[obj_name].origin_rot == quat_wzyx).all() and (self.gaussians_all[obj_name].origin_xyz == trans).all()):
+        if not (
+            (self.gaussians_all[obj_name].origin_rot == quat_wzyx).all()
+            and (self.gaussians_all[obj_name].origin_xyz == trans).all()
+        ):
             self.update_gauss_data = True
             self.gaussians_all[obj_name].origin_rot = quat_wzyx.copy()
             self.gaussians_all[obj_name].origin_xyz = trans.copy()
-            self.renderer.gau_xyz_all_cu[self.gaussians_idx[obj_name]:self.gaussians_idx[obj_name]+self.gaussians_size[obj_name],:] = torch.from_numpy(trans).cuda().requires_grad_(False)
-            self.renderer.gau_rot_all_cu[self.gaussians_idx[obj_name]:self.gaussians_idx[obj_name]+self.gaussians_size[obj_name],:] = torch.from_numpy(quat_wzyx).cuda().requires_grad_(False)
+            self.renderer.gau_xyz_all_cu[
+                self.gaussians_idx[obj_name] : self.gaussians_idx[obj_name]
+                + self.gaussians_size[obj_name],
+                :,
+            ] = (
+                torch.from_numpy(trans).cuda().requires_grad_(False)
+            )
+            self.renderer.gau_rot_all_cu[
+                self.gaussians_idx[obj_name] : self.gaussians_idx[obj_name]
+                + self.gaussians_size[obj_name],
+                :,
+            ] = (
+                torch.from_numpy(quat_wzyx).cuda().requires_grad_(False)
+            )
 
     def set_camera_pose(self, trans, quat_xyzw):
-        if not ((self.camera_tran == trans).all() and (self.camera_quat == quat_xyzw).all()):
+        if not (
+            (self.camera_tran == trans).all() and (self.camera_quat == quat_xyzw).all()
+        ):
             self.camera_tran[:] = trans[:]
             self.camera_quat[:] = quat_xyzw[:]
             rmat = Rotation.from_quat(quat_xyzw).as_matrix()

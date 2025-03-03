@@ -63,7 +63,7 @@
       <geom material="airbot_logo" size="0.0625 0.0159 0.0002" type="box" contype="0" conaffinity="0"/>
     </body>
     <site pos="0.0 0.0 0.0" quat="4.3297802811774664e-17 0.7071067811865476 -0.7071067811865475 -4.329780281177466e-17" size="0.001" type="sphere"/>
-    
+
     <body name="link" pos="0 0 0">
 
     </body>

@@ -20,4 +20,3 @@ python3 airbot_play_grpc_server.py
 (terminal 2)
 python3 airbot_play_grpc_client.py
 ```
-

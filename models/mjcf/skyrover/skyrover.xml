@@ -1,7 +1,7 @@
 <mujocoincludes>
 
     <!-- Stretch link -->
-    <geom class="skyrover_mesh" mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1"/> 
+    <geom class="skyrover_mesh" mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1"/>
     <joint armature="0" damping="0" limited="false" margin="0.01" name="skyrover_root" pos="0 0 0" type="free"/>
 
     <!-- Base link -->
@@ -17,13 +17,13 @@
         <joint name="skyrover_folder1_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
         <!-- Front left wheel -->
-        <body name="skyrover_wheel2_link" pos="0.135 0 0.06"> 
+        <body name="skyrover_wheel2_link" pos="0.135 0 0.06">
           <geom class="skyrover_mesh" mesh="wheel2_link" pos="0 0 -0.065" euler="0 90 90" rgba="0.44 0.5 0.39 1.0" mass=".05" friction="1 0.1 0.01"/>
           <joint name="skyrover_wheel2_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
         </body>
 
           <!-- Back left wheel -->
-        <body name="skyrover_wheel4_link" pos="-0.135 0 0.06"> 
+        <body name="skyrover_wheel4_link" pos="-0.135 0 0.06">
           <geom class="skyrover_mesh" mesh="wheel4_link" pos="0 0 -0.065" euler="0 90 -90" mass=".05" friction="1 0.1 0.01"/>
           <joint name="skyrover_wheel4_joint" type="hinge" pos="0 0 -0.065" axis="0 0 1" damping="0.01"/>
         </body>
@@ -44,7 +44,7 @@
       </body><!-- Left folder ends -->
 
       <!-- Right folder -->
-      <body name="skyrover_folder2_link" pos="0 -0.135 0.08"> 
+      <body name="skyrover_folder2_link" pos="0 -0.135 0.08">
         <geom class="skyrover_mesh" mesh="folder2_link" pos="0 0 0" euler="0 0 0" mass=".25"/>
         <joint name="skyrover_folder2_joint" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
@@ -61,14 +61,14 @@
         </body>
 
         <!-- Front right propeller (CW) -->
-        <body name="skyrover_rotor1_link" pos="0.135 0 -0.04"> 
+        <body name="skyrover_rotor1_link" pos="0.135 0 -0.04">
           <geom class="skyrover_mesh" mesh="rotor1_link" pos="0 0 0" euler="0 0 90" rgba="0.44 0.5 0.39 1.0" mass=".05"/>
           <joint name="skyrover_rotor1_joint" type="hinge" pos="0 0 0" axis="0 0 -1" damping="0.01"/>
         </body>
         <site name="skyrover_thrust_fr" type="cylinder" pos="0.135 0 -0.04" euler="0 0 90"/>
 
         <!-- Back right propeller (CCW) -->
-        <body name="skyrover_rotor3_link" pos="-0.135 0 -0.04"> 
+        <body name="skyrover_rotor3_link" pos="-0.135 0 -0.04">
           <geom class="skyrover_mesh" mesh="rotor3_link" pos="0 0 0" euler="0 0 90" mass=".05"/>
           <joint name="skyrover_rotor3_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
         </body>
@@ -76,4 +76,4 @@
       </body><!-- Right folder ends -->
     </body><!-- Base link ends -->
 
-</mujocoincludes> 
+</mujocoincludes>

@@ -14,19 +14,19 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
     curl \
     software-properties-common \
     libgl1-mesa-dev \
-    libglew-dev \ 
-    libegl1-mesa-dev \ 
-    libgles2-mesa-dev \ 
+    libglew-dev \
+    libegl1-mesa-dev \
+    libgles2-mesa-dev \
     libnvidia-egl-wayland1 \
     libosmesa6-dev \
-    xvfb \ 
-    ffmpeg \ 
-    libx11-6 \ 
-    libxext6 \ 
-    libglfw3-dev \ 
-    libglu1-mesa-dev \ 
+    xvfb \
+    ffmpeg \
+    libx11-6 \
+    libxext6 \
+    libglfw3-dev \
+    libglu1-mesa-dev \
     libglm-dev \
-    pkg-config \ 
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Add deadsnakes PPA to install Python 3.9
@@ -113,10 +113,10 @@ python3 -c "import cv2; print(f'OpenCV Version: {cv2.__version__}')"
 python3 -c "import mujoco; print(f'Mujoco Version: {mujoco.__version__}')"
 EOF
 
-RUN chmod +x /usr/local/bin/check-versions 
+RUN chmod +x /usr/local/bin/check-versions
 
 RUN mkdir -p /usr/share/glvnd/egl_vendor.d/ && \
    echo '{\n    "file_format_version" : "1.0.0",\n    "ICD" : {\n        "library_path" : "libEGL_nvidia.so.0"\n    }\n}' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
 
 # Add health check
-HEALTHCHECK CMD python3 -c "import discoverse, torch, numpy, cv2, mujoco; print('All dependencies installed successfully')" 
+HEALTHCHECK CMD python3 -c "import discoverse, torch, numpy, cv2, mujoco; print('All dependencies installed successfully')"

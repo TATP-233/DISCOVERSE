@@ -84,7 +84,7 @@
                     <body name="base_link" pos="0 0 0" quat="0.707388 0 0 0.706825">
                       <include file="hand_mjcf/convex_dec_include/base_link_geom_include.xml"/>
                     </body>
-                    
+
                     <body name="palm_link" pos="0 0 0.041" quat="0.707388 0 0 0.706825">
                       <body pos="-0.105 0 -0.12" euler="3.1416 0 1.5708">
                         <camera name="eye" euler="-0.5236 0 0" fovy="72.5376526571421"/>
@@ -153,7 +153,7 @@
                       <inertial pos="-0.00240481 0.0122572 -0.00664924" quat="0.472873 0.525725 -0.472833 0.52577" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
                       <joint name="right_ring_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-10 10"/>
                       <include file="hand_mjcf/convex_dec_include/right_ring_1_geom_include.xml"/>
-                      
+
                       <body name="right_ring_2" pos="-0.0031431 0.032624 -0.00055">
                         <inertial pos="0.000666831 0.0256973 -0.00609277" quat="0.703985 0.703327 0.0680113 0.0714909" mass="0.00968594" diaginertia="2.34184e-06 2.30201e-06 3.04584e-07"/>
                         <joint name="right_ring_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10"/>
@@ -181,7 +181,7 @@
       </body>
     </body>
 
-    
+
 
     <!-- ======= bridge1 ======= -->
     <body name="bridge1" pos="-0.03 0.42 0.8" euler="1.5707963 0 0">
@@ -261,7 +261,7 @@
       <geom size="0.02 0.02 0.39" pos=" 0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
       <geom size="0.02 0.02 0.39" pos="-0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
     </body>
-    
+
   </worldbody>
 
   <actuator>
@@ -271,7 +271,7 @@
     <position name="joint4" ctrllimited="true" ctrlrange="-2.96 2.96"  joint="joint4" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
     <position name="joint5" ctrllimited="true" ctrlrange="-1.74 1.74"  joint="joint5" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
     <position name="joint6" ctrllimited="true" ctrlrange="-3.14 3.14"  joint="joint6" kp="100" user="1" forcelimited="true" forcerange="-300 300"/>
-  
+
     <!-- Thumb -->
     <position name="right_thumb_1_joint" joint="right_thumb_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
     <position name="right_thumb_2_joint" joint="right_thumb_2_joint" kp="2" dampratio="0.1" inheritrange="1"/>
@@ -351,7 +351,7 @@
   <keyframe>
     <key name="0" qpos='5.27561e-16 0.001116 -0.00415415 -4.54375e-05 -1.34883e-07 -0.000159523 0.00508523 -0.000911625 -0.0124014 -0.00448687 0.0044232 0.0559355 0.00491804 0.0572803 0.00442206 0.0540305 0.00320973 0.0472641 -0.0299996 0.42 0.799873 0.707096 0.707118 -6.51912e-05 6.56395e-05 -0.0300162 0.389996 0.859745 0.707141 -0.707072 -0.000130785 -0.000130642 0.09 0.405 0.829989 0.707107 0.707107 2.42582e-15 2.42536e-15 -0.09 0.405 0.829989 0.707107 0.707107 1.1971e-14 1.19713e-14 -0.08 0.345 0.812489 1 8.32275e-17 -1.3219e-22 -1.6554e-21 -6.94899e-21 0.345 0.812489 1 8.4087e-17 -7.48416e-21 8.39024e-22 0.08 0.345 0.812489 1 8.32275e-17 -1.3219e-22 -1.6554e-21 -0.08 0.285 0.812489 1 8.66285e-17 -3.07748e-21 -8.86637e-22 -4.74118e-21 0.285 0.812489 1 8.5942e-17 -1.45313e-20 -3.67484e-22 0.08 0.285 0.812489 1 8.66285e-17 -3.07748e-21 -8.86637e-22'/>
   </keyframe>
-  
+
 
 
 

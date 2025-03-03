@@ -14,12 +14,12 @@ class BaseClassifier:
     """
 
     def __init__(
-            self,
-            nn_classifier: BaseNNClassifier,
-            ema_rate: float = 0.995,
-            grad_clip_norm: Optional[float] = None,
-            optim_params: Optional[dict] = None,
-            device: str = "cpu",
+        self,
+        nn_classifier: BaseNNClassifier,
+        ema_rate: float = 0.995,
+        grad_clip_norm: Optional[float] = None,
+        optim_params: Optional[dict] = None,
+        device: str = "cpu",
     ):
         if optim_params is None:
             optim_params = {"lr": 2e-4, "weight_decay": 1e-4}
@@ -39,17 +39,25 @@ class BaseClassifier:
     def ema_update(self):
         with torch.no_grad():
             for p, p_ema in zip(self.model.parameters(), self.model_ema.parameters()):
-                p_ema.data.mul_(self.ema_rate).add_(p.data, alpha=1. - self.ema_rate)
+                p_ema.data.mul_(self.ema_rate).add_(p.data, alpha=1.0 - self.ema_rate)
 
     def loss(self, x: torch.Tensor, noise: torch.Tensor, y: torch.Tensor):
         raise NotImplementedError
 
-    def update(self, x: torch.Tensor, noise: torch.Tensor, y: torch.Tensor, update_ema: bool = True):
+    def update(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        y: torch.Tensor,
+        update_ema: bool = True,
+    ):
         loss = self.loss(x, noise, y)
         self.optim.zero_grad()
         loss.backward()
         if isinstance(self.grad_clip_norm, float):
-            grad_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip_norm).item()
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                self.model.parameters(), self.grad_clip_norm
+            ).item()
         else:
             grad_norm = None
         self.optim.step()
@@ -79,13 +87,15 @@ class BaseClassifier:
         return logp.detach(), grad.detach()
 
     def save(self, path):
-        torch.save({
-            "model": self.model.state_dict(),
-            "model_ema": self.model_ema.state_dict()
-        }, path)
+        torch.save(
+            {
+                "model": self.model.state_dict(),
+                "model_ema": self.model_ema.state_dict(),
+            },
+            path,
+        )
 
     def load(self, path):
         checkpoint = torch.load(path, map_location=self.device)
         self.model.load_state_dict(checkpoint["model"])
         self.model_ema.load_state_dict(checkpoint["model_ema"])
-

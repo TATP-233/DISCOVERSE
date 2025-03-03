@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # cfg.gs_model_dict["background_env"] = "scene/riverside1/environment.ply"
     cfg.gs_model_dict["background"] = "scene/solid_background/white.ply"
 
-    cfg.timestep = 1/240
+    cfg.timestep = 1 / 240
     cfg.decimation = 4
     cfg.render_set["fps"] = 60
 
@@ -60,4 +60,3 @@ if __name__ == "__main__":
 
     #     depth_lst.append(exec_node.obs["depth"][0].copy())
     #     rgb_lst.append(exec_node.obs["img"][0].copy())
-

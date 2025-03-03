@@ -25,9 +25,8 @@ class FCBlock(nn.Module):
         super().__init__()
         # one layer of non-linearities (just a useful building block to use below)
         self.model = nn.Sequential(
-            nn.Linear(in_feats, out_feats),
-            GroupNorm1d(out_feats, 8, 4),
-            nn.GELU())
+            nn.Linear(in_feats, out_feats), GroupNorm1d(out_feats, 8, 4), nn.GELU()
+        )
 
     def forward(self, x):
         return self.model(x)
@@ -35,26 +34,38 @@ class FCBlock(nn.Module):
 
 class PearceMlp(BaseNNDiffusion):
     def __init__(
-            self, act_dim: int, To: int = 1, timestep_emb_type: str = "positional",
-            emb_dim: int = 128, hidden_dim: int = 512, timestep_emb_params: Optional[dict] = None,
+        self,
+        act_dim: int,
+        To: int = 1,
+        timestep_emb_type: str = "positional",
+        emb_dim: int = 128,
+        hidden_dim: int = 512,
+        timestep_emb_params: Optional[dict] = None,
     ):
         super().__init__(emb_dim, timestep_emb_type, timestep_emb_params)
 
         self.act_emb = nn.Sequential(
-            nn.Linear(act_dim, emb_dim), nn.LeakyReLU(), nn.Linear(emb_dim, emb_dim))
+            nn.Linear(act_dim, emb_dim), nn.LeakyReLU(), nn.Linear(emb_dim, emb_dim)
+        )
 
-        self.fcs = nn.ModuleList([
-            FCBlock(emb_dim * (2 + To), hidden_dim),
-            FCBlock(hidden_dim + act_dim + 1, hidden_dim),
-            FCBlock(hidden_dim + act_dim + 1, hidden_dim),
-            nn.Linear(hidden_dim + act_dim + 1, act_dim)])
+        self.fcs = nn.ModuleList(
+            [
+                FCBlock(emb_dim * (2 + To), hidden_dim),
+                FCBlock(hidden_dim + act_dim + 1, hidden_dim),
+                FCBlock(hidden_dim + act_dim + 1, hidden_dim),
+                nn.Linear(hidden_dim + act_dim + 1, act_dim),
+            ]
+        )
 
         self.To = To
         self.emb_dim = emb_dim
 
-    def forward(self,
-                x: torch.Tensor, noise: torch.Tensor,
-                condition: Optional[torch.Tensor] = None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        condition: Optional[torch.Tensor] = None,
+    ):
         """
         Input:
             x:          (b, act_dim)

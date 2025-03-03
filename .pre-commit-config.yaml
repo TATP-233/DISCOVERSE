@@ -1,0 +1,24 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
+    - id: check-json
+    - id: check-xml
+    - id: pretty-format-json
+- repo: https://github.com/psf/black
+  rev: 22.10.0
+  hooks:
+    - id: black
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: master
+  hooks:
+    - id: clang-format
+      args: [ "--style=file:./.clang-format", -i]
+- repo: https://github.com/cheshirekow/cmake-format-precommit
+  rev: v0.6.10
+  hooks:
+  - id: cmake-format
+  - id: cmake-lint

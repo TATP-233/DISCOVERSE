@@ -75,7 +75,7 @@
                     <body name="base_link" pos="0 0 0" quat="0.707388 0 0 0.706825">
                       <include file="hand_mjcf/convex_dec_include/base_link_geom_include.xml"/>
                     </body>
-                    
+
                     <body name="palm_link" pos="0 0 0.041" quat="0.707388 0 0 0.706825">
                       <include file="hand_mjcf/convex_dec_include/palm_Link_geom_include.xml"/>
                       <include file="hand_mjcf/sensor_include/palm_site_include.xml"/>
@@ -141,7 +141,7 @@
                       <inertial pos="-0.00240481 0.0122572 -0.00664924" quat="0.472873 0.525725 -0.472833 0.52577" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
                       <joint name="right_ring_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-10 10"/>
                       <include file="hand_mjcf/convex_dec_include/right_ring_1_geom_include.xml"/>
-                      
+
                       <body name="right_ring_2" pos="-0.0031431 0.032624 -0.00055">
                         <inertial pos="0.000666831 0.0256973 -0.00609277" quat="0.703985 0.703327 0.0680113 0.0714909" mass="0.00968594" diaginertia="2.34184e-06 2.30201e-06 3.04584e-07"/>
                         <joint name="right_ring_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10"/>
@@ -169,7 +169,7 @@
       </body>
     </body>
 
-    
+
 
     <!-- ======= TABLE write ======= -->
     <body name="table-a" pos="0 0 0">
@@ -188,7 +188,7 @@
     <position name="joint4" ctrllimited="true" ctrlrange="-2.96 2.96"  joint="joint4" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
     <position name="joint5" ctrllimited="true" ctrlrange="-1.74 1.74"  joint="joint5" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
     <position name="joint6" ctrllimited="true" ctrlrange="-3.14 3.14"  joint="joint6" kp="100" user="1" forcelimited="true" forcerange="-300 300"/>
-  
+
     <!-- Thumb -->
     <position name="right_thumb_1_joint" joint="right_thumb_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
     <position name="right_thumb_2_joint" joint="right_thumb_2_joint" kp="2" dampratio="0.1" inheritrange="1"/>
@@ -268,7 +268,7 @@
   <keyframe>
     <key name="init" qpos='-0.6819 -0.48601 1.44344 -0.414428 0.452438 0.470939 0.466508 0.493995 0.463505 0.375305 0.54805 0.593241 0.580446 0.62519 0.851218 0.878289 0.914336 0.936303'/>
   </keyframe>
-  
+
 
 
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com)
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="urdf_right_2025_1_17">
-    
+
    <link name="world"/>
 
     <joint name="R_hand_base_joint" type="fixed">
@@ -14,7 +14,7 @@
       <parent link="world"/>
       <child link="base_link"/>
     </joint>
-  
+
   <link
     name="base_link">
     <inertial>
@@ -889,6 +889,6 @@
     <mimic
         joint="right_little_1_joint"
         multiplier="1.05"
-        offset="0" />  
+        offset="0" />
   </joint>
 </robot>

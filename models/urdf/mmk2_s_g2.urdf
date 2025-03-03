@@ -429,7 +429,7 @@
     <parent link="left_link6"/>
     <child link="left_flange"/>
   </joint>
-  
+
   <link name="left_eef_base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.046303 -9.8611E-06 -1.4675E-05"/>
@@ -537,7 +537,7 @@
     <parent link="left_eef_base_link"/>
     <child link="left_end_link"/>
   </joint>
-  
+
   <link name="right_flange">
     <visual>
       <origin rpy="0. -1.5707964 0. " xyz="0.0040002 0.0219004 -0.0221024"/>
@@ -753,7 +753,7 @@
     <parent link="right_link6"/>
     <child link="right_flange"/>
   </joint>
-  
+
   <link name="right_eef_base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.046303 -9.8611E-06 -1.4675E-05"/>
@@ -861,7 +861,7 @@
     <parent link="right_eef_base_link"/>
     <child link="right_end_link"/>
   </joint>
-  
+
   <link name="underboard_link">
     <inertial>
       <origin rpy="0 0 0" xyz="-2.4003E-05 0.022863 0.0044812"/>

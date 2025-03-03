@@ -54,7 +54,7 @@ python3 policies/train.py act -tn <task_name>
 ### 依赖安装
 
 ```bash
-pip install -r policies/dp/requirements.txt 
+pip install -r policies/dp/requirements.txt
 cd policies/dp
 pip install -e .
 ```

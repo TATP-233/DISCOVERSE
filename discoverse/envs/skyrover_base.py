@@ -5,20 +5,17 @@ from discoverse.envs import SimulatorBase
 from discoverse.utils.base_config import BaseConfig
 from scipy.spatial.transform import Rotation
 
+
 class SkyRoverCfg(BaseConfig):
     mjcf_file_path = "mjcf/skyrover_floor.xml"
-    timestep       = 0.0025
-    decimation     = 4
-    sync           = True
-    headless       = False
-    render_set     = {
-        "fps"    : 30,
-        "width"  : 1920,
-        "height" : 1080 
-    }
-    obs_rgb_cam_id   = None
+    timestep = 0.0025
+    decimation = 4
+    sync = True
+    headless = False
+    render_set = {"fps": 30, "width": 1920, "height": 1080}
+    obs_rgb_cam_id = None
     obs_depth_cam_id = None
-    rb_link_list   = [
+    rb_link_list = [
         "skyrover",
         "skyrover_base_link",
         "skyrover_folder1_link",
@@ -32,23 +29,23 @@ class SkyRoverCfg(BaseConfig):
         "skyrover_rotor3_link",
         "skyrover_rotor4_link",
     ]
-    obj_list       = []
+    obj_list = []
     use_gaussian_renderer = False
-    gs_model_dict  = {
-        "skyrover"              :   "skyrover/stretch_link.ply",
-        "skyrover_base_link"    :   "skyrover/skyrover_base.ply",
-        "skyrover_folder1_link" :   "skyrover/folder1_link.ply",
-        "skyrover_folder2_link" :   "skyrover/folder2_link.ply",
-        "skyrover_wheel2_link"  :   "skyrover/wheel1_2.ply",
-        "skyrover_wheel1_link"  :   "skyrover/wheel1_2.ply",
-        "skyrover_wheel3_link"  :   "skyrover/wheel3_4.ply",
-        "skyrover_wheel4_link"  :   "skyrover/wheel3_4.ply",
-        "skyrover_rotor2_link"  :   "skyrover/rotor2_4.ply",
-        "skyrover_rotor1_link"  :   "skyrover/rotor1_3.ply",
-        "skyrover_rotor3_link"  :   "skyrover/rotor1_3.ply",
-        "skyrover_rotor4_link"  :   "skyrover/rotor2_4.ply",    
-        
+    gs_model_dict = {
+        "skyrover": "skyrover/stretch_link.ply",
+        "skyrover_base_link": "skyrover/skyrover_base.ply",
+        "skyrover_folder1_link": "skyrover/folder1_link.ply",
+        "skyrover_folder2_link": "skyrover/folder2_link.ply",
+        "skyrover_wheel2_link": "skyrover/wheel1_2.ply",
+        "skyrover_wheel1_link": "skyrover/wheel1_2.ply",
+        "skyrover_wheel3_link": "skyrover/wheel3_4.ply",
+        "skyrover_wheel4_link": "skyrover/wheel3_4.ply",
+        "skyrover_rotor2_link": "skyrover/rotor2_4.ply",
+        "skyrover_rotor1_link": "skyrover/rotor1_3.ply",
+        "skyrover_rotor3_link": "skyrover/rotor1_3.ply",
+        "skyrover_rotor4_link": "skyrover/rotor2_4.ply",
     }
+
 
 class SkyRoverBase(SimulatorBase):
     def updateControl(self, action):
@@ -59,9 +56,9 @@ class SkyRoverBase(SimulatorBase):
 
     def getObservation(self):
         self.obs = {
-            "jq"  : self.mj_data.qpos.tolist(),
-            "jv"  : self.mj_data.qvel.tolist(),
-            "img" : self.img_rgb_obs_s
+            "jq": self.mj_data.qpos.tolist(),
+            "jv": self.mj_data.qvel.tolist(),
+            "img": self.img_rgb_obs_s,
         }
         return self.obs
 
@@ -70,6 +67,7 @@ class SkyRoverBase(SimulatorBase):
 
     def getReward(self):
         return None
+
 
 if __name__ == "__main__":
 
@@ -82,7 +80,6 @@ if __name__ == "__main__":
     obs = exec_node.reset()
     print(obs)
 
-
     cnt = 0
     action = np.zeros(15)
     while exec_node.running:
@@ -90,7 +87,7 @@ if __name__ == "__main__":
             action[0] = 0
             action[1] = 80
             action[6] = 80
-        elif cnt * exec_node.delta_t < 1.:
+        elif cnt * exec_node.delta_t < 1.0:
             action[0] = -545
             action[1] = 0
             action[6] = 0

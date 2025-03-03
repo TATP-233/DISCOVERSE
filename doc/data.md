@@ -37,7 +37,7 @@ pip install -r policies/dp/requirements.txt
 将仿真采集的原始数据格式转换为DP算法中用到的zarr格式，命令如下：
 
 ```bash
-python3 policies/dp/raw2zarr.py -dir data -tn <task_name> 
+python3 policies/dp/raw2zarr.py -dir data -tn <task_name>
 ```
 
 - `-dir`: 数据存放的根目录，默认为data

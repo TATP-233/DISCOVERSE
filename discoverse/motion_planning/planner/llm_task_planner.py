@@ -7,6 +7,7 @@ import json
 from os.path import abspath, dirname, join
 import os
 import sys
+
 base_dir = os.getcwd()
 sys.path.insert(0, base_dir)
 motion_planning_dir = join(base_dir, "discoverse/motion_planning")
@@ -16,6 +17,7 @@ print(motion_planning_dir)
 import copy
 import mediapy
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -29,19 +31,22 @@ from retry import retry
 
 engine_choices = ["gpt-3.5-turbo", "gpt-4o-mini-2024-07-18", "gpt-4-0125-preview"]
 DefaultConfigs = {
-    "llm_params" : {
-        "engine": "gpt-4o-mini-2024-07-18",    
+    "llm_params": {
+        "engine": "gpt-4o-mini-2024-07-18",
         "key": "xxxx",
         "org": "xxxx",
-        }
+    }
 }
+
 
 class LLMBase(abc.ABC):
     def __init__(self, engine, api_key, organization):
-        #engine = "gpt-4-0125-preview" if use_gpt_4 else "gpt-3.5-turbo"
+        # engine = "gpt-4-0125-preview" if use_gpt_4 else "gpt-3.5-turbo"
         self.llm_gpt = GPT_Chat(api_key, organization, engine)
 
-    def prompt_llm(self, prompt: str, temperature: float = 0.0, force_json: bool = False):
+    def prompt_llm(
+        self, prompt: str, temperature: float = 0.0, force_json: bool = False
+    ):
         # feed prompt to llm
         logger.info("\n" + "#" * 50)
         logger.info(f"Prompt:\n{prompt}")
@@ -61,40 +66,46 @@ class LLMBase(abc.ABC):
         logger.info(f"LLM output:\n{llm_output}")
 
         return llm_output
-    
+
+
 class LLMTaskPlanner(LLMBase):
-    def __init__(self, 
-                 task_instances,
-                 env_descriptions, 
-                 cfg = DefaultConfigs):
+    def __init__(self, task_instances, env_descriptions, cfg=DefaultConfigs):
         self.task_instances = task_instances
         self.env_descriptions = env_descriptions
 
-        problem_description_dir = join(motion_planning_dir, "task_instances/task_descriptions/{}.txt".format(self.task_instances))
+        problem_description_dir = join(
+            motion_planning_dir,
+            "task_instances/task_descriptions/{}.txt".format(self.task_instances),
+        )
         task_requirement_dir = join(motion_planning_dir, "params/task_requirements.txt")
         self.problem_descriptions = load_txt(problem_description_dir)
         self.task_requirements = load_txt(task_requirement_dir)
 
         self.llm_params = cfg["llm_params"]
 
-        LLMBase.__init__(self, engine=self.llm_params["engine"], 
-                         api_key=self.llm_params["key"], 
-                         organization=self.llm_params["org"])
+        LLMBase.__init__(
+            self,
+            engine=self.llm_params["engine"],
+            api_key=self.llm_params["key"],
+            organization=self.llm_params["org"],
+        )
 
     def prepare_planning_prompt(self):
         planning_prompt = "Problem descriptions: {}  \
                            Environment descriptions: {}  \
-                           Task requirements: {} ".format(self.problem_descriptions, self.env_descriptions, self.task_requirements)
-    
+                           Task requirements: {} ".format(
+            self.problem_descriptions, self.env_descriptions, self.task_requirements
+        )
+
         logger.info("\n" + "#" * 50)
         logger.info(f"LLM planning prompt:\n{planning_prompt}")
-    
+
         return planning_prompt
 
     def llm_output_to_plan(self, planning_prompt):
         task_plan = []
         return task_plan
-    
+
     def get_task_plan(self):
         task_plan = []
         planning_prompt = self.prepare_planning_prompt()
@@ -129,7 +140,6 @@ class LLMTaskPlanner(LLMBase):
                 ["move_to", "plate_white"],
                 ["open_gripper"],
                 ["approach", "plate_white", 0.1],
-
                 ["approach", "cup_lid", 0.1],
                 ["move_to", "cup_lid"],
                 ["close_gripper"],
@@ -137,9 +147,9 @@ class LLMTaskPlanner(LLMBase):
                 ["approach", "coffeecup_white", 0.1],
                 ["move_to", "coffeecup_white"],
                 ["open_gripper"],
-                ["approach", "coffeecup_white", 0.1]
+                ["approach", "coffeecup_white", 0.1],
             ]
-            
+
         elif self.task_instances == "stack_1block1bowl":
 
             task_plan = [
@@ -150,13 +160,12 @@ class LLMTaskPlanner(LLMBase):
                 ["approach", "bowl_pink", 0.14],
                 ["approach", "bowl_pink", 0.07],
                 ["open_gripper"],
-                ["approach", "bowl_pink", 0.14]
+                ["approach", "bowl_pink", 0.14],
             ]
 
-        
         print("LLM task plan is ", task_plan)
         return task_plan
-    
+
 
 @retry(tries=5, delay=60)
 def connect_openai(
@@ -258,6 +267,3 @@ class GPT_Chat:
                 if end_when_error:
                     break
         return conn_success, llm_output
-
-
-

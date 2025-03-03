@@ -9,21 +9,23 @@ from diffuser.utils import Mlp
 
 class MlpNNDiffusion(BaseNNDiffusion):
     def __init__(
-        self, 
+        self,
         x_dim: int,
         emb_dim: int = 16,
         hidden_dims: List[int] = (256, 256),
         activation: nn.Module = nn.ReLU(),
         timestep_emb_type: str = "positional",
-        timestep_emb_params: Optional[dict] = None
+        timestep_emb_params: Optional[dict] = None,
     ):
         super().__init__(emb_dim, timestep_emb_type, timestep_emb_params)
-        self.mlp = Mlp(
-            x_dim + emb_dim, hidden_dims, x_dim, activation)
+        self.mlp = Mlp(x_dim + emb_dim, hidden_dims, x_dim, activation)
 
-    def forward(self,
-                x: torch.Tensor, noise: torch.Tensor,
-                condition: Optional[torch.Tensor] = None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        condition: Optional[torch.Tensor] = None,
+    ):
         """
         Input:
             x:          (b, x_dim)
@@ -39,6 +41,3 @@ class MlpNNDiffusion(BaseNNDiffusion):
         else:
             t += torch.zeros_like(t)
         return self.mlp(torch.cat([x, t], -1))
-
-
-        

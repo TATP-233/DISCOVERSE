@@ -10,8 +10,8 @@ Yufei Jia†, Guangyu Wang†, Yuhang Dong, Junzhe Wu, Yupei Zeng, Haizhou Ge, K
 
 ## 🌟 Features
 
-+ High-fidelity, hierarchical Real2Sim generation for both background node and interactive scene nodes in various complex real-world scenarios, leveraging advanced laser-scanning, generative models, physically-based re-lighting, and Mesh-Gaussian transfer. 
-+ Efficient simulation and user-friendly configuration. By seamlessly integrating 3DGS rendering engine, MuJoCo physical engine, and ROS2 robotic interface, we provide an easy-to-use, massively parallel implementation for rapid deployment and flexible extension. The overall throughput of DISCOVERSE can achieve 650 FPS for 5 cameras rendering RGB-D frames, which is ∼3× faster than ORBIT (Issac Lab). 
++ High-fidelity, hierarchical Real2Sim generation for both background node and interactive scene nodes in various complex real-world scenarios, leveraging advanced laser-scanning, generative models, physically-based re-lighting, and Mesh-Gaussian transfer.
++ Efficient simulation and user-friendly configuration. By seamlessly integrating 3DGS rendering engine, MuJoCo physical engine, and ROS2 robotic interface, we provide an easy-to-use, massively parallel implementation for rapid deployment and flexible extension. The overall throughput of DISCOVERSE can achieve 650 FPS for 5 cameras rendering RGB-D frames, which is ∼3× faster than ORBIT (Issac Lab).
 + Compatibilities with existing 3D assets and inclusive supports for robot models (robotic arm, mobile manipulator, quadrocopter, etc.), sensor modalities (RGB, depth, LiDAR), ROS plugins, and a variety of Sim&Real data mixing schemes. DISCOVERSE lays a solid foundation for developing a comprehensive set of Sim2Real robotic benchmarks for end-to-end robot learning, with real-world tasks including manipulation, navigation, multi-agent collaboration, etc., to stimulate further research and practical applications in the related fields.
 
 ## 🐳 Docker

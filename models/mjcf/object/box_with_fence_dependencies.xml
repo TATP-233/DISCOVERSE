@@ -3,7 +3,7 @@
         <texture type="2d" name="box" file="obj/box/box.png"/>
         <material name="box" texture="box" specular="0.5" shininess="0.5"/>
         <mesh file="obj/box/box.obj"/>
-        
+
         <mesh name="box_part_0" file="obj/box/part_0.obj" scale="1 1 1"/>
         <mesh name="box_part_1" file="obj/box/part_1.obj" scale="1 1 1"/>
         <mesh name="box_part_2" file="obj/box/part_2.obj" scale="1 1 1"/>

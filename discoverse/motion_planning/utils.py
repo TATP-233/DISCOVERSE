@@ -1,28 +1,38 @@
 import os
-import json 
+import json
 import mediapy
 import logging
 import numpy as np
 import yaml
 
+
 def recoder(save_path, obs_lst, act_lst):
     os.mkdir(save_path)
     with open(os.path.join(save_path, "obs_action.json"), "w") as fp:
         obj = {
-            "time" : [o['time'] for o in obs_lst],
-            "obs"  : {
-                "jq" : [o['jq'] for o in obs_lst],
+            "time": [o["time"] for o in obs_lst],
+            "obs": {
+                "jq": [o["jq"] for o in obs_lst],
             },
-            "act"  : act_lst,
-            "obj_pose" : {}
+            "act": act_lst,
+            "obj_pose": {},
         }
         for name in obs_lst[0]["obj_pose"].keys():
-            obj["obj_pose"][name] = [tuple(map(list, o["obj_pose"][name])) for o in obs_lst]
+            obj["obj_pose"][name] = [
+                tuple(map(list, o["obj_pose"][name])) for o in obs_lst
+            ]
         json.dump(obj, fp)
 
-    mediapy.write_video(os.path.join(save_path, "arm_video.mp4"), [o['img'][0] for o in obs_lst], fps=cfg.render_set["fps"])
-    mediapy.write_video(os.path.join(save_path, "global_video.mp4"), [o['img'][1] for o in obs_lst], fps=cfg.render_set["fps"])
-
+    mediapy.write_video(
+        os.path.join(save_path, "arm_video.mp4"),
+        [o["img"][0] for o in obs_lst],
+        fps=cfg.render_set["fps"],
+    )
+    mediapy.write_video(
+        os.path.join(save_path, "global_video.mp4"),
+        [o["img"][1] for o in obs_lst],
+        fps=cfg.render_set["fps"],
+    )
 
 
 class ColorCodes:

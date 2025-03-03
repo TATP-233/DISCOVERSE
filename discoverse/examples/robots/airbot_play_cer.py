@@ -18,18 +18,18 @@ if __name__ == "__main__":
     cfg.timestep = 1e-3
     cfg.decimation = 4
     cfg.render_set = {
-        "fps"    : 60,
-        "width"  : 1920,
-        "height" : 1080,
+        "fps": 60,
+        "width": 1920,
+        "height": 1080,
     }
     cfg.init_joint_pose = {
-        "joint1"  :  0.0,
-        "joint2"  : -0.476,
-        "joint3"  :  0.399,
-        "joint4"  : -1.5708,
-        "joint5"  : -0.077,
-        "joint6"  :  1.570,
-        "gripper" :  0.5
+        "joint1": 0.0,
+        "joint2": -0.476,
+        "joint3": 0.399,
+        "joint4": -1.5708,
+        "joint5": -0.077,
+        "joint6": 1.570,
+        "gripper": 0.5,
     }
 
     cfg.mjcf_file_path = "mjcf/airbot_play_floor.xml"
@@ -42,34 +42,38 @@ if __name__ == "__main__":
     joint_msg.name = [f"joint_{i}" for i in range(exec_node.nj)]
     joint_msg.effort = np.zeros_like(obs["jq"]).tolist()
 
-    action = exec_node.init_joint_pose[:exec_node.nj]
+    action = exec_node.init_joint_pose[: exec_node.nj]
 
-    urdf_path = os.path.join(DISCOVERSE_ASSERT_DIR, "urdf/airbot_play_v3_gripper_fixed.urdf")
+    urdf_path = os.path.join(
+        DISCOVERSE_ASSERT_DIR, "urdf/airbot_play_v3_gripper_fixed.urdf"
+    )
     arm_fik = AirbotPlayFIK(urdf_path)
 
-    trans = np.array([ 0.35, -0., 0.3])
-    rot   = np.array([
-        [ 1., -0., -0.],
-        [ 0.,  1., -0.],
-        [ 0.,  0.,  1.],
-    ])
+    trans = np.array([0.35, -0.0, 0.3])
+    rot = np.array(
+        [
+            [1.0, -0.0, -0.0],
+            [0.0, 1.0, -0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
 
     cnt = 0
     while exec_node.running:
         if cnt * exec_node.delta_t < 1:
             trans[1] += 0.1 * exec_node.delta_t / 1
-        elif cnt * exec_node.delta_t < 2.:
+        elif cnt * exec_node.delta_t < 2.0:
             trans[1] -= 0.2 * exec_node.delta_t / 1
         elif cnt * exec_node.delta_t < 3:
-            trans[1] += 0.1 * exec_node.delta_t / 1.
-            trans[2] += 0.15 * exec_node.delta_t / 1.
-        elif cnt * exec_node.delta_t < 4.:
-            trans[2] -= 0.3 * exec_node.delta_t / 1.
+            trans[1] += 0.1 * exec_node.delta_t / 1.0
+            trans[2] += 0.15 * exec_node.delta_t / 1.0
+        elif cnt * exec_node.delta_t < 4.0:
+            trans[2] -= 0.3 * exec_node.delta_t / 1.0
         elif cnt * exec_node.delta_t < 5:
-            trans[2] += 0.15 * exec_node.delta_t / 1.
-            trans[0] += 0.15 * exec_node.delta_t / 1.
-        elif cnt * exec_node.delta_t < 6.:
-            trans[0] -= 0.15 * exec_node.delta_t / 1.
+            trans[2] += 0.15 * exec_node.delta_t / 1.0
+            trans[0] += 0.15 * exec_node.delta_t / 1.0
+        elif cnt * exec_node.delta_t < 6.0:
+            trans[0] -= 0.15 * exec_node.delta_t / 1.0
         else:
             cnt = 0
         cnt += 1

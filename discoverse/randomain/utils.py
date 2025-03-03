@@ -9,18 +9,21 @@ from discoverse.envs.simulator import SimulatorBase
 import mediapy
 from params_proto import ParamsProto, Proto
 
+
 def read_frame(key, cap):
     ret, frame = cap.read()
-    return key, frame 
+    return key, frame
+
 
 # 背景掩码生成
 def background_mask(foreground_list):
-    results_np = np.ones_like(np.array(foreground_list[0]))*255
-    foreground = np.any(np.array(foreground_list)>127, axis=0)
+    results_np = np.ones_like(np.array(foreground_list[0])) * 255
+    foreground = np.any(np.array(foreground_list) > 127, axis=0)
     results_np[foreground] = 0
     return results_np
 
-class SampleforDR():
+
+class SampleforDR:
     def __init__(self, objs, robot_parts, cam_ids, save_dir, fps, max_vis_dis=1.0):
         self.objs = objs
         self.cam_ids = cam_ids
@@ -34,13 +37,16 @@ class SampleforDR():
         self.results = [[] for cam_id in self.cam_ids]
 
     # sample videos for randomization
-    def sampling(self, simnode:SimulatorBase):
+    def sampling(self, simnode: SimulatorBase):
         if not hasattr(self, "robot_geom_start") and self.robot_parts:
             self.robot_geom_start = 1e6
             self.robot_geom_end = 0
             for part in self.robot_parts:
                 start = simnode.mj_model.body(part).geomadr
-                end = simnode.mj_model.body(part).geomadr + simnode.mj_model.body(part).geomnum
+                end = (
+                    simnode.mj_model.body(part).geomadr
+                    + simnode.mj_model.body(part).geomnum
+                )
                 self.robot_geom_start = min(self.robot_geom_start, start)
                 self.robot_geom_end = max(self.robot_geom_end, end)
 
@@ -48,52 +54,71 @@ class SampleforDR():
         renderer_depth = simnode.renderer._depth_rendering
         for cam_id in self.cam_ids:
             simnode.renderer.enable_segmentation_rendering()
-            simnode.renderer.update_scene(simnode.mj_data, simnode.camera_names[cam_id], simnode.options)
+            simnode.renderer.update_scene(
+                simnode.mj_data, simnode.camera_names[cam_id], simnode.options
+            )
             seg = simnode.renderer.render()
             geom_ids_ori = seg[:, :, 0]
 
             frames = {}
             for obj in self.objs:
                 mask = np.zeros_like(geom_ids_ori, dtype=np.uint8)
-                mask[(simnode.mj_model.body(obj).geomadr <= geom_ids_ori) & (geom_ids_ori < simnode.mj_model.body(obj).geomadr + simnode.mj_model.body(obj).geomnum)] = 255
+                mask[
+                    (simnode.mj_model.body(obj).geomadr <= geom_ids_ori)
+                    & (
+                        geom_ids_ori
+                        < simnode.mj_model.body(obj).geomadr
+                        + simnode.mj_model.body(obj).geomnum
+                    )
+                ] = 255
                 frames[obj] = mask
-            
+
             if self.robot_parts:
                 mask = np.zeros_like(geom_ids_ori, dtype=np.uint8)
-                mask[(self.robot_geom_start <= geom_ids_ori) & (geom_ids_ori < self.robot_geom_end)] = 255
-                frames['robot'] = mask
+                mask[
+                    (self.robot_geom_start <= geom_ids_ori)
+                    & (geom_ids_ori < self.robot_geom_end)
+                ] = 255
+                frames["robot"] = mask
 
-            frames['background'] = background_mask([frame for frame in frames.values()])
-            frames['cam'] = simnode.obs["img"][cam_id]
+            frames["background"] = background_mask([frame for frame in frames.values()])
+            frames["cam"] = simnode.obs["img"][cam_id]
             depth = simnode.obs["depth"][cam_id].squeeze()
             if self.max_vis_dis >= 1.0:
-                depth = np.clip(depth/self.max_vis_dis, 0, 1) 
+                depth = np.clip(depth / self.max_vis_dis, 0, 1)
             else:
-                 depth = np.clip(depth, 0, self.max_vis_dis) # 此时不需要缩放
-            frames['depth'] = (depth * 255).astype(np.uint8)
+                depth = np.clip(depth, 0, self.max_vis_dis)  # 此时不需要缩放
+            frames["depth"] = (depth * 255).astype(np.uint8)
 
             self.results[cam_id].append(frames)
 
         simnode.renderer._segmentation_rendering = renderer_seg
         simnode.renderer._depth_rendering = renderer_depth
-    
+
     def save(self):
         if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         save_path_new = self.create_new_folder()
         for cam_id in self.cam_ids:
-            save_path = os.path.join(save_path_new, f'{cam_id}')
+            save_path = os.path.join(save_path_new, f"{cam_id}")
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
             video_list = self.results[cam_id][0].keys()
             for video in video_list:
-                mediapy.write_video(os.path.join(save_path, f"{video}.mp4"), [frames[video] for frames in self.results[cam_id]], fps=self.fps)
+                mediapy.write_video(
+                    os.path.join(save_path, f"{video}.mp4"),
+                    [frames[video] for frames in self.results[cam_id]],
+                    fps=self.fps,
+                )
 
     def create_new_folder(self):
 
         os.makedirs(self.save_dir, exist_ok=True)
-        existing_folders = [f for f in os.listdir(self.save_dir) 
-                            if os.path.isdir(os.path.join(self.save_dir, f)) and f.isdigit()]
+        existing_folders = [
+            f
+            for f in os.listdir(self.save_dir)
+            if os.path.isdir(os.path.join(self.save_dir, f)) and f.isdigit()
+        ]
 
         if existing_folders:
             max_num = max(int(f) for f in existing_folders)
@@ -110,18 +135,18 @@ class SampleforDR():
 
 
 # def DRmerge(image, rgb, RDpart, rgbpart):
-   
+
 #     import numpy as np
 #     image_np = np.array(image)
 #     rgb_np = np.array(rgb)
 
 #     results_np = np.zeros_like(image_np)
 
-#     for rd_mask in RDpart: 
+#     for rd_mask in RDpart:
 #         rd_mask_np = np.array(rd_mask)
 #         rd_mask_np = rd_mask_np > 127
 #         results_np[rd_mask_np] = image_np[rd_mask_np]
-    
+
 #     for rgb_mask in rgbpart:
 #         rgb_mask_np = np.array(rgb_mask)
 #         rgb_mask_np = rgb_mask_np > 127
@@ -129,7 +154,7 @@ class SampleforDR():
 
 #     results = PImage.fromarray(results_np)
 #     results.format = "jpeg"
-    
+
 #     return results
 
 
@@ -195,7 +220,6 @@ def center_crop_pil(img, new_width, new_height):
     return cropped_img
 
 
-
 def import_custom_nodes() -> None:
     """Find all custom nodes in the custom_nodes folder and add those node objects to NODE_CLASS_MAPPINGS
 
@@ -204,7 +228,7 @@ def import_custom_nodes() -> None:
     """
     import asyncio
     import execution
-    from nodes import init_builtin_extra_nodes# init_custom_nodes
+    from nodes import init_builtin_extra_nodes  # init_custom_nodes
     import server
 
     # Creating a new event loop and setting it as the default loop
@@ -296,6 +320,7 @@ def add_extra_model_paths() -> None:
     Parse the optional extra_model_paths.yaml file and add the parsed paths to the sys.path.
     """
     from submodules.ComfyUI.utils.extra_config import load_extra_path_config
+
     print(">>>>>", ComfyUIArgs.config_path)
     extra_model_paths = find_path(ComfyUIArgs.config_path)
     if extra_model_paths is not None:

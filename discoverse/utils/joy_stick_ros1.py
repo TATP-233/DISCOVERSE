@@ -9,7 +9,7 @@ try:
 
             self.joy_cmd = Joy()
             self.joy_cmd.header.stamp = rospy.Time.now()
-            self.joy_cmd.axes = [0., 0., 1., 0., 0., 1., 0., 0.]
+            self.joy_cmd.axes = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
             self.joy_cmd.buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             self.last_buttons = np.zeros(11, np.bool_)
             self.raising_sig = np.zeros(11, np.bool_)
@@ -19,7 +19,7 @@ try:
             rospy.Subscriber("/joy", Joy, self.joy_callback)
 
         def reset(self):
-            self.joy_cmd.axes = [0., 0., 1., 0., 0., 1., 0., 0.]
+            self.joy_cmd.axes = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
             self.joy_cmd.buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             self.raising_sig[:] = False
             self.falling_sig[:] = False
@@ -34,7 +34,7 @@ try:
                     return False
             else:
                 return None
-        
+
         def get_falling_edge(self, i):
             if i < len(self.falling_sig):
                 if self.falling_sig[i]:
@@ -45,10 +45,14 @@ try:
             else:
                 return None
 
-        def joy_callback(self, msg:Joy):
+        def joy_callback(self, msg: Joy):
             self.joy_cmd = msg
-            self.raising_sig = self.raising_sig | (np.array(msg.buttons) & ~self.last_buttons)
-            self.falling_sig = self.falling_sig | (~np.array(msg.buttons) & self.last_buttons)
+            self.raising_sig = self.raising_sig | (
+                np.array(msg.buttons) & ~self.last_buttons
+            )
+            self.falling_sig = self.falling_sig | (
+                ~np.array(msg.buttons) & self.last_buttons
+            )
             self.last_buttons = np.array(msg.buttons)
             self.joyCmdRecv = True
 

@@ -17,12 +17,18 @@ from discoverse.utils import BaseConfig
 
 try:
     from discoverse.gaussian_renderer import GSRenderer
-    from discoverse.gaussian_renderer.util_gau import multiple_quaternion_vector3d, multiple_quaternions
+    from discoverse.gaussian_renderer.util_gau import (
+        multiple_quaternion_vector3d,
+        multiple_quaternions,
+    )
+
     DISCOVERSE_GAUSSIAN_RENDERER = True
 
 except ImportError:
     traceback.print_exc()
-    print("Warning: gaussian_splatting renderer not found. Please install the required packages to use it.")
+    print(
+        "Warning: gaussian_splatting renderer not found. Please install the required packages to use it."
+    )
     DISCOVERSE_GAUSSIAN_RENDERER = False
 
 
@@ -36,6 +42,7 @@ def setRenderOptions(options):
     options.frame = mujoco.mjtFrame.mjFRAME_BODY.value
     pass
 
+
 class SimulatorBase:
     running = True
     obs = None
@@ -45,31 +52,28 @@ class SimulatorBase:
     render_cnt = 0
     camera_names = []
     camera_pose_changed = False
-    camera_rmat = np.array([
-        [ 0,  0, -1],
-        [-1,  0,  0],
-        [ 0,  1,  0],
-    ])
+    camera_rmat = np.array(
+        [
+            [0, 0, -1],
+            [-1, 0, 0],
+            [0, 1, 0],
+        ]
+    )
 
-    mouse_pressed = {
-        'left': False,
-        'right': False,
-        'middle': False
-    }
-    mouse_pos = {
-        'x': 0,
-        'y': 0
-    }
+    mouse_pressed = {"left": False, "right": False, "middle": False}
+    mouse_pos = {"x": 0, "y": 0}
 
     options = mujoco.MjvOption()
 
-    def __init__(self, config:BaseConfig):
+    def __init__(self, config: BaseConfig):
         self.config = config
 
         if self.config.mjcf_file_path.startswith("/"):
             self.mjcf_file = self.config.mjcf_file_path
         else:
-            self.mjcf_file = os.path.join(DISCOVERSE_ASSERT_DIR, self.config.mjcf_file_path)
+            self.mjcf_file = os.path.join(
+                DISCOVERSE_ASSERT_DIR, self.config.mjcf_file_path
+            )
         if os.path.exists(self.mjcf_file):
             print("mjcf found: {}".format(self.mjcf_file))
         else:
@@ -86,45 +90,56 @@ class SimulatorBase:
             self.free_camera.type = mujoco._enums.mjtCamera.mjCAMERA_FREE
             mujoco.mjv_defaultFreeCamera(self.mj_model, self.free_camera)
 
-            self.config.use_gaussian_renderer = self.config.use_gaussian_renderer and DISCOVERSE_GAUSSIAN_RENDERER
+            self.config.use_gaussian_renderer = (
+                self.config.use_gaussian_renderer and DISCOVERSE_GAUSSIAN_RENDERER
+            )
             if self.config.use_gaussian_renderer:
-                self.gs_renderer = GSRenderer(self.config.gs_model_dict, self.config.render_set["width"], self.config.render_set["height"])
+                self.gs_renderer = GSRenderer(
+                    self.config.gs_model_dict,
+                    self.config.render_set["width"],
+                    self.config.render_set["height"],
+                )
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
                 if self.cam_id == -1:
-                    self.gs_renderer.set_camera_fovy(self.mj_model.vis.global_.fovy * np.pi / 180.)
+                    self.gs_renderer.set_camera_fovy(
+                        self.mj_model.vis.global_.fovy * np.pi / 180.0
+                    )
                 else:
-                    self.gs_renderer.set_camera_fovy(self.mj_model.cam_fovy[self.cam_id] * np.pi / 180.0)
+                    self.gs_renderer.set_camera_fovy(
+                        self.mj_model.cam_fovy[self.cam_id] * np.pi / 180.0
+                    )
 
         self.window = None
         self.glfw_initialized = False
-        
+
         if not hasattr(self.config.render_set, "window_title"):
             self.config.render_set["window_title"] = "DISCOVERSE Simulator"
-        
+
         if self.config.enable_render and not self.config.headless:
             try:
                 if not glfw.init():
                     raise RuntimeError("无法初始化GLFW")
                 self.glfw_initialized = True
-                
+
                 # 设置OpenGL版本和窗口属性
                 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
                 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
                 glfw.window_hint(glfw.VISIBLE, True)
-                
+
                 # 创建窗口
                 self.window = glfw.create_window(
                     self.config.render_set["width"],
                     self.config.render_set["height"],
                     self.config.render_set.get("window_title", "DISCOVERSE Simulator"),
-                    None, None
+                    None,
+                    None,
                 )
-                
+
                 if not self.window:
                     glfw.terminate()
                     raise RuntimeError("无法创建GLFW窗口")
-                
+
                 glfw.make_context_current(self.window)
                 glfw.swap_interval(1)
 
@@ -132,12 +147,12 @@ class SimulatorBase:
                 gl.glClearColor(0.0, 0.0, 0.0, 1.0)
                 gl.glShadeModel(gl.GL_SMOOTH)
                 gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1)
-                
+
                 # 设置回调
                 glfw.set_key_callback(self.window, self.on_key)
                 glfw.set_cursor_pos_callback(self.window, self.on_mouse_move)
                 glfw.set_mouse_button_callback(self.window, self.on_mouse_button)
-                
+
             except Exception as e:
                 print(f"GLFW初始化失败: {e}")
                 if self.glfw_initialized:
@@ -161,24 +176,36 @@ class SimulatorBase:
                 self.camera_names.append(self.mj_model.camera(i).name)
 
             if type(self.config.obs_rgb_cam_id) is int:
-                assert -2 < self.config.obs_rgb_cam_id < len(self.camera_names), "Invalid obs_rgb_cam_id {}".format(self.config.obs_rgb_cam_id)
+                assert (
+                    -2 < self.config.obs_rgb_cam_id < len(self.camera_names)
+                ), "Invalid obs_rgb_cam_id {}".format(self.config.obs_rgb_cam_id)
                 tmp_id = self.config.obs_rgb_cam_id
                 self.config.obs_rgb_cam_id = [tmp_id]
             elif type(self.config.obs_rgb_cam_id) is list:
                 for cam_id in self.config.obs_rgb_cam_id:
-                    assert -2 < cam_id < len(self.camera_names), "Invalid obs_rgb_cam_id {}".format(cam_id)
+                    assert (
+                        -2 < cam_id < len(self.camera_names)
+                    ), "Invalid obs_rgb_cam_id {}".format(cam_id)
             elif self.config.obs_rgb_cam_id is None:
                 self.config.obs_rgb_cam_id = []
-            
+
             if type(self.config.obs_depth_cam_id) is int:
-                assert -2 < self.config.obs_depth_cam_id < len(self.camera_names), "Invalid obs_depth_cam_id {}".format(self.config.obs_depth_cam_id)
+                assert (
+                    -2 < self.config.obs_depth_cam_id < len(self.camera_names)
+                ), "Invalid obs_depth_cam_id {}".format(self.config.obs_depth_cam_id)
             elif type(self.config.obs_depth_cam_id) is list:
                 for cam_id in self.config.obs_depth_cam_id:
-                    assert -2 < cam_id < len(self.camera_names), "Invalid obs_depth_cam_id {}".format(cam_id)
+                    assert (
+                        -2 < cam_id < len(self.camera_names)
+                    ), "Invalid obs_depth_cam_id {}".format(cam_id)
             elif self.config.obs_depth_cam_id is None:
                 self.config.obs_depth_cam_id = []
 
-            self.renderer = mujoco.Renderer(self.mj_model, self.config.render_set["height"], self.config.render_set["width"])
+            self.renderer = mujoco.Renderer(
+                self.mj_model,
+                self.config.render_set["height"],
+                self.config.render_set["width"],
+            )
 
         self.post_load_mjcf()
 
@@ -190,21 +217,21 @@ class SimulatorBase:
 
         if self.config.use_gaussian_renderer and self.show_gaussian_img:
             self.update_gs_scene()
-        
+
         depth_rendering = self.renderer._depth_rendering
         self.renderer.disable_depth_rendering()
         self.img_rgb_obs_s = {}
         for id in self.config.obs_rgb_cam_id:
             img = self.getRgbImg(id)
             self.img_rgb_obs_s[id] = img
-        
+
         self.renderer.enable_depth_rendering()
         self.img_depth_obs_s = {}
         for id in self.config.obs_depth_cam_id:
             img = self.getDepthImg(id)
             self.img_depth_obs_s[id] = img
         self.renderer._depth_rendering = depth_rendering
-        
+
         if not self.renderer._depth_rendering:
             if self.cam_id in self.config.obs_rgb_cam_id:
                 img_vis = self.img_rgb_obs_s[self.cam_id]
@@ -216,9 +243,11 @@ class SimulatorBase:
                 img_depth = self.img_depth_obs_s[self.cam_id]
             else:
                 img_depth = self.getDepthImg(self.cam_id)
-            
+
             if img_depth is not None:
-                img_vis = cv2.applyColorMap(cv2.convertScaleAbs(img_depth, alpha=25.5), cv2.COLORMAP_JET)
+                img_vis = cv2.applyColorMap(
+                    cv2.convertScaleAbs(img_depth, alpha=25.5), cv2.COLORMAP_JET
+                )
             else:
                 img_vis = None
 
@@ -227,32 +256,46 @@ class SimulatorBase:
                 if glfw.window_should_close(self.window):
                     self.running = False
                     return
-                    
+
                 glfw.make_context_current(self.window)
                 gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-                
-                gl.glViewport(0, 0, self.config.render_set["width"], self.config.render_set["height"])
-                
+
+                gl.glViewport(
+                    0,
+                    0,
+                    self.config.render_set["width"],
+                    self.config.render_set["height"],
+                )
+
                 gl.glRasterPos2i(-1, -1)
 
                 if sys.platform == "darwin":
                     gl.glPixelZoom(2.0, 2.0)
-                
+
                 if img_vis is not None:
                     img_vis = img_vis[::-1]
                     img_vis = np.ascontiguousarray(img_vis)
-                    gl.glDrawPixels(img_vis.shape[1], img_vis.shape[0], gl.GL_RGB, gl.GL_UNSIGNED_BYTE, img_vis.tobytes())
-                
+                    gl.glDrawPixels(
+                        img_vis.shape[1],
+                        img_vis.shape[0],
+                        gl.GL_RGB,
+                        gl.GL_UNSIGNED_BYTE,
+                        img_vis.tobytes(),
+                    )
+
                 glfw.swap_buffers(self.window)
                 glfw.poll_events()
-                
+
                 if self.config.sync:
                     current_time = time.time()
-                    wait_time = max(1.0/self.render_fps - (current_time - self.last_render_time), 0)
+                    wait_time = max(
+                        1.0 / self.render_fps - (current_time - self.last_render_time),
+                        0,
+                    )
                     if wait_time > 0:
                         time.sleep(wait_time)
                     self.last_render_time = time.time()
-                    
+
             except Exception as e:
                 print(f"渲染错误: {e}")
 
@@ -260,18 +303,24 @@ class SimulatorBase:
         if self.config.use_gaussian_renderer and self.show_gaussian_img:
             if cam_id == -1:
                 self.renderer.update_scene(self.mj_data, self.free_camera, self.options)
-                self.gs_renderer.set_camera_fovy(self.mj_model.vis.global_.fovy * np.pi / 180.0)
+                self.gs_renderer.set_camera_fovy(
+                    self.mj_model.vis.global_.fovy * np.pi / 180.0
+                )
             if self.last_cam_id != cam_id and cam_id > -1:
-                self.gs_renderer.set_camera_fovy(self.mj_model.cam_fovy[cam_id] * np.pi / 180.0)
+                self.gs_renderer.set_camera_fovy(
+                    self.mj_model.cam_fovy[cam_id] * np.pi / 180.0
+                )
             self.last_cam_id = cam_id
             trans, quat_wxyz = self.getCameraPose(cam_id)
-            self.gs_renderer.set_camera_pose(trans, quat_wxyz[[1,2,3,0]])
+            self.gs_renderer.set_camera_pose(trans, quat_wxyz[[1, 2, 3, 0]])
             return self.gs_renderer.render()
         else:
             if cam_id == -1:
                 self.renderer.update_scene(self.mj_data, self.free_camera, self.options)
             elif cam_id > -1:
-                self.renderer.update_scene(self.mj_data, self.camera_names[cam_id], self.options)
+                self.renderer.update_scene(
+                    self.mj_data, self.camera_names[cam_id], self.options
+                )
             else:
                 return None
             rgb_img = self.renderer.render()
@@ -285,31 +334,48 @@ class SimulatorBase:
                 if cam_id == -1:
                     self.gs_renderer.set_camera_fovy(np.pi * 0.25)
                 elif cam_id > -1:
-                    self.gs_renderer.set_camera_fovy(self.mj_model.cam_fovy[cam_id] * np.pi / 180.0)
+                    self.gs_renderer.set_camera_fovy(
+                        self.mj_model.cam_fovy[cam_id] * np.pi / 180.0
+                    )
                 else:
                     return None
             self.last_cam_id = cam_id
             trans, quat_wxyz = self.getCameraPose(cam_id)
-            self.gs_renderer.set_camera_pose(trans, quat_wxyz[[1,2,3,0]])
+            self.gs_renderer.set_camera_pose(trans, quat_wxyz[[1, 2, 3, 0]])
             return self.gs_renderer.render(render_depth=True)
         else:
             if cam_id == -1:
                 self.renderer.update_scene(self.mj_data, self.free_camera, self.options)
             elif cam_id > -1:
-                self.renderer.update_scene(self.mj_data, self.camera_names[cam_id], self.options)
+                self.renderer.update_scene(
+                    self.mj_data, self.camera_names[cam_id], self.options
+                )
             else:
                 return None
             depth_img = self.renderer.render()
             return depth_img
 
     def getPointCloud(self, cam_id, N_gap=5):
-        """ please call after get_observation """
+        """please call after get_observation"""
 
-        assert (cam_id in self.config.obs_rgb_cam_id) and (cam_id in self.config.obs_depth_cam_id), "Invalid cam_id"
+        assert (cam_id in self.config.obs_rgb_cam_id) and (
+            cam_id in self.config.obs_depth_cam_id
+        ), "Invalid cam_id"
 
         # 相机内参预计算
-        fovy = (self.mj_model.vis.global_.fovy if cam_id == -1 else self.mj_model.cam_fovy[cam_id]) * np.pi / 180.0
-        height, width = self.config.render_set["height"], self.config.render_set["width"]
+        fovy = (
+            (
+                self.mj_model.vis.global_.fovy
+                if cam_id == -1
+                else self.mj_model.cam_fovy[cam_id]
+            )
+            * np.pi
+            / 180.0
+        )
+        height, width = (
+            self.config.render_set["height"],
+            self.config.render_set["width"],
+        )
         fx = width / (2 * np.tan(fovy * width / (2 * height)))  # 合并计算
         fy = height / (2 * np.tan(fovy / 2))
         cx, cy = width / 2, height / 2
@@ -342,39 +408,46 @@ class SimulatorBase:
 
     def on_mouse_move(self, window, xpos, ypos):
         if self.cam_id == -1:
-            dx = xpos - self.mouse_pos['x']
-            dy = ypos - self.mouse_pos['y']
+            dx = xpos - self.mouse_pos["x"]
+            dy = ypos - self.mouse_pos["y"]
             height = self.config.render_set["height"]
-            
+
             action = None
-            if self.mouse_pressed['left']:
+            if self.mouse_pressed["left"]:
                 action = mujoco.mjtMouse.mjMOUSE_ROTATE_V
-            elif self.mouse_pressed['right']:
+            elif self.mouse_pressed["right"]:
                 action = mujoco.mjtMouse.mjMOUSE_MOVE_V
-            elif self.mouse_pressed['middle']:
+            elif self.mouse_pressed["middle"]:
                 action = mujoco.mjtMouse.mjMOUSE_ZOOM
 
             if action is not None:
                 self.camera_pose_changed = True
-                mujoco.mjv_moveCamera(self.mj_model,  action,  dx/height,  dy/height, self.renderer.scene, self.free_camera)
+                mujoco.mjv_moveCamera(
+                    self.mj_model,
+                    action,
+                    dx / height,
+                    dy / height,
+                    self.renderer.scene,
+                    self.free_camera,
+                )
 
-        self.mouse_pos['x'] = xpos
-        self.mouse_pos['y'] = ypos
+        self.mouse_pos["x"] = xpos
+        self.mouse_pos["y"] = ypos
 
     def on_mouse_button(self, window, button, action, mods):
         is_pressed = action == glfw.PRESS
-        
+
         if button == glfw.MOUSE_BUTTON_LEFT:
-            self.mouse_pressed['left'] = is_pressed
+            self.mouse_pressed["left"] = is_pressed
         elif button == glfw.MOUSE_BUTTON_RIGHT:
-            self.mouse_pressed['right'] = is_pressed
+            self.mouse_pressed["right"] = is_pressed
         elif button == glfw.MOUSE_BUTTON_MIDDLE:
-            self.mouse_pressed['middle'] = is_pressed
+            self.mouse_pressed["middle"] = is_pressed
 
     def on_key(self, window, key, scancode, action, mods):
         if action == glfw.PRESS:
-            is_ctrl_pressed = (mods & glfw.MOD_CONTROL)
-            
+            is_ctrl_pressed = mods & glfw.MOD_CONTROL
+
             if is_ctrl_pressed:
                 if key == glfw.KEY_G:  # Ctrl + G
                     if self.config.use_gaussian_renderer:
@@ -448,8 +521,31 @@ class SimulatorBase:
         if self.gs_renderer.update_gauss_data:
             self.gs_renderer.update_gauss_data = False
             self.gs_renderer.renderer.need_rerender = True
-            self.gs_renderer.renderer.gaussians.xyz[self.gs_renderer.renderer.gau_env_idx:] = multiple_quaternion_vector3d(self.gs_renderer.renderer.gau_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:], self.gs_renderer.renderer.gau_ori_xyz_all_cu[self.gs_renderer.renderer.gau_env_idx:]) + self.gs_renderer.renderer.gau_xyz_all_cu[self.gs_renderer.renderer.gau_env_idx:]
-            self.gs_renderer.renderer.gaussians.rot[self.gs_renderer.renderer.gau_env_idx:] = multiple_quaternions(self.gs_renderer.renderer.gau_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:], self.gs_renderer.renderer.gau_ori_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:])
+            self.gs_renderer.renderer.gaussians.xyz[
+                self.gs_renderer.renderer.gau_env_idx :
+            ] = (
+                multiple_quaternion_vector3d(
+                    self.gs_renderer.renderer.gau_rot_all_cu[
+                        self.gs_renderer.renderer.gau_env_idx :
+                    ],
+                    self.gs_renderer.renderer.gau_ori_xyz_all_cu[
+                        self.gs_renderer.renderer.gau_env_idx :
+                    ],
+                )
+                + self.gs_renderer.renderer.gau_xyz_all_cu[
+                    self.gs_renderer.renderer.gau_env_idx :
+                ]
+            )
+            self.gs_renderer.renderer.gaussians.rot[
+                self.gs_renderer.renderer.gau_env_idx :
+            ] = multiple_quaternions(
+                self.gs_renderer.renderer.gau_rot_all_cu[
+                    self.gs_renderer.renderer.gau_env_idx :
+                ],
+                self.gs_renderer.renderer.gau_ori_rot_all_cu[
+                    self.gs_renderer.renderer.gau_env_idx :
+                ],
+            )
 
     def getObjPose(self, name):
         try:
@@ -459,39 +555,59 @@ class SimulatorBase:
         except KeyError:
             try:
                 position = self.mj_data.geom(name).xpos
-                quat = Rotation.from_matrix(self.mj_data.geom(name).xmat.reshape((3,3))).as_quat()[[3,0,1,2]]
+                quat = Rotation.from_matrix(
+                    self.mj_data.geom(name).xmat.reshape((3, 3))
+                ).as_quat()[[3, 0, 1, 2]]
                 return position, quat
             except KeyError:
                 print("Invalid object name: {}".format(name))
                 return None, None
-    
+
     def getCameraPose(self, cam_id):
         if cam_id == -1:
-            rotation_matrix = self.camera_rmat @ Rotation.from_euler('xyz', [self.free_camera.elevation * np.pi / 180.0, self.free_camera.azimuth * np.pi / 180.0, 0.0]).as_matrix()
-            camera_position = self.free_camera.lookat + self.free_camera.distance * rotation_matrix[:3,2]
+            rotation_matrix = (
+                self.camera_rmat
+                @ Rotation.from_euler(
+                    "xyz",
+                    [
+                        self.free_camera.elevation * np.pi / 180.0,
+                        self.free_camera.azimuth * np.pi / 180.0,
+                        0.0,
+                    ],
+                ).as_matrix()
+            )
+            camera_position = (
+                self.free_camera.lookat
+                + self.free_camera.distance * rotation_matrix[:3, 2]
+            )
         else:
-            rotation_matrix = np.array(self.mj_data.camera(self.camera_names[cam_id]).xmat).reshape((3,3))
+            rotation_matrix = np.array(
+                self.mj_data.camera(self.camera_names[cam_id]).xmat
+            ).reshape((3, 3))
             camera_position = self.mj_data.camera(self.camera_names[cam_id]).xpos
 
-        return camera_position, Rotation.from_matrix(rotation_matrix).as_quat()[[3,0,1,2]]
+        return (
+            camera_position,
+            Rotation.from_matrix(rotation_matrix).as_quat()[[3, 0, 1, 2]],
+        )
 
     def __del__(self):
         try:
-            if hasattr(self, 'window') and self.window is not None:
+            if hasattr(self, "window") and self.window is not None:
                 if glfw.get_current_context() is not None:
                     glfw.destroy_window(self.window)
                     self.window = None
-            
-            if hasattr(self, 'glfw_initialized') and self.glfw_initialized:
+
+            if hasattr(self, "glfw_initialized") and self.glfw_initialized:
                 try:
                     if glfw.get_current_context() is not None:
                         glfw.terminate()
                 except Exception:
                     pass
-            
+
         except Exception as e:
             print(f"清理资源时出错: {str(e)}")
-        
+
         finally:
             try:
                 super().__del__()
@@ -521,7 +637,7 @@ class SimulatorBase:
 
     @abstractmethod
     def checkTerminated(self):
-        raise NotImplementedError("checkTerminated is not implemented")    
+        raise NotImplementedError("checkTerminated is not implemented")
 
     @abstractmethod
     def getObservation(self):
@@ -534,11 +650,11 @@ class SimulatorBase:
     @abstractmethod
     def getReward(self):
         raise NotImplementedError("getReward is not implemented")
-    
+
     # ---------------------------------- Override ----------------------------------
     # ------------------------------------------------------------------------------
 
-    def step(self, action=None): # 主要的仿真步进函数
+    def step(self, action=None):  # 主要的仿真步进函数
         for _ in range(self.decimation):
             self.updateControl(action)
             mujoco.mj_step(self.mj_model, self.mj_data)
@@ -546,16 +662,25 @@ class SimulatorBase:
         terminated = self.checkTerminated()
         if terminated:
             self.resetState()
-        
+
         self.post_physics_step()
-        if self.config.enable_render and self.render_cnt-1 < self.mj_data.time * self.render_fps:
+        if (
+            self.config.enable_render
+            and self.render_cnt - 1 < self.mj_data.time * self.render_fps
+        ):
             self.render()
 
-        return self.getObservation(), self.getPrivilegedObservation(), self.getReward(), terminated, {}
+        return (
+            self.getObservation(),
+            self.getPrivilegedObservation(),
+            self.getReward(),
+            terminated,
+            {},
+        )
 
     def view(self):
         self.mj_data.time += self.delta_t
         self.mj_data.qvel[:] = 0
         mujoco.mj_forward(self.mj_model, self.mj_data)
-        if self.render_cnt-1 < self.mj_data.time * self.render_fps:
+        if self.render_cnt - 1 < self.mj_data.time * self.render_fps:
             self.render()

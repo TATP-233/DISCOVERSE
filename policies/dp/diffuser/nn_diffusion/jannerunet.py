@@ -50,18 +50,30 @@ class LayerNorm(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, in_dim: int, out_dim: int, emb_dim: int, kernel_size: int = 3, norm_type: str = "groupnorm"):
+    def __init__(
+        self,
+        in_dim: int,
+        out_dim: int,
+        emb_dim: int,
+        kernel_size: int = 3,
+        norm_type: str = "groupnorm",
+    ):
         super().__init__()
 
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_dim, out_dim, kernel_size, padding=kernel_size // 2),
-            get_norm(out_dim, norm_type), nn.Mish())
+            get_norm(out_dim, norm_type),
+            nn.Mish(),
+        )
         self.conv2 = nn.Sequential(
             nn.Conv1d(out_dim, out_dim, kernel_size, padding=kernel_size // 2),
-            get_norm(out_dim, norm_type), nn.Mish())
-        self.emb_mlp = nn.Sequential(
-            nn.Mish(), nn.Linear(emb_dim, out_dim))
-        self.residual_conv = nn.Conv1d(in_dim, out_dim, 1) if in_dim != out_dim else nn.Identity()
+            get_norm(out_dim, norm_type),
+            nn.Mish(),
+        )
+        self.emb_mlp = nn.Sequential(nn.Mish(), nn.Linear(emb_dim, out_dim))
+        self.residual_conv = (
+            nn.Conv1d(in_dim, out_dim, 1) if in_dim != out_dim else nn.Identity()
+        )
 
     def forward(self, x, emb):
         out = self.conv1(x) + self.emb_mlp(emb).unsqueeze(-1)
@@ -73,7 +85,7 @@ class LinearAttention(nn.Module):
     def __init__(self, dim, heads=4, dim_head=32):
         super().__init__()
         self.norm = LayerNorm(dim)
-        self.scale = dim_head ** -0.5
+        self.scale = dim_head**-0.5
         self.heads = heads
         hidden_dim = dim_head * heads
         self.to_qkv = nn.Conv1d(dim, hidden_dim * 3, 1, bias=False)
@@ -83,30 +95,32 @@ class LinearAttention(nn.Module):
         x = self.norm(x)
 
         qkv = self.to_qkv(x).chunk(3, dim=1)
-        q, k, v = map(lambda t: einops.rearrange(t, 'b (h c) d -> b h c d', h=self.heads), qkv)
+        q, k, v = map(
+            lambda t: einops.rearrange(t, "b (h c) d -> b h c d", h=self.heads), qkv
+        )
         q = q * self.scale
 
         k = k.softmax(dim=-1)
-        context = torch.einsum('b h d n, b h e n -> b h d e', k, v)
+        context = torch.einsum("b h d n, b h e n -> b h d e", k, v)
 
-        out = torch.einsum('b h d e, b h d n -> b h e n', context, q)
-        out = einops.rearrange(out, 'b h c d -> b (h c) d')
+        out = torch.einsum("b h d e, b h d n -> b h e n", context, q)
+        out = einops.rearrange(out, "b h c d -> b (h c) d")
         out = self.to_out(out)
         return out + x
 
 
 class JannerUNet1d(BaseNNDiffusion):
     def __init__(
-            self,
-            in_dim: int,
-            model_dim: int = 32,
-            emb_dim: int = 32,
-            kernel_size: int = 3,
-            dim_mult: List[int] = [1, 2, 2, 2],
-            norm_type: str = "groupnorm",
-            attention: bool = False,
-            timestep_emb_type: str = "positional",
-            timestep_emb_params: Optional[dict] = None
+        self,
+        in_dim: int,
+        model_dim: int = 32,
+        emb_dim: int = 32,
+        kernel_size: int = 3,
+        dim_mult: List[int] = [1, 2, 2, 2],
+        norm_type: str = "groupnorm",
+        attention: bool = False,
+        timestep_emb_type: str = "positional",
+        timestep_emb_params: Optional[dict] = None,
     ):
         super().__init__(emb_dim, timestep_emb_type, timestep_emb_params)
 
@@ -114,8 +128,10 @@ class JannerUNet1d(BaseNNDiffusion):
         in_out = list(zip(dims[:-1], dims[1:]))
 
         self.map_emb = nn.Sequential(
-            nn.Linear(emb_dim, model_dim * 4), nn.Mish(),
-            nn.Linear(model_dim * 4, model_dim))
+            nn.Linear(emb_dim, model_dim * 4),
+            nn.Mish(),
+            nn.Linear(model_dim * 4, model_dim),
+        )
 
         self.downs = nn.ModuleList([])
         self.ups = nn.ModuleList([])
@@ -124,36 +140,61 @@ class JannerUNet1d(BaseNNDiffusion):
         for ind, (dim_in, dim_out) in enumerate(in_out):
             is_last = ind >= (num_resolutions - 1)
 
-            self.downs.append(nn.ModuleList([
-                ResidualBlock(dim_in, dim_out, model_dim, kernel_size, norm_type),
-                ResidualBlock(dim_out, dim_out, model_dim, kernel_size, norm_type),
-                LinearAttention(dim_out) if attention else nn.Identity(),
-                Downsample1d(dim_out) if not is_last else nn.Identity()
-            ]))
+            self.downs.append(
+                nn.ModuleList(
+                    [
+                        ResidualBlock(
+                            dim_in, dim_out, model_dim, kernel_size, norm_type
+                        ),
+                        ResidualBlock(
+                            dim_out, dim_out, model_dim, kernel_size, norm_type
+                        ),
+                        LinearAttention(dim_out) if attention else nn.Identity(),
+                        Downsample1d(dim_out) if not is_last else nn.Identity(),
+                    ]
+                )
+            )
 
         mid_dim = dims[-1]
-        self.mid_block1 = ResidualBlock(mid_dim, mid_dim, model_dim, kernel_size, norm_type)
+        self.mid_block1 = ResidualBlock(
+            mid_dim, mid_dim, model_dim, kernel_size, norm_type
+        )
         self.mid_attn = LinearAttention(mid_dim) if attention else nn.Identity()
-        self.mid_block2 = ResidualBlock(mid_dim, mid_dim, model_dim, kernel_size, norm_type)
+        self.mid_block2 = ResidualBlock(
+            mid_dim, mid_dim, model_dim, kernel_size, norm_type
+        )
 
         for ind, (dim_in, dim_out) in enumerate(reversed(in_out[1:])):
             is_last = ind >= (num_resolutions - 1)
 
-            self.ups.append(nn.ModuleList([
-                ResidualBlock(dim_out * 2, dim_in, model_dim, kernel_size, norm_type),
-                ResidualBlock(dim_in, dim_in, model_dim, kernel_size, norm_type),
-                LinearAttention(dim_in) if attention else nn.Identity(),
-                Upsample1d(dim_in) if not is_last else nn.Identity()
-            ]))
+            self.ups.append(
+                nn.ModuleList(
+                    [
+                        ResidualBlock(
+                            dim_out * 2, dim_in, model_dim, kernel_size, norm_type
+                        ),
+                        ResidualBlock(
+                            dim_in, dim_in, model_dim, kernel_size, norm_type
+                        ),
+                        LinearAttention(dim_in) if attention else nn.Identity(),
+                        Upsample1d(dim_in) if not is_last else nn.Identity(),
+                    ]
+                )
+            )
 
         self.final_conv = nn.Sequential(
             nn.Conv1d(model_dim, model_dim, 5, padding=2),
-            get_norm(model_dim, norm_type), nn.Mish(),
-            nn.Conv1d(model_dim, in_dim, 1))
+            get_norm(model_dim, norm_type),
+            nn.Mish(),
+            nn.Conv1d(model_dim, in_dim, 1),
+        )
 
-    def forward(self,
-                x: torch.Tensor, noise: torch.Tensor,
-                condition: Optional[torch.Tensor] = None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        condition: Optional[torch.Tensor] = None,
+    ):
         """
         Input:
             x:          (b, horizon, in_dim)

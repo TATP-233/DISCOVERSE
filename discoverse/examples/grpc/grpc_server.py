@@ -4,6 +4,7 @@ import numpy as np
 import array_pb2
 import array_pb2_grpc
 
+
 class ArrayServiceServicer(array_pb2_grpc.ArrayServiceServicer):
     def __init__(self, n_obs=7, n_act=7):
         self.obs_array = np.zeros(n_obs, dtype=np.float32)
@@ -20,9 +21,10 @@ class ArrayServiceServicer(array_pb2_grpc.ArrayServiceServicer):
         except Exception as e:
             print(f"Error setting array: {e}")
             success = False
-        
+
         response = array_pb2.SetArrayResponse(success=success)
         return response
+
 
 def sim_serve(servicer, nw=5, blocking=False):
     """
@@ -35,13 +37,14 @@ def sim_serve(servicer, nw=5, blocking=False):
     """
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=nw))
     array_pb2_grpc.add_ArrayServiceServicer_to_server(servicer, server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port("[::]:50051")
     server.start()
     if blocking:
         server.wait_for_termination()
     return server
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     n_obs, n_act = 7, 7
     servicer = ArrayServiceServicer(n_obs, n_act)
     sim_serve(servicer, blocking=True)

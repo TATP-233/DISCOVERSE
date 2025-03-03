@@ -1,5 +1,5 @@
 <mujocoinclude>
-  
+
   <asset>
     <mesh name="pan_part_0" file="stl/pan/part_0.STL" scale="1 1 1"/>
     <mesh name="pan_part_1" file="stl/pan/part_1.STL" scale="1 1 1"/>

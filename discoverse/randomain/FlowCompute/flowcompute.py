@@ -8,18 +8,25 @@ import torch
 import argparse
 
 # 光流计算
-class FlowCompute():
-    def __init__(self, method='rgb', model='default', 
-                 small=True, mixed_precision=False, alternate_corr=False, device='cuda'):
+class FlowCompute:
+    def __init__(
+        self,
+        method="rgb",
+        model="default",
+        small=True,
+        mixed_precision=False,
+        alternate_corr=False,
+        device="cuda",
+    ):
         self.method = method
-        self.device =device
+        self.device = device
 
-        if self.method == 'raft':
+        if self.method == "raft":
             args = argparse.Namespace(
                 model=model,
                 small=small,
                 mixed_precision=mixed_precision,
-                alternate_corr=alternate_corr
+                alternate_corr=alternate_corr,
             )
             self.model = torch.nn.DataParallel(RAFT(args))
             self.model.load_state_dict(torch.load(args.model))
@@ -27,17 +34,30 @@ class FlowCompute():
             self.model = self.model.module
             self.model.to(self.device)
             self.model.eval()
+
     def compute(self, prev_img, next_img):
-        if self.method == 'raft':
+        if self.method == "raft":
             with torch.no_grad():
-                image1 = torch.from_numpy(prev_img).permute(2, 0, 1).float()[None].to(self.device)
-                image2 = torch.from_numpy(next_img).permute(2, 0, 1).float()[None].to(self.device)
+                image1 = (
+                    torch.from_numpy(prev_img)
+                    .permute(2, 0, 1)
+                    .float()[None]
+                    .to(self.device)
+                )
+                image2 = (
+                    torch.from_numpy(next_img)
+                    .permute(2, 0, 1)
+                    .float()[None]
+                    .to(self.device)
+                )
                 _, flow_up = self.model(image1, image2, iters=20, test_mode=True)
-            flow = flow_up[0].permute(1,2,0).cpu().numpy()
-        elif self.method == 'rgb':
+            flow = flow_up[0].permute(1, 2, 0).cpu().numpy()
+        elif self.method == "rgb":
             prev_gray = cv2.cvtColor(prev_img, cv2.COLOR_BGR2GRAY)
             next_gray = cv2.cvtColor(next_img, cv2.COLOR_BGR2GRAY)
-            flow = cv2.calcOpticalFlowFarneback(next_gray, prev_gray, None, 0.4, 5, 30, 5, 7, 1.5, 0)
+            flow = cv2.calcOpticalFlowFarneback(
+                next_gray, prev_gray, None, 0.4, 5, 30, 5, 7, 1.5, 0
+            )
         return flow
 
     # 光流扭曲
@@ -57,7 +77,7 @@ class FlowCompute():
         grid = torch.cat((xx, yy), 1).float()
         mask = torch.ones(x.size())
 
-        if self.device == 'cuda':
+        if self.device == "cuda":
             grid = grid.cuda()
             mask = mask.to(self.device)
         # Invert the flow by multiplying by -1

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # PID Controller Class
-class PIDControl():
+class PIDControl:
     def __init__(self, kp, ki, kd):
         self.kp = kp  # Proportional gain
         self.ki = ki  # Integral gain
@@ -29,14 +29,17 @@ class PIDControl():
         self.prev_error = error
         return output
 
-def compute_diff_drive_control(pid_linear,
-                               pid_angular,
-                               robot_position, 
-                               robot_orientation, 
-                               target_position, 
-                               wheel_radius,
-                               robot_radius, 
-                               dt):
+
+def compute_diff_drive_control(
+    pid_linear,
+    pid_angular,
+    robot_position,
+    robot_orientation,
+    target_position,
+    wheel_radius,
+    robot_radius,
+    dt,
+):
     # Compute the error in position
     position_error = target_position - robot_position
     distance_error = np.linalg.norm(position_error)
@@ -49,7 +52,7 @@ def compute_diff_drive_control(pid_linear,
     orientation_error = np.arctan2(np.sin(orientation_error), np.cos(orientation_error))
 
     # Compute linear and angular velocities using PID controllers
-    linear_velocity = pid_linear.update(distance_error, dt) 
+    linear_velocity = pid_linear.update(distance_error, dt)
     angular_velocity = pid_angular.update(orientation_error, dt)
 
     # The sign of the linear velocity should depend on the direction of the position error
@@ -69,7 +72,7 @@ def compute_diff_drive_control(pid_linear,
     back_left = v_left
     back_right = v_right
 
-    # Store control inputs 
+    # Store control inputs
     control_input = [front_left, front_right, back_right, back_left]
 
     return control_input

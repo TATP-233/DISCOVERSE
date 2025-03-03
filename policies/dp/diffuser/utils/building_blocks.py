@@ -10,7 +10,7 @@ IDQLVNet = V
 
 
 class Mlp(nn.Module):
-    """ **Multilayer perceptron.** A simple pytorch MLP module.
+    """**Multilayer perceptron.** A simple pytorch MLP module.
 
     Args:
         in_dim: int,
@@ -26,12 +26,12 @@ class Mlp(nn.Module):
     """
 
     def __init__(
-            self,
-            in_dim: int,
-            hidden_dims: List[int],
-            out_dim: int,
-            activation: nn.Module = nn.ReLU(),
-            out_activation: nn.Module = nn.Identity(),
+        self,
+        in_dim: int,
+        hidden_dims: List[int],
+        out_dim: int,
+        activation: nn.Module = nn.ReLU(),
+        out_activation: nn.Module = nn.Identity(),
     ):
         super().__init__()
         self.mlp = nn.Sequential(
@@ -76,7 +76,7 @@ class GroupNorm1d(nn.Module):
 
 
 class SoftLowerBound(nn.Module):
-    """ Soft lower bound.
+    """Soft lower bound.
 
     Args:
         lower_bound: float,
@@ -92,7 +92,7 @@ class SoftLowerBound(nn.Module):
 
 
 class SoftUpperBound(nn.Module):
-    """ Soft upper bound.
+    """Soft upper bound.
 
     Args:
         upper_bound: float,
@@ -108,7 +108,7 @@ class SoftUpperBound(nn.Module):
 
 
 class DQLCritic(nn.Module):
-    """ **Deep Q-Learning Critic.** A pytorch critic module for DQL. The module incorporates double Q trick.
+    """**Deep Q-Learning Critic.** A pytorch critic module for DQL. The module incorporates double Q trick.
 
     Args:
         obs_dim: int,
@@ -122,16 +122,30 @@ class DQLCritic(nn.Module):
     def __init__(self, obs_dim: int, act_dim: int, hidden_dim: int = 256):
         super().__init__()
         self.q1_model = nn.Sequential(
-            nn.Linear(obs_dim + act_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Mish(),
-            nn.Linear(hidden_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Mish(),
-            nn.Linear(hidden_dim, 1))
+            nn.Linear(obs_dim + act_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Mish(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Mish(),
+            nn.Linear(hidden_dim, 1),
+        )
 
         self.q2_model = nn.Sequential(
-            nn.Linear(obs_dim + act_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Mish(),
-            nn.Linear(hidden_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.Mish(),
-            nn.Linear(hidden_dim, 1))
+            nn.Linear(obs_dim + act_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Mish(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.Mish(),
+            nn.Linear(hidden_dim, 1),
+        )
 
     def forward(self, obs, act):
         x = torch.cat([obs, act], dim=-1)
@@ -193,7 +207,7 @@ class FeedForward(nn.Module):
 
 class MultiHeadAttention(nn.Module):
     def __init__(
-            self, d_model: int, nhead: int, dropout: float = 0.1, bias: bool = False
+        self, d_model: int, nhead: int, dropout: float = 0.1, bias: bool = False
     ):
         super().__init__()
         assert d_model % nhead == 0, "`d_model` must be divisible by `nhead`."
@@ -215,9 +229,9 @@ class MultiHeadAttention(nn.Module):
                 mask = mask.unsqueeze(0)
             elif mask.dim() == 3:
                 assert (
-                        mask.shape[0] == q.shape[0]
-                        and mask.shape[1] == q.shape[1]
-                        and mask.shape[2] == k.shape[1]
+                    mask.shape[0] == q.shape[0]
+                    and mask.shape[1] == q.shape[1]
+                    and mask.shape[2] == k.shape[1]
                 )
             else:
                 raise ValueError("`mask` shape should be either (i, j) or (b, i, j)")
@@ -249,14 +263,14 @@ def generate_causal_mask(length: int, device: torch.device = "cpu"):
 
 class Transformer(nn.Module):
     def __init__(
-            self,
-            d_model: int,
-            nhead: int,
-            num_layers: int,
-            hidden_scale: int = 4,
-            attn_dropout: float = 0.0,
-            ffn_dropout: float = 0.0,
-            bias: bool = False,
+        self,
+        d_model: int,
+        nhead: int,
+        num_layers: int,
+        hidden_scale: int = 4,
+        attn_dropout: float = 0.0,
+        ffn_dropout: float = 0.0,
+        bias: bool = False,
     ):
         super().__init__()
         self.layers = nn.ModuleList(

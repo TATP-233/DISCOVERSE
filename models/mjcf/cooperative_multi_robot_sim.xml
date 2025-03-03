@@ -2,7 +2,7 @@
     The Mujoco model of:
     (1) a hybrid quadrotor-rover robot, namely SkyRover; and
     (2) a mobile robot, AIRBOT (by Discover Robotics, ALL RIGHTS RESERVED).
-    
+
     Author: Weibin Gu, 7-Nov-2024.
 -->
 <mujoco model="aerial_ground_cooperative_sim">
@@ -62,7 +62,7 @@
     <mesh name="wheel_fix" file="rm2_car/wheel.obj"/>
     <mesh name="steering_right_front" file="rm2_car/steering_right_front.STL"/>
     <!-- Metallic material -->
-    <material name="titanium" rgba="0.9 0.9 0.9 1" specular="0.4" shininess="0.1" reflectance="0.1"/> 
+    <material name="titanium" rgba="0.9 0.9 0.9 1" specular="0.4" shininess="0.1" reflectance="0.1"/>
     <material name="carbon_fiber" rgba="0.1 0.1 0.1 1" specular="0.6" shininess="0.7" reflectance="0.4"/>
     <material name="brushed_steel" rgba="0.7 0.7 0.75 1" specular="0.8" shininess="0.7" reflectance="0.5"/>
     <material name="copper" rgba="0.8 0.4 0.2 1" specular="0.7" shininess="0.7" reflectance="0.5"/>
@@ -91,7 +91,7 @@
       </body>
 
       <!-- Stretch link -->
-      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/> 
+      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/>
       <joint armature="0" damping="0" limited="false" margin="0.01" name="skyrover_root" pos="0 0 0" type="free"/>
 
       <!-- Base link -->
@@ -106,13 +106,13 @@
           <joint name="skyrover_folder1_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
           <!-- Front left wheel -->
-          <body name="skyrover_wheel2_link" pos="0.135 0 0.06"> 
+          <body name="skyrover_wheel2_link" pos="0.135 0 0.06">
               <geom mesh="wheel2_link" pos="0 0 -0.065" euler="0 90 90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_wheel2_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>
 
           <!-- Back left wheel -->
-          <body name="skyrover_wheel4_link" pos="-0.135 0 0.06"> 
+          <body name="skyrover_wheel4_link" pos="-0.135 0 0.06">
               <geom mesh="wheel4_link" pos="0 0 -0.065" euler="0 90 -90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_wheel4_joint" type="hinge" pos="0 0 -0.065" axis="0 0 1" damping="0.01"/>
           </body>
@@ -133,7 +133,7 @@
         </body><!-- Left folder ends -->
 
         <!-- Right folder -->
-        <body name="skyrover_folder2_link" pos="0 -0.135 0.08"> 
+        <body name="skyrover_folder2_link" pos="0 -0.135 0.08">
           <geom mesh="folder2_link" pos="0 0 0" euler="0 0 0" mass=".25" material="titanium"/>
           <joint name="skyrover_folder2_joint" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
@@ -150,14 +150,14 @@
           </body>
 
           <!-- Front right propeller (CW) -->
-          <body name="skyrover_rotor1_link" pos="0.135 0 -0.04"> 
+          <body name="skyrover_rotor1_link" pos="0.135 0 -0.04">
               <geom mesh="rotor1_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_rotor1_joint" type="hinge" pos="0 0 0" axis="0 0 -1" damping="0.01"/>
           </body>
           <site name="skyrover_thrust_fr" type="cylinder" pos="0.135 0 -0.04" euler="0 0 90"/>
 
           <!-- Back right propeller (CCW) -->
-          <body name="skyrover_rotor3_link" pos="-0.135 0 -0.04"> 
+          <body name="skyrover_rotor3_link" pos="-0.135 0 -0.04">
               <geom mesh="rotor3_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_rotor3_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>
@@ -339,7 +339,7 @@
     <body name="skyrover_1" pos="10 10 1.122">
 
       <!-- Stretch link -->
-      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/> 
+      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/>
       <joint armature="0" damping="0" limited="false" margin="0.01" name="skyrover_1_root" pos="0 0 0" type="free"/>
 
       <!-- Base link -->
@@ -354,13 +354,13 @@
           <joint name="skyrover_1_folder1_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
           <!-- Front left wheel -->
-          <body name="skyrover_1_wheel2_link" pos="0.135 0 0.06"> 
+          <body name="skyrover_1_wheel2_link" pos="0.135 0 0.06">
               <geom mesh="wheel2_link" pos="0 0 -0.065" euler="0 90 90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_1_wheel2_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>
 
           <!-- Back left wheel -->
-          <body name="skyrover_1_wheel4_link" pos="-0.135 0 0.06"> 
+          <body name="skyrover_1_wheel4_link" pos="-0.135 0 0.06">
               <geom mesh="wheel4_link" pos="0 0 -0.065" euler="0 90 -90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_1_wheel4_joint" type="hinge" pos="0 0 -0.065" axis="0 0 1" damping="0.01"/>
           </body>
@@ -381,7 +381,7 @@
         </body><!-- Left folder ends -->
 
         <!-- Right folder -->
-        <body name="skyrover_1_folder2_link" pos="0 -0.135 0.08"> 
+        <body name="skyrover_1_folder2_link" pos="0 -0.135 0.08">
           <geom mesh="folder2_link" pos="0 0 0" euler="0 0 0" mass=".25" material="titanium"/>
           <joint name="skyrover_1_folder2_joint" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
@@ -398,14 +398,14 @@
           </body>
 
           <!-- Front right propeller (CW) -->
-          <body name="skyrover_1_rotor1_link" pos="0.135 0 -0.04"> 
+          <body name="skyrover_1_rotor1_link" pos="0.135 0 -0.04">
               <geom mesh="rotor1_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_1_rotor1_joint" type="hinge" pos="0 0 0" axis="0 0 -1" damping="0.01"/>
           </body>
           <site name="skyrover_1_thrust_fr" type="cylinder" pos="0.135 0 -0.04" euler="0 0 90"/>
 
           <!-- Back right propeller (CCW) -->
-          <body name="skyrover_1_rotor3_link" pos="-0.135 0 -0.04"> 
+          <body name="skyrover_1_rotor3_link" pos="-0.135 0 -0.04">
               <geom mesh="rotor3_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_1_rotor3_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>
@@ -418,7 +418,7 @@
     <body name="skyrover_2" pos="10 -10 1.122">
 
       <!-- Stretch link -->
-      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/> 
+      <geom mesh="stretch_link" mass="0.5" pos="0 0 0" euler="0 0 0" friction="1 50 0.1" material="brushed_steel"/>
       <joint armature="0" damping="0" limited="false" margin="0.01" name="skyrover_2_root" pos="0 0 0" type="free"/>
 
       <!-- Base link -->
@@ -433,13 +433,13 @@
           <joint name="skyrover_2_folder1_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
           <!-- Front left wheel -->
-          <body name="skyrover_2_wheel2_link" pos="0.135 0 0.06"> 
+          <body name="skyrover_2_wheel2_link" pos="0.135 0 0.06">
               <geom mesh="wheel2_link" pos="0 0 -0.065" euler="0 90 90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_2_wheel2_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>
 
           <!-- Back left wheel -->
-          <body name="skyrover_2_wheel4_link" pos="-0.135 0 0.06"> 
+          <body name="skyrover_2_wheel4_link" pos="-0.135 0 0.06">
               <geom mesh="wheel4_link" pos="0 0 -0.065" euler="0 90 -90" mass=".05" friction="1 0.1 0.01" material="gunmetal_gray"/>
               <joint name="skyrover_2_wheel4_joint" type="hinge" pos="0 0 -0.065" axis="0 0 1" damping="0.01"/>
           </body>
@@ -460,7 +460,7 @@
         </body><!-- Left folder ends -->
 
         <!-- Right folder -->
-        <body name="skyrover_2_folder2_link" pos="0 -0.135 0.08"> 
+        <body name="skyrover_2_folder2_link" pos="0 -0.135 0.08">
           <geom mesh="folder2_link" pos="0 0 0" euler="0 0 0" mass=".25" material="titanium"/>
           <joint name="skyrover_2_folder2_joint" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1" damping="0.5" limited="true" actuatorfrcrange="0 79.8"/>
 
@@ -477,14 +477,14 @@
           </body>
 
           <!-- Front right propeller (CW) -->
-          <body name="skyrover_2_rotor1_link" pos="0.135 0 -0.04"> 
+          <body name="skyrover_2_rotor1_link" pos="0.135 0 -0.04">
               <geom mesh="rotor1_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_2_rotor1_joint" type="hinge" pos="0 0 0" axis="0 0 -1" damping="0.01"/>
           </body>
           <site name="skyrover_2_thrust_fr" type="cylinder" pos="0.135 0 -0.04" euler="0 0 90"/>
 
           <!-- Back right propeller (CCW) -->
-          <body name="skyrover_2_rotor3_link" pos="-0.135 0 -0.04"> 
+          <body name="skyrover_2_rotor3_link" pos="-0.135 0 -0.04">
               <geom mesh="rotor3_link" pos="0 0 0" euler="0 0 90" mass=".05" material="gunmetal_gray"/>
               <joint name="skyrover_2_rotor3_joint" type="hinge" pos="0 0 0" axis="0 0 1" damping="0.01"/>
           </body>

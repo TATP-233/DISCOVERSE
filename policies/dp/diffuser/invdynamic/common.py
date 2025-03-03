@@ -1,5 +1,4 @@
 class BasicInvDynamic:
-
     def predict(self, **kwargs):
         raise NotImplementedError
 

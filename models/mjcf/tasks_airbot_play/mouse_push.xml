@@ -33,7 +33,7 @@
     <body name="mouse_pad" pos="-0.15 0.93 0.700422">
         <include file="../object/mouse_pad.xml"/>
     </body>
- 
+
     <!-- ======= mouse ======= -->
     <body name="mouse" pos="0.1 0.93 0.700422" euler="0 0 -1.57">
         <include file="../object/mouse.xml"/>
@@ -61,7 +61,7 @@
 
   <keyframe>
     <key name="ready" qpos='
-     -0.055 -0.547 0.905 1.599 -1.398 -1.599  0 0 
+     -0.055 -0.547 0.905 1.599 -1.398 -1.599  0 0
       0.1 0.93 0.700422  0.707388 0 0 -0.706825
       0 0'
       ctrl="-0.055 -0.547 0.905 1.599 -1.398 -1.599  0"

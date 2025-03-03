@@ -14,7 +14,7 @@ class QGPOClassifier(BaseClassifier):
     """
 
     def loss(self, x: torch.Tensor, t: torch.Tensor, y: Dict[str, torch.Tensor]):
-        """ In-support Contrastive Energy Prediction Loss in https://arxiv.org/pdf/2304.12824
+        """In-support Contrastive Energy Prediction Loss in https://arxiv.org/pdf/2304.12824
 
         Args:
             x: torch.Tensor,
@@ -37,7 +37,7 @@ class QGPOClassifier(BaseClassifier):
 
         f = self.model(x, t.unsqueeze(1).repeat(1, k), obs.unsqueeze(1).repeat(1, k, 1))
 
-        loss = - (soft_label * F.log_softmax(f, 1)).sum(1).mean()
+        loss = -(soft_label * F.log_softmax(f, 1)).sum(1).mean()
 
         with torch.no_grad():
             f_max = f.max(1)[0].mean().item()
@@ -46,12 +46,20 @@ class QGPOClassifier(BaseClassifier):
 
         return loss, {"f_max": f_max, "f_mean": f_mean, "f_min": f_min}
 
-    def update(self, x: torch.Tensor, noise: torch.Tensor, y: Dict[str, torch.Tensor], update_ema: bool = True):
+    def update(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        y: Dict[str, torch.Tensor],
+        update_ema: bool = True,
+    ):
         loss, log = self.loss(x, noise, y)
         self.optim.zero_grad()
         loss.backward()
         if isinstance(self.grad_clip_norm, float):
-            grad_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip_norm).item()
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                self.model.parameters(), self.grad_clip_norm
+            ).item()
         else:
             grad_norm = None
         self.optim.step()

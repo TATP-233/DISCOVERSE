@@ -24,18 +24,18 @@ from torch.utils.data import Dataset
 class BaseDataset(Dataset):
     def get_normalizer(self, **kwargs):
         raise NotImplementedError()
-    
+
     def __len__(self) -> int:
         return 0
-    
+
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         """
         output:
-            obs: 
+            obs:
                 key1: T, Do1  # default key: state
                 key2: T, Do2
             action: T, Da
             reward: T, 1
-            info: 
+            info:
         """
         raise NotImplementedError()

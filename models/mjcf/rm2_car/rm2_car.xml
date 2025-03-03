@@ -8,7 +8,7 @@
         <geom quat="0 1 0 0" pos="0 0 0" type="mesh" rgba="1 0 0 0" mesh="rm2" density="1.0"/>
       </body>
 
-      <body name="steering_wheel" pos ="0 0 0">  
+      <body name="steering_wheel" pos ="0 0 0">
         <body name="steering1" pos="0.2585 0.184 -0.228">
           <inertial pos="-0.0124323 -0.000168578 0.0371705" quat="-0.000873283 0.70519 -0.0128331 0.708902" mass="0.36733" diaginertia="0.000891223 0.000726575 0.000459321"/>
           <joint name="steer_joint1" class="steer_joint"/>

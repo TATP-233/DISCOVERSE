@@ -6,10 +6,10 @@ from .base import BaseClassifier
 
 class CumRewClassifier(BaseClassifier):
     def __init__(
-            self,
-            nn_classifier: BaseNNClassifier,
-            device: str = "cpu",
-            optim_params: Optional[dict] = None,
+        self,
+        nn_classifier: BaseNNClassifier,
+        device: str = "cpu",
+        optim_params: Optional[dict] = None,
     ):
         super().__init__(nn_classifier, 0.995, None, optim_params, device)
 

@@ -21,18 +21,19 @@ class ResidualBlock(nn.Module):
 
 class SfBCUNet(BaseNNDiffusion):
     def __init__(
-            self,
-            act_dim: int,
-            emb_dim: int = 64,
-            hidden_dims: List[int] = (512, 256, 128),
-            timestep_emb_type: str = "untrainable_fourier",
-            timestep_emb_params: Optional[dict] = None
+        self,
+        act_dim: int,
+        emb_dim: int = 64,
+        hidden_dims: List[int] = (512, 256, 128),
+        timestep_emb_type: str = "untrainable_fourier",
+        timestep_emb_params: Optional[dict] = None,
     ):
         super().__init__(emb_dim, timestep_emb_type, timestep_emb_params)
         n_layers = len(hidden_dims)
 
         self.t_layer = nn.Sequential(
-            nn.Linear(emb_dim, emb_dim), nn.SiLU(), nn.Linear(emb_dim, emb_dim))
+            nn.Linear(emb_dim, emb_dim), nn.SiLU(), nn.Linear(emb_dim, emb_dim)
+        )
 
         self.down_blocks = nn.ModuleList()
         self.up_blocks = nn.ModuleList()
@@ -45,14 +46,21 @@ class SfBCUNet(BaseNNDiffusion):
         self.mid_block = ResidualBlock(in_dim, in_dim, emb_dim)
 
         for i in range(n_layers - 1):
-            self.up_blocks.append(ResidualBlock(in_dim + hidden_dims[-1 - i], hidden_dims[-2 - i], emb_dim))
+            self.up_blocks.append(
+                ResidualBlock(
+                    in_dim + hidden_dims[-1 - i], hidden_dims[-2 - i], emb_dim
+                )
+            )
             in_dim = hidden_dims[-2 - i]
 
         self.out_layer = nn.Linear(in_dim, act_dim)
 
-    def forward(self,
-                x: torch.Tensor, noise: torch.Tensor,
-                condition: Optional[torch.Tensor] = None):
+    def forward(
+        self,
+        x: torch.Tensor,
+        noise: torch.Tensor,
+        condition: Optional[torch.Tensor] = None,
+    ):
         """
         Input:
             x:          (b, horizon, act_dim)

@@ -5,7 +5,7 @@ from diffuser.utils import Mlp
 
 
 class MlpInvDynamic:
-    """ Simple MLP-based inverse dynamics model. The model is a 3-layer MLP with ReLU activation.
+    """Simple MLP-based inverse dynamics model. The model is a 3-layer MLP with ReLU activation.
 
     Args:
         o_dim: int,
@@ -30,14 +30,15 @@ class MlpInvDynamic:
         >>> invdyn.eval()
         >>> pred_act = invdyn.predict(obs, obs_next)
     """
+
     def __init__(
-            self,
-            o_dim: int,
-            a_dim: int,
-            hidden_dim: int = 512,
-            out_activation: nn.Module = nn.Tanh(),
-            optim_params: dict = {},
-            device: str = "cpu",
+        self,
+        o_dim: int,
+        a_dim: int,
+        hidden_dim: int = 512,
+        out_activation: nn.Module = nn.Tanh(),
+        optim_params: dict = {},
+        device: str = "cpu",
     ):
         self.device = device
         self.o_dim, self.a_dim, self.hidden_dim = o_dim, a_dim, hidden_dim
@@ -46,8 +47,8 @@ class MlpInvDynamic:
         params = {"lr": 5e-4}
         params.update(optim_params)
         self.mlp = Mlp(
-            2 * o_dim, [hidden_dim, hidden_dim], a_dim,
-            nn.ReLU(), out_activation).to(device)
+            2 * o_dim, [hidden_dim, hidden_dim], a_dim, nn.ReLU(), out_activation
+        ).to(device)
         self.optim = torch.optim.Adam(self.mlp.parameters(), **optim_params)
         self._init_weights()
 
@@ -89,7 +90,7 @@ class MlpInvDynamic:
 
 
 class FancyMlpInvDynamic:
-    """ Fancy MLP-based inverse dynamics model. The model is a 3-layer MLP with GELU activation. It also includes
+    """Fancy MLP-based inverse dynamics model. The model is a 3-layer MLP with GELU activation. It also includes
     optional LayerNorm and Dropout. We suggest using 0.1 Dropout and LayerNorm for better performance.
 
     Args:
@@ -119,11 +120,17 @@ class FancyMlpInvDynamic:
         >>> invdyn.eval()
         >>> pred_act = invdyn.predict(obs, obs_next)
     """
+
     def __init__(
-            self, o_dim: int, a_dim: int, hidden_dim: int = 256,
-            out_activation: nn.Module = nn.Tanh(),
-            add_norm: bool = False, add_dropout: bool = False,
-            optim_params: dict = {}, device: str = "cpu",
+        self,
+        o_dim: int,
+        a_dim: int,
+        hidden_dim: int = 256,
+        out_activation: nn.Module = nn.Tanh(),
+        add_norm: bool = False,
+        add_dropout: bool = False,
+        optim_params: dict = {},
+        device: str = "cpu",
     ):
         self.device = device
         self.o_dim, self.a_dim, self.hidden_dim = o_dim, a_dim, hidden_dim
@@ -133,12 +140,15 @@ class FancyMlpInvDynamic:
         params.update(optim_params)
 
         self.model = nn.Sequential(
-            nn.Linear(2 * o_dim, hidden_dim), nn.GELU(),
+            nn.Linear(2 * o_dim, hidden_dim),
+            nn.GELU(),
             nn.LayerNorm(hidden_dim) if add_norm else nn.Identity(),
             nn.Dropout(0.1) if add_dropout else nn.Identity(),
             nn.Linear(hidden_dim, hidden_dim),
             nn.GELU(),
-            nn.Linear(hidden_dim, a_dim), out_activation).to(device)
+            nn.Linear(hidden_dim, a_dim),
+            out_activation,
+        ).to(device)
 
         self.optim = torch.optim.Adam(self.model.parameters(), **optim_params)
 
@@ -175,35 +185,58 @@ class FancyMlpInvDynamic:
 
 class EnsembleMlpInvDynamic(MlpInvDynamic):
     def __init__(
-            self,
-            o_dim: int,
-            a_dim: int,
-            hidden_dim: int = 512,
-            out_activation: nn.Module = nn.Identity(),
-            optim_params: dict = {},
-            n_models=5,
-            mlp_type="standard",
-            device: str = "cpu",
+        self,
+        o_dim: int,
+        a_dim: int,
+        hidden_dim: int = 512,
+        out_activation: nn.Module = nn.Identity(),
+        optim_params: dict = {},
+        n_models=5,
+        mlp_type="standard",
+        device: str = "cpu",
     ):
         assert mlp_type in ["standard", "fancy"]
         super().__init__(o_dim, a_dim, hidden_dim, out_activation, optim_params, device)
         self.n_models = n_models
         if mlp_type == "standard":
-            self.mlp = nn.ModuleList([Mlp(
-                2 * self.o_dim, [self.hidden_dim, self.hidden_dim], self.a_dim,
-                nn.ReLU(), self.out_activation) for _ in range(n_models)]).to(device)
+            self.mlp = nn.ModuleList(
+                [
+                    Mlp(
+                        2 * self.o_dim,
+                        [self.hidden_dim, self.hidden_dim],
+                        self.a_dim,
+                        nn.ReLU(),
+                        self.out_activation,
+                    )
+                    for _ in range(n_models)
+                ]
+            ).to(device)
         else:
-            self.mlp = nn.ModuleList([nn.Sequential(
-                nn.Linear(2 * self.o_dim, self.hidden_dim), nn.LayerNorm(self.hidden_dim), nn.Mish(),
-                nn.Dropout(0.1),
-                nn.Linear(self.hidden_dim, self.hidden_dim), nn.LayerNorm(self.hidden_dim), nn.Mish(),
-                nn.Linear(self.hidden_dim, self.hidden_dim), self.out_activation) for _ in range(n_models)]).to(device)
+            self.mlp = nn.ModuleList(
+                [
+                    nn.Sequential(
+                        nn.Linear(2 * self.o_dim, self.hidden_dim),
+                        nn.LayerNorm(self.hidden_dim),
+                        nn.Mish(),
+                        nn.Dropout(0.1),
+                        nn.Linear(self.hidden_dim, self.hidden_dim),
+                        nn.LayerNorm(self.hidden_dim),
+                        nn.Mish(),
+                        nn.Linear(self.hidden_dim, self.hidden_dim),
+                        self.out_activation,
+                    )
+                    for _ in range(n_models)
+                ]
+            ).to(device)
         self.optim = torch.optim.Adam(self.mlp.parameters(), **self.optim_params)
         self._init_weights()
 
     def forward(self, o, o_next, idx=None):
         if idx is None:
-            return sum([m(torch.cat([o, o_next], dim=-1)) for m in self.mlp]) / self.n_models
+            return (
+                sum([m(torch.cat([o, o_next], dim=-1)) for m in self.mlp])
+                / self.n_models
+            )
         else:
             return self.mlp[idx](torch.cat([o, o_next], dim=-1))
 
@@ -218,14 +251,19 @@ class EnsembleMlpInvDynamic(MlpInvDynamic):
 
 # =============================== Development =================================
 
+
 class ResidualBlock(nn.Module):
-    def __init__(self, hidden_dim: int = 256, add_norm: bool = False, add_dropout: bool = False):
+    def __init__(
+        self, hidden_dim: int = 256, add_norm: bool = False, add_dropout: bool = False
+    ):
         super().__init__()
         self.norm = nn.LayerNorm(hidden_dim) if add_norm else nn.Identity()
         self.mlp = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim), nn.GELU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.GELU(),
             nn.Dropout(0.1) if add_dropout else nn.Identity(),
-            nn.Linear(hidden_dim, hidden_dim))
+            nn.Linear(hidden_dim, hidden_dim),
+        )
 
     def forward(self, x):
         x = self.norm(x)
@@ -234,11 +272,16 @@ class ResidualBlock(nn.Module):
 
 class ResInvDynamic:
     def __init__(
-            self, o_dim: int, a_dim: int, hidden_dim: int = 256,
-            out_activation: nn.Module = nn.Tanh(),
-            add_norm: bool = False, add_dropout: bool = False,
-            n_blocks: int = 1,
-            optim_params: dict = {}, device: str = "cpu",
+        self,
+        o_dim: int,
+        a_dim: int,
+        hidden_dim: int = 256,
+        out_activation: nn.Module = nn.Tanh(),
+        add_norm: bool = False,
+        add_dropout: bool = False,
+        n_blocks: int = 1,
+        optim_params: dict = {},
+        device: str = "cpu",
     ):
         self.device = device
         self.n_blocks = n_blocks
@@ -248,13 +291,20 @@ class ResInvDynamic:
         params = {"lr": 3e-4}
         params.update(optim_params)
 
-        self.model = nn.ModuleDict({
-            "pre_linear": nn.Sequential(
-                nn.Linear(2 * o_dim, hidden_dim), nn.GELU()).to(device),
-            "post_linear": nn.Sequential(
-                nn.Linear(hidden_dim, a_dim), out_activation).to(device)})
+        self.model = nn.ModuleDict(
+            {
+                "pre_linear": nn.Sequential(
+                    nn.Linear(2 * o_dim, hidden_dim), nn.GELU()
+                ).to(device),
+                "post_linear": nn.Sequential(
+                    nn.Linear(hidden_dim, a_dim), out_activation
+                ).to(device),
+            }
+        )
         for i in range(n_blocks):
-            self.model[f"res_block{i}"] = ResidualBlock(hidden_dim, add_norm, add_dropout).to(device)
+            self.model[f"res_block{i}"] = ResidualBlock(
+                hidden_dim, add_norm, add_dropout
+            ).to(device)
 
         # Adam for pre_linear+res_blocks+post_linear
         self.optim = torch.optim.Adam(self.model.parameters(), **optim_params)

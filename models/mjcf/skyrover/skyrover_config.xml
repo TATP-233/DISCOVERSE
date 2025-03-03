@@ -17,4 +17,3 @@
     <exclude body1="skyrover_rotor4_link" body2="floor"/>
   </contact>
 </mujocoinclude>
-

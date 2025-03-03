@@ -31,9 +31,9 @@
 
 """Additional numcodecs implemented using imagecodecs."""
 
-__version__ = '2022.9.26'
+__version__ = "2022.9.26"
 
-__all__ = ('register_codecs',)
+__all__ = ("register_codecs",)
 
 import numpy
 from numcodecs.abc import Codec
@@ -54,33 +54,31 @@ def protective_squeeze(x: numpy.ndarray):
             img_shape = (-1,) + img_shape
     return x.reshape(img_shape)
 
+
 def get_default_image_compressor(**kwargs):
     if imagecodecs.JPEGXL:
         # has JPEGXL
         this_kwargs = {
-            'effort': 3,
-            'distance': 0.3,
+            "effort": 3,
+            "distance": 0.3,
             # bug in libjxl, invalid codestream for non-lossless
             # when decoding speed > 1
-            'decodingspeed': 1
+            "decodingspeed": 1,
         }
         this_kwargs.update(kwargs)
         return JpegXl(**this_kwargs)
     else:
-        this_kwargs = {
-            'level': 50
-        }
+        this_kwargs = {"level": 50}
         this_kwargs.update(kwargs)
         return Jpeg2k(**this_kwargs)
+
 
 class Aec(Codec):
     """AEC codec for numcodecs."""
 
-    codec_id = 'imagecodecs_aec'
+    codec_id = "imagecodecs_aec"
 
-    def __init__(
-        self, bitspersample=None, flags=None, blocksize=None, rsi=None
-    ):
+    def __init__(self, bitspersample=None, flags=None, blocksize=None, rsi=None):
         self.bitspersample = bitspersample
         self.flags = flags
         self.blocksize = blocksize
@@ -109,7 +107,7 @@ class Aec(Codec):
 class Apng(Codec):
     """APNG codec for numcodecs."""
 
-    codec_id = 'imagecodecs_apng'
+    codec_id = "imagecodecs_apng"
 
     def __init__(self, level=None, photometric=None, delay=None):
         self.level = level
@@ -132,7 +130,7 @@ class Apng(Codec):
 class Avif(Codec):
     """AVIF codec for numcodecs."""
 
-    codec_id = 'imagecodecs_avif'
+    codec_id = "imagecodecs_avif"
 
     def __init__(
         self,
@@ -173,7 +171,7 @@ class Avif(Codec):
 class Bitorder(Codec):
     """Bitorder codec for numcodecs."""
 
-    codec_id = 'imagecodecs_bitorder'
+    codec_id = "imagecodecs_bitorder"
 
     def encode(self, buf):
         return imagecodecs.bitorder_encode(buf)
@@ -185,7 +183,7 @@ class Bitorder(Codec):
 class Bitshuffle(Codec):
     """Bitshuffle codec for numcodecs."""
 
-    codec_id = 'imagecodecs_bitshuffle'
+    codec_id = "imagecodecs_bitshuffle"
 
     def __init__(self, itemsize=1, blocksize=0):
         self.itemsize = itemsize
@@ -208,7 +206,7 @@ class Bitshuffle(Codec):
 class Blosc(Codec):
     """Blosc codec for numcodecs."""
 
-    codec_id = 'imagecodecs_blosc'
+    codec_id = "imagecodecs_blosc"
 
     def __init__(
         self,
@@ -239,15 +237,13 @@ class Blosc(Codec):
         )
 
     def decode(self, buf, out=None):
-        return imagecodecs.blosc_decode(
-            buf, numthreads=self.numthreads, out=_flat(out)
-        )
+        return imagecodecs.blosc_decode(buf, numthreads=self.numthreads, out=_flat(out))
 
 
 class Blosc2(Codec):
     """Blosc2 codec for numcodecs."""
 
-    codec_id = 'imagecodecs_blosc2'
+    codec_id = "imagecodecs_blosc2"
 
     def __init__(
         self,
@@ -286,7 +282,7 @@ class Blosc2(Codec):
 class Brotli(Codec):
     """Brotli codec for numcodecs."""
 
-    codec_id = 'imagecodecs_brotli'
+    codec_id = "imagecodecs_brotli"
 
     def __init__(self, level=None, mode=None, lgwin=None):
         self.level = level
@@ -305,11 +301,9 @@ class Brotli(Codec):
 class ByteShuffle(Codec):
     """ByteShuffle codec for numcodecs."""
 
-    codec_id = 'imagecodecs_byteshuffle'
+    codec_id = "imagecodecs_byteshuffle"
 
-    def __init__(
-        self, shape, dtype, axis=-1, dist=1, delta=False, reorder=False
-    ):
+    def __init__(self, shape, dtype, axis=-1, dist=1, delta=False, reorder=False):
         self.shape = tuple(shape)
         self.dtype = numpy.dtype(dtype).str
         self.axis = axis
@@ -345,7 +339,7 @@ class ByteShuffle(Codec):
 class Bz2(Codec):
     """Bz2 codec for numcodecs."""
 
-    codec_id = 'imagecodecs_bz2'
+    codec_id = "imagecodecs_bz2"
 
     def __init__(self, level=None):
         self.level = level
@@ -360,7 +354,7 @@ class Bz2(Codec):
 class Cms(Codec):
     """CMS codec for numcodecs."""
 
-    codec_id = 'imagecodecs_cms'
+    codec_id = "imagecodecs_cms"
 
     def __init__(self, *args, **kwargs):
         pass
@@ -377,7 +371,7 @@ class Cms(Codec):
 class Deflate(Codec):
     """Deflate codec for numcodecs."""
 
-    codec_id = 'imagecodecs_deflate'
+    codec_id = "imagecodecs_deflate"
 
     def __init__(self, level=None, raw=False):
         self.level = level
@@ -393,7 +387,7 @@ class Deflate(Codec):
 class Delta(Codec):
     """Delta codec for numcodecs."""
 
-    codec_id = 'imagecodecs_delta'
+    codec_id = "imagecodecs_delta"
 
     def __init__(self, shape=None, dtype=None, axis=-1, dist=1):
         self.shape = None if shape is None else tuple(shape)
@@ -406,22 +400,18 @@ class Delta(Codec):
             buf = protective_squeeze(numpy.asarray(buf))
             assert buf.shape == self.shape
             assert buf.dtype == self.dtype
-        return imagecodecs.delta_encode(
-            buf, axis=self.axis, dist=self.dist
-        ).tobytes()
+        return imagecodecs.delta_encode(buf, axis=self.axis, dist=self.dist).tobytes()
 
     def decode(self, buf, out=None):
         if self.shape is not None or self.dtype is not None:
             buf = numpy.frombuffer(buf, dtype=self.dtype).reshape(*self.shape)
-        return imagecodecs.delta_decode(
-            buf, axis=self.axis, dist=self.dist, out=out
-        )
+        return imagecodecs.delta_decode(buf, axis=self.axis, dist=self.dist, out=out)
 
 
 class Float24(Codec):
     """Float24 codec for numcodecs."""
 
-    codec_id = 'imagecodecs_float24'
+    codec_id = "imagecodecs_float24"
 
     def __init__(self, byteorder=None, rounding=None):
         self.byteorder = byteorder
@@ -434,15 +424,13 @@ class Float24(Codec):
         )
 
     def decode(self, buf, out=None):
-        return imagecodecs.float24_decode(
-            buf, byteorder=self.byteorder, out=out
-        )
+        return imagecodecs.float24_decode(buf, byteorder=self.byteorder, out=out)
 
 
 class FloatPred(Codec):
     """Floating Point Predictor codec for numcodecs."""
 
-    codec_id = 'imagecodecs_floatpred'
+    codec_id = "imagecodecs_floatpred"
 
     def __init__(self, shape, dtype, axis=-1, dist=1):
         self.shape = tuple(shape)
@@ -469,7 +457,7 @@ class FloatPred(Codec):
 class Gif(Codec):
     """GIF codec for numcodecs."""
 
-    codec_id = 'imagecodecs_gif'
+    codec_id = "imagecodecs_gif"
 
     def encode(self, buf):
         buf = protective_squeeze(numpy.asarray(buf))
@@ -482,7 +470,7 @@ class Gif(Codec):
 class Heif(Codec):
     """HEIF codec for numcodecs."""
 
-    codec_id = 'imagecodecs_heif'
+    codec_id = "imagecodecs_heif"
 
     def __init__(
         self,
@@ -524,7 +512,7 @@ class Heif(Codec):
 class Jetraw(Codec):
     """Jetraw codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jetraw'
+    codec_id = "imagecodecs_jetraw"
 
     def __init__(
         self,
@@ -553,7 +541,7 @@ class Jetraw(Codec):
 class Jpeg(Codec):
     """JPEG codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jpeg'
+    codec_id = "imagecodecs_jpeg"
 
     def __init__(
         self,
@@ -611,9 +599,9 @@ class Jpeg(Codec):
         """Return dictionary holding configuration parameters."""
         config = dict(id=self.codec_id)
         for key in self.__dict__:
-            if not key.startswith('_'):
+            if not key.startswith("_"):
                 value = getattr(self, key)
-                if value is not None and key in ('header', 'tables'):
+                if value is not None and key in ("header", "tables"):
                     import base64
 
                     value = base64.b64encode(value).decode()
@@ -623,7 +611,7 @@ class Jpeg(Codec):
     @classmethod
     def from_config(cls, config):
         """Instantiate codec from configuration object."""
-        for key in ('header', 'tables'):
+        for key in ("header", "tables"):
             value = config.get(key, None)
             if value is not None and isinstance(value, str):
                 import base64
@@ -635,7 +623,7 @@ class Jpeg(Codec):
 class Jpeg2k(Codec):
     """JPEG 2000 codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jpeg2k'
+    codec_id = "imagecodecs_jpeg2k"
 
     def __init__(
         self,
@@ -683,7 +671,7 @@ class Jpeg2k(Codec):
 class JpegLs(Codec):
     """JPEG LS codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jpegls'
+    codec_id = "imagecodecs_jpegls"
 
     def __init__(self, level=None):
         self.level = level
@@ -699,7 +687,7 @@ class JpegLs(Codec):
 class JpegXl(Codec):
     """JPEG XL codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jpegxl'
+    codec_id = "imagecodecs_jpegxl"
 
     def __init__(
         self,
@@ -724,21 +712,21 @@ class JpegXl(Codec):
 
         Currently L, LA, RGB, RGBA images are supported in contig mode.
         Extra channels are only supported for grayscale images in planar mode.
-        
+
         Parameters
         ----------
         level : Default to None, i.e. not overwriting lossess and decodingspeed options.
             When < 0: Use lossless compression
-            When in [0,1,2,3,4]: Sets the decoding speed tier for the provided options. 
-                Minimum is 0 (slowest to decode, best quality/density), and maximum 
+            When in [0,1,2,3,4]: Sets the decoding speed tier for the provided options.
+                Minimum is 0 (slowest to decode, best quality/density), and maximum
                 is 4 (fastest to decode, at the cost of some quality/density).
         effort : Default to 3.
-            Sets encoder effort/speed level without affecting decoding speed. 
-            Valid values are, from faster to slower speed: 1:lightning 2:thunder 
-                3:falcon 4:cheetah 5:hare 6:wombat 7:squirrel 8:kitten 9:tortoise. 
-            Speed: lightning, thunder, falcon, cheetah, hare, wombat, squirrel, kitten, tortoise 
-            control the encoder effort in ascending order. 
-            This also affects memory usage: using lower effort will typically reduce memory 
+            Sets encoder effort/speed level without affecting decoding speed.
+            Valid values are, from faster to slower speed: 1:lightning 2:thunder
+                3:falcon 4:cheetah 5:hare 6:wombat 7:squirrel 8:kitten 9:tortoise.
+            Speed: lightning, thunder, falcon, cheetah, hare, wombat, squirrel, kitten, tortoise
+            control the encoder effort in ascending order.
+            This also affects memory usage: using lower effort will typically reduce memory
             consumption during encoding.
             lightning and thunder are fast modes useful for lossless mode (modular).
             falcon disables all of the following tools.
@@ -749,56 +737,56 @@ class JpegXl(Codec):
             kitten optimizes the adaptive quantization for a psychovisual metric.
             tortoise enables a more thorough adaptive quantization search.
         distance : Default to 1.0
-            Sets the distance level for lossy compression: target max butteraugli distance, 
-            lower = higher quality. Range: 0 .. 15. 0.0 = mathematically lossless 
-            (however, use JxlEncoderSetFrameLossless instead to use true lossless, 
-            as setting distance to 0 alone is not the only requirement). 
+            Sets the distance level for lossy compression: target max butteraugli distance,
+            lower = higher quality. Range: 0 .. 15. 0.0 = mathematically lossless
+            (however, use JxlEncoderSetFrameLossless instead to use true lossless,
+            as setting distance to 0 alone is not the only requirement).
             1.0 = visually lossless. Recommended range: 0.5 .. 3.0.
-        lossess : Default to False. 
+        lossess : Default to False.
             Use lossess encoding.
         decodingspeed : Default to 0.
             Duplicate to level. [0,4]
-        photometric : Return JxlColorSpace value. 
+        photometric : Return JxlColorSpace value.
             Default logic is quite complicated but works most of the time.
             Accepted value:
                 int: [-1,3]
-                str: ['RGB', 
-                    'WHITEISZERO', 'MINISWHITE', 
+                str: ['RGB',
+                    'WHITEISZERO', 'MINISWHITE',
                     'BLACKISZERO', 'MINISBLACK', 'GRAY',
                     'XYB', 'KNOWN']
         planar : Enable multi-channel mode.
             Default to false.
-        usecontainer : 
-            Forces the encoder to use the box-based container format (BMFF) 
+        usecontainer :
+            Forces the encoder to use the box-based container format (BMFF)
             even when not necessary.
-            When using JxlEncoderUseBoxes, JxlEncoderStoreJPEGMetadata or 
-            JxlEncoderSetCodestreamLevel with level 10, the encoder will 
-            automatically also use the container format, it is not necessary 
+            When using JxlEncoderUseBoxes, JxlEncoderStoreJPEGMetadata or
+            JxlEncoderSetCodestreamLevel with level 10, the encoder will
+            automatically also use the container format, it is not necessary
             to use JxlEncoderUseContainer for those use cases.
             By default this setting is disabled.
         index : Selectively decode frames for animation.
             Default to 0, decode all frames.
             When set to > 0, decode that frame index only.
-        keeporientation : 
-            Enables or disables preserving of as-in-bitstream pixeldata orientation. 
-            Some images are encoded with an Orientation tag indicating that the 
+        keeporientation :
+            Enables or disables preserving of as-in-bitstream pixeldata orientation.
+            Some images are encoded with an Orientation tag indicating that the
             decoder must perform a rotation and/or mirroring to the encoded image data.
 
-            If skip_reorientation is JXL_FALSE (the default): the decoder will apply 
-            the transformation from the orientation setting, hence rendering the image 
-            according to its specified intent. When producing a JxlBasicInfo, the decoder 
-            will always set the orientation field to JXL_ORIENT_IDENTITY (matching the 
-            returned pixel data) and also align xsize and ysize so that they correspond 
+            If skip_reorientation is JXL_FALSE (the default): the decoder will apply
+            the transformation from the orientation setting, hence rendering the image
+            according to its specified intent. When producing a JxlBasicInfo, the decoder
+            will always set the orientation field to JXL_ORIENT_IDENTITY (matching the
+            returned pixel data) and also align xsize and ysize so that they correspond
             to the width and the height of the returned pixel data.
 
-            If skip_reorientation is JXL_TRUE: the decoder will skip applying the 
-            transformation from the orientation setting, returning the image in 
-            the as-in-bitstream pixeldata orientation. This may be faster to decode 
-            since the decoder doesnt have to apply the transformation, but can 
-            cause wrong display of the image if the orientation tag is not correctly 
+            If skip_reorientation is JXL_TRUE: the decoder will skip applying the
+            transformation from the orientation setting, returning the image in
+            the as-in-bitstream pixeldata orientation. This may be faster to decode
+            since the decoder doesnt have to apply the transformation, but can
+            cause wrong display of the image if the orientation tag is not correctly
             taken into account by the user.
 
-            By default, this option is disabled, and the returned pixel data is 
+            By default, this option is disabled, and the returned pixel data is
             re-oriented according to the images Orientation setting.
         threads : Default to 1.
             If <= 0, use all cores.
@@ -846,7 +834,7 @@ class JpegXl(Codec):
 class JpegXr(Codec):
     """JPEG XR codec for numcodecs."""
 
-    codec_id = 'imagecodecs_jpegxr'
+    codec_id = "imagecodecs_jpegxr"
 
     def __init__(
         self,
@@ -879,7 +867,7 @@ class JpegXr(Codec):
 class Lerc(Codec):
     """LERC codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lerc'
+    codec_id = "imagecodecs_lerc"
 
     def __init__(self, level=None, version=None, planar=None):
         self.level = level
@@ -904,7 +892,7 @@ class Lerc(Codec):
 class Ljpeg(Codec):
     """LJPEG codec for numcodecs."""
 
-    codec_id = 'imagecodecs_ljpeg'
+    codec_id = "imagecodecs_ljpeg"
 
     def __init__(self, bitspersample=None):
         self.bitspersample = bitspersample
@@ -920,7 +908,7 @@ class Ljpeg(Codec):
 class Lz4(Codec):
     """LZ4 codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lz4'
+    codec_id = "imagecodecs_lz4"
 
     def __init__(self, level=None, hc=False, header=True):
         self.level = level
@@ -939,7 +927,7 @@ class Lz4(Codec):
 class Lz4f(Codec):
     """LZ4F codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lz4f'
+    codec_id = "imagecodecs_lz4f"
 
     def __init__(
         self,
@@ -969,7 +957,7 @@ class Lz4f(Codec):
 class Lzf(Codec):
     """LZF codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lzf'
+    codec_id = "imagecodecs_lzf"
 
     def __init__(self, header=True):
         self.header = bool(header)
@@ -984,7 +972,7 @@ class Lzf(Codec):
 class Lzma(Codec):
     """LZMA codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lzma'
+    codec_id = "imagecodecs_lzma"
 
     def __init__(self, level=None):
         self.level = level
@@ -999,7 +987,7 @@ class Lzma(Codec):
 class Lzw(Codec):
     """LZW codec for numcodecs."""
 
-    codec_id = 'imagecodecs_lzw'
+    codec_id = "imagecodecs_lzw"
 
     def encode(self, buf):
         return imagecodecs.lzw_encode(buf)
@@ -1011,7 +999,7 @@ class Lzw(Codec):
 class PackBits(Codec):
     """PackBits codec for numcodecs."""
 
-    codec_id = 'imagecodecs_packbits'
+    codec_id = "imagecodecs_packbits"
 
     def __init__(self, axis=None):
         self.axis = axis
@@ -1028,16 +1016,14 @@ class PackBits(Codec):
 class Pglz(Codec):
     """PGLZ codec for numcodecs."""
 
-    codec_id = 'imagecodecs_pglz'
+    codec_id = "imagecodecs_pglz"
 
     def __init__(self, header=True, strategy=None):
         self.header = bool(header)
         self.strategy = strategy
 
     def encode(self, buf):
-        return imagecodecs.pglz_encode(
-            buf, strategy=self.strategy, header=self.header
-        )
+        return imagecodecs.pglz_encode(buf, strategy=self.strategy, header=self.header)
 
     def decode(self, buf, out=None):
         return imagecodecs.pglz_decode(buf, header=self.header, out=_flat(out))
@@ -1046,7 +1032,7 @@ class Pglz(Codec):
 class Png(Codec):
     """PNG codec for numcodecs."""
 
-    codec_id = 'imagecodecs_png'
+    codec_id = "imagecodecs_png"
 
     def __init__(self, level=None):
         self.level = level
@@ -1062,7 +1048,7 @@ class Png(Codec):
 class Qoi(Codec):
     """QOI codec for numcodecs."""
 
-    codec_id = 'imagecodecs_qoi'
+    codec_id = "imagecodecs_qoi"
 
     def __init__(self):
         pass
@@ -1078,13 +1064,13 @@ class Qoi(Codec):
 class Rgbe(Codec):
     """RGBE codec for numcodecs."""
 
-    codec_id = 'imagecodecs_rgbe'
+    codec_id = "imagecodecs_rgbe"
 
     def __init__(self, header=False, shape=None, rle=None):
         if not header and shape is None:
-            raise ValueError('must specify data shape if no header')
+            raise ValueError("must specify data shape if no header")
         if shape and shape[-1] != 3:
-            raise ValueError('invalid shape')
+            raise ValueError("invalid shape")
         self.shape = shape
         self.header = bool(header)
         self.rle = None if rle is None else bool(rle)
@@ -1096,15 +1082,13 @@ class Rgbe(Codec):
     def decode(self, buf, out=None):
         if out is None and not self.header:
             out = numpy.empty(self.shape, numpy.float32)
-        return imagecodecs.rgbe_decode(
-            buf, header=self.header, rle=self.rle, out=out
-        )
+        return imagecodecs.rgbe_decode(buf, header=self.header, rle=self.rle, out=out)
 
 
 class Rcomp(Codec):
     """Rcomp codec for numcodecs."""
 
-    codec_id = 'imagecodecs_rcomp'
+    codec_id = "imagecodecs_rcomp"
 
     def __init__(self, shape, dtype, nblock=None):
         self.shape = tuple(shape)
@@ -1127,7 +1111,7 @@ class Rcomp(Codec):
 class Snappy(Codec):
     """Snappy codec for numcodecs."""
 
-    codec_id = 'imagecodecs_snappy'
+    codec_id = "imagecodecs_snappy"
 
     def encode(self, buf):
         return imagecodecs.snappy_encode(buf)
@@ -1139,7 +1123,7 @@ class Snappy(Codec):
 class Spng(Codec):
     """SPNG codec for numcodecs."""
 
-    codec_id = 'imagecodecs_spng'
+    codec_id = "imagecodecs_spng"
 
     def __init__(self, level=None):
         self.level = level
@@ -1155,7 +1139,7 @@ class Spng(Codec):
 class Tiff(Codec):
     """TIFF codec for numcodecs."""
 
-    codec_id = 'imagecodecs_tiff'
+    codec_id = "imagecodecs_tiff"
 
     def __init__(self, index=None, asrgb=None, verbose=0):
         self.index = index
@@ -1180,7 +1164,7 @@ class Tiff(Codec):
 class Webp(Codec):
     """WebP codec for numcodecs."""
 
-    codec_id = 'imagecodecs_webp'
+    codec_id = "imagecodecs_webp"
 
     def __init__(self, level=None, lossless=None, method=None, hasalpha=None):
         self.level = level
@@ -1201,7 +1185,7 @@ class Webp(Codec):
 class Xor(Codec):
     """XOR codec for numcodecs."""
 
-    codec_id = 'imagecodecs_xor'
+    codec_id = "imagecodecs_xor"
 
     def __init__(self, shape=None, dtype=None, axis=-1):
         self.shape = None if shape is None else tuple(shape)
@@ -1224,7 +1208,7 @@ class Xor(Codec):
 class Zfp(Codec):
     """ZFP codec for numcodecs."""
 
-    codec_id = 'imagecodecs_zfp'
+    codec_id = "imagecodecs_zfp"
 
     def __init__(
         self,
@@ -1243,7 +1227,7 @@ class Zfp(Codec):
             self.dtype = None
             self.strides = None
         elif shape is None or dtype is None:
-            raise ValueError('invalid shape or dtype')
+            raise ValueError("invalid shape or dtype")
         else:
             self.shape = tuple(shape)
             self.dtype = numpy.dtype(dtype).str
@@ -1286,7 +1270,7 @@ class Zfp(Codec):
 class Zlib(Codec):
     """Zlib codec for numcodecs."""
 
-    codec_id = 'imagecodecs_zlib'
+    codec_id = "imagecodecs_zlib"
 
     def __init__(self, level=None):
         self.level = level
@@ -1301,7 +1285,7 @@ class Zlib(Codec):
 class Zlibng(Codec):
     """Zlibng codec for numcodecs."""
 
-    codec_id = 'imagecodecs_zlibng'
+    codec_id = "imagecodecs_zlibng"
 
     def __init__(self, level=None):
         self.level = level
@@ -1316,7 +1300,7 @@ class Zlibng(Codec):
 class Zopfli(Codec):
     """Zopfli codec for numcodecs."""
 
-    codec_id = 'imagecodecs_zopfli'
+    codec_id = "imagecodecs_zopfli"
 
     def encode(self, buf):
         return imagecodecs.zopfli_encode(buf)
@@ -1328,7 +1312,7 @@ class Zopfli(Codec):
 class Zstd(Codec):
     """ZStandard codec for numcodecs."""
 
-    codec_id = 'imagecodecs_zstd'
+    codec_id = "imagecodecs_zstd"
 
     def __init__(self, level=None):
         self.level = level
@@ -1347,19 +1331,19 @@ def _flat(out):
     view = memoryview(out)
     if view.readonly or not view.contiguous:
         return None
-    return view.cast('B')
+    return view.cast("B")
 
 
 def register_codecs(codecs=None, force=False, verbose=True):
     """Register codecs in this module with numcodecs."""
     for name, cls in globals().items():
-        if not hasattr(cls, 'codec_id') or name == 'Codec':
+        if not hasattr(cls, "codec_id") or name == "Codec":
             continue
         if codecs is not None and cls.codec_id not in codecs:
             continue
         try:
             try:
-                get_codec({'id': cls.codec_id})
+                get_codec({"id": cls.codec_id})
             except TypeError:
                 # registered, but failed
                 pass
@@ -1369,12 +1353,10 @@ def register_codecs(codecs=None, force=False, verbose=True):
         else:
             if not force:
                 if verbose:
-                    log_warning(
-                        f'numcodec {cls.codec_id!r} already registered'
-                    )
+                    log_warning(f"numcodec {cls.codec_id!r} already registered")
                 continue
             if verbose:
-                log_warning(f'replacing registered numcodec {cls.codec_id!r}')
+                log_warning(f"replacing registered numcodec {cls.codec_id!r}")
         register_codec(cls)
 
 

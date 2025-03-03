@@ -19,9 +19,9 @@ pip install -r requirements.txt
 
 * **模型部署**
 - `checkpoints`:[sd_xl_turbo_1.0_fp16](https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors)
-  
+
 - `controlnet`:[controlnet_depth_sdxl_1.0](https://huggingface.co/diffusers/controlnet-depth-sdxl-1.0/blob/main/diffusion_pytorch_model.safetensors)
-  
+
 - `vae`:[sdxl_vae](https://huggingface.co/stabilityai/sdxl-vae/blob/main/diffusion_pytorch_model.safetensors)
 
 分别部署于本目录下`models`下的同名文件夹中，并在`models/extra_model_paths.yaml`中添加模型所在目录路径，修改后如下：
@@ -70,7 +70,7 @@ export COMFYUI_CONFIG_PATH=/path/to/extra_model_paths.yaml
 
 ```python
 from discoverse.randomain.utils import SampleforDR
-samples = SampleforDR(objs=objs, robot_parts=robot_parts, 
+samples = SampleforDR(objs=objs, robot_parts=robot_parts,
                       cam_ids=cfg.obs_rgb_cam_id, save_dir=save_dir,
                       fps=cfg.render_set['fps'], max_vis_dis=max_vis_dis)
 # objs 操作对象 e.g.['block_green', 'bowl_pink']
@@ -96,7 +96,7 @@ samples.save()
 
 在`augment.py`中，支持：
 
-1. 根据预输入批量生成提示词 
+1. 根据预输入批量生成提示词
 
 ```python
 # e.g. for task of block_place
@@ -145,6 +145,3 @@ python generate.py  [--arg]
 `flow_interval`:生成图像的帧间隔，中间的帧用光流方法计算
 
 `flow_method`:`rgb`-Farneback方法；`raft`-RAFT方法；对应方法部署后可自行拓展
-
-
-
