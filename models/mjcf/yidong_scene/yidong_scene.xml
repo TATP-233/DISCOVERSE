@@ -1,0 +1,36 @@
+<mujoco model="yidong_scene">
+
+  <include file="../scene.xml"/>
+
+  <compiler angle="radian" meshdir="../../meshes" texturedir="../../textures/"/>
+
+  <include file="../object/lungu_dependencies.xml"/>
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
+  <worldbody>
+
+    <body name="table" pos="0 0 0">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.69" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="0.8 0.8 0.8 1"/>
+      <geom size="0.02 0.02 0.34" pos=" 0.55  0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos=" 0.55 -0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos="-0.55  0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos="-0.55 -0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="lungu" pos="0 0 0.75" euler="1.5708 0 0" >
+      <freejoint/>
+      <include file="../object/lungu.xml"/>
+    </body>
+
+
+  </worldbody>
+
+</mujoco>

@@ -4,7 +4,7 @@
 
   <compiler angle="radian" meshdir="../../meshes" texturedir="../../textures/"/>
 
-  <include file="../object/transparent_box_dependencies.xml"/>
+  <!-- <include file="../object/lungu_dependencies.xml"/> -->
 
   <default>
     <default class="obj_visual">
@@ -17,51 +17,11 @@
 
   <worldbody>
 
-    <body pos="0 0 0">
-      <!-- box sphere cylinder capsule mesh -->
-      <geom size="0.17 0.275 0.015" pos="0 0 0.855" type="box" rgba="0.55 0.525 0.5 1" />
-      <geom size="0.17 0.275 0.03"  pos="0 0 0.03" type="box" rgba="0.55 0.525 0.5 1" />
-      <geom size="0.17 0.01 0.395"  pos="0  0 0.455" type="box" rgba="0.55 0.525 0.5 1" />
-      <geom size="0.17 0.0125 0.395"  pos="0  0.2625 0.455" type="box" rgba="0.55 0.525 0.5 1" />
-      <geom size="0.17 0.0125 0.395"  pos="0 -0.2625 0.455" type="box" rgba="0.55 0.525 0.5 1" />
-      <geom size="0.015 0.275 0.435"  pos="0.18 0 0.435" type="box" rgba="0.55 0.525 0.5 1" />
-
-      <include file="chouti.xml"/>
-
-    </body>
+    <!-- <body name="<obj_name>" pos="0 0 0.75" euler="1.5708 0 0" >
+      <freejoint/>
+      <include file="../object/<obj_name>.xml"/>
+    </body> -->
 
   </worldbody>
-
-  <!-- <actuator>
-    <include file="../mmk2/mmk2_control.xml"/>
-  </actuator>
-
-  <sensor>
-    <include file="../mmk2/mmk2_sensor.xml"/>
-  </sensor> -->
-
-  <!-- <keyframe>
-    <key name="pick" qpos='
-       0.7 -0.5 0  1 0 0 -1
-       0 0 0  0 0
-
-       0.    -0.166  0.032  0.     1.571  2.223  0 0
-
-      -0.    -0.166  0.032  0.    -1.571 -2.223  0 0
-
-       0.65 -1 0.8  1 0 0 0
-       0.4 -1.5 0.8 1 0 0 1'
-      ctrl = '
-       0 0 0  0 0
-       0.    -0.166  0.032  0.     1.571  2.223  0
-      -0.    -0.166  0.032  0.    -1.571 -2.223  0
-      '
-    />
-  </keyframe> -->
-
-  <keyframe>
-    <!-- <key qpos='0 0 0 0 0 0 0 0 0.25 0 0 0 0.25 0 0 0.24375 0 0 0 0 0 0 0 0 0 0 0.25 0 0 0.2425 0 0 0 0.25 0 0'/> -->
-  </keyframe>
-
 
 </mujoco>

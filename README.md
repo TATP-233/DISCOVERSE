@@ -27,7 +27,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### Download Resource Files
+### Download Resource Files ！！！
 
 Download the `meshes` and `textures` folders from [Baidu Netdisk](https://pan.baidu.com/s/1y4NdHDU7alCEmjC1ebtR8Q?pwd=bkca) or [Tsinghua Netdisk](https://cloud.tsinghua.edu.cn/d/0b92cdaeb58e414d85cc/) and place them under the `models` directory. After downloading the model files, the `models` directory will contain the following contents.
 
