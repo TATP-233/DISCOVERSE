@@ -1,0 +1,331 @@
+<mujoco model="s2r2025">
+
+  <include file="mmk2/mmk2_options.xml"/>
+  <include file="mmk2/mmk2_dependencies.xml"/>
+
+  <visual>
+    <global offwidth="1920" offheight="1080"/>
+    <quality shadowsize="4096" offsamples="4"/>
+    <headlight diffuse='0.6 0.6 0.6' ambient='.3 .3 .3' specular='0 0 0'/>
+    <scale com="0.05" camera="0.06" framelength="0.5" framewidth="0.02" forcewidth="0.1" contactwidth="0.01" contactheight="0.05"/>
+  </visual>
+
+  <asset>
+    <texture type='2d' name='groundplane' builtin='checker' mark='edge' rgb1='0.2 0.3 0.4' rgb2='0.1 0.2 0.3' markrgb='0.8 0.8 0.8' width='300' height='300'/>
+    <material name='groundplane' texture='groundplane' texuniform='true' texrepeat='5 5' reflectance='0.2'/>
+  </asset>
+
+  <include file="s2r2025_dependencies.xml"/>
+
+  <worldbody>
+    <light castshadow="false" directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='-1 -1 2.5' dir='1 1 -1'/>
+    <light directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='1 -1 2.5' dir='-1 1 -1'/>
+    <light castshadow="false" directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='0 1 2.5' dir='0 -1 -1'/>
+    <geom name='floor' type='plane' size='0 0 0.01' material='groundplane' pos='0 0 0'/>
+
+    <site name="site_round2_target" pos="-1.0 -0.05 0.75" size="0.005" rgba="0 0 0 1" type="sphere"/>
+    <site name="site_round3_target" pos="-1.0  0.15 0.75" size="0.005" rgba="0 0 0 1" type="sphere"/>
+
+    <body name='mmk2' pos="-0.0087 -0.0859 0" quat="-0.707 0 0 0.707">
+      <joint type="free" frictionloss="0.0001" />
+      <include file="mmk2/mmk2.xml"/>
+    </body>
+
+    <!-- ONPs: objects -->
+    <body name="box_carton" pos="1.35 0.25 0.742">
+      <include file="s2r2025/box_carton.xml"/>
+      <geom pos="0 0 0" size="0.09 0.07 0.003" type="box" rgba="0 0 0 1"/>
+    </body>
+    <body name="box_disk" pos="0.09 -0.6 0.75" quat="-0.707107 0 0 0.707107">
+      <include file="s2r2025/box_disk.xml"/>
+      <geom pos="0 0 0" size="0.09 0.07 0.003" type="box" rgba="0 0 0 1"/>
+    </body>
+    <body name="box_sheet" pos="1.35 0.55 1.062">
+      <include file="s2r2025/box_sheet.xml"/>
+      <geom pos="0 0 0" size="0.09 0.07 0.003" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="carton_01" pos="1.3 0.25 0.88" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.001"/>
+      <inertial pos="0 0 -0.03" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="carton_0" material="carton_01_Material006" class="visual"/>
+      <geom mesh="carton_1" material="carton_01_Material005" class="visual"/>
+      <geom mesh="carton_2" material="carton_01_Material004" class="visual"/>
+      <geom mesh="carton_3" material="carton_01_Material003" class="visual"/>
+      <geom mesh="carton_4" material="carton_01_Material002" class="visual"/>
+      <geom mesh="carton_5" material="carton_01_Material" class="visual"/>
+      <geom size="0.022 0.0475 0.07" type="box" rgba="0.0 0.5 0.5 0" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+    </body>
+    <body name="disk_01" pos="0.09 -0.52 0.95" quat="0.5 -0.5 -0.5 -0.5">
+      <joint type="free" frictionloss="0.001" />
+      <inertial pos="0 0 0" mass="0.01" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="disk" pos="0 0 -0.0045" material="disk_texture_01" class="obj_visual"/>
+      <geom size="0.055 0.0025" type="cylinder" rgba="0.0 0.5 0.5 0" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+    </body>
+    <body name="sheet_01" pos="1.325 0.585 1.179" quat="0.707 0 -0.707 0">
+      <joint type="free" frictionloss="0.001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="sheet" pos="0 0 0" material="sheet_texture_01" class="obj_visual"/>
+      <geom size="0.04 0.03 0.00125" type="box" rgba="0.0 0.5 0.5 0" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+    </body>
+
+    <body name="disk_02" pos="-1. -0.9  1.062">
+      <joint type="free" frictionloss="0.001" />
+      <inertial pos="0 0 0" mass="0.01" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="disk" pos="0 0 -0.0045" material="disk_texture_01" class="obj_visual"/>
+      <geom size="0.055 0.0025" type="cylinder" rgba="0.0 0.5 0.5 0" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+    </body>
+    <body name="sheet_02" pos="-1. -0.878 0.828">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="sheet" pos="0 0 0" material="sheet_texture_01" class="obj_visual"/>
+      <geom size="0.04 0.03 0.00125" type="box" rgba="0.0 0.5 0.5 0" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+    </body>
+
+    <body name="apple" pos="-1 -0.585 0.75" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="apple" material="apple_texture" class="obj_visual"/>
+      <!-- <geom mesh="apple" class="obj_collision"/> -->
+      <geom pos="0 0 0.03" size="0.03 0.03 0.03" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="book" pos="-1 -0.385 0.75" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="book" material="book_texture" class="obj_visual"/>
+      <!-- <geom mesh="book" class="obj_collision"/> -->
+      <geom pos="0 0 0.02" size="0.1 0.08 0.02" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="cup" pos="-1 -0.2 0.75" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="cup" material="cup_texture" class="obj_visual"/>
+      <geom mesh="cup" class="obj_collision"/>
+      <geom pos="0 0 0.0025" size="0.025 0.025 0.0025" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="kettle" pos="0.35 -0.9 0.75" quat="-0.707 0 0 0.707">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="kettle" material="kettle_texture" class="obj_visual"/>
+      <geom mesh="kettle" class="obj_collision"/>
+      <geom pos="0 -0.025 0.01" size="0.05 0.05 0.01" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="scissors" pos="-1 0.2 0.75" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="scissors" material="scissors_texture" class="obj_visual"/>
+      <geom mesh="scissors" class="obj_collision"/>
+    </body>
+
+    <body name="timeclock" pos="0.25 -0.7 0.75" quat="-0.707 0 0 0.707">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="timeclock" material="timeclock_texture" class="obj_visual"/>
+      <geom mesh="timeclock" class="obj_collision"/>
+      <geom pos="0 0 0.002" size="0.02 0.02 0.002" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="wood" pos="0.0 -0.9 0.75" quat="-0.707 0 0 0.707">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="wood" material="wood_texture" class="obj_visual"/>
+      <geom mesh="wood" class="obj_collision"/>
+      <geom pos="0 0 0.0025" size="0.11 0.07 0.0025" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="xbox" pos="-0.2 -0.7 0.75" quat="-0.707 0 0 0.707">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="xbox" material="xbox_texture" class="obj_visual"/>
+      <!-- <geom mesh="xbox" class="obj_collision"/> -->
+      <geom pos="0 0 0.03" size="0.05 0.08 0.03" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="yellow_bowl" pos="-0.4 -0.9 0.75" quat="1 0 0 0">
+      <joint type="free" frictionloss="0.000001" />
+      <inertial pos="0 0 0" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
+      <geom mesh="yellow_bowl" material="yellow_bowl_texture" class="obj_visual"/>
+      <geom mesh="yellow_bowl" class="obj_collision"/>
+      <geom pos="0 0 0.0025" size="0.025 0.025 0.0025" type="box" rgba="0 0 0 1"/>
+    </body>
+
+    <body name="toy_cabinet" pos="-1.0 -0.9 0.75" quat="0.707 0 0 -0.707">
+      <joint type="free" frictionloss="0.000001" />
+      <include file="s2r2025/toy_cabinet.xml"/>
+    </body>
+
+    <!-- OPs: static scene -->
+    <body name="left_table" pos="0.205 -0.85 0">
+      <geom size="0.4 0.8 0.01" pos="0 0 0.74" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 1 1 1"/>
+      <geom size="0.02 0.02 0.37" pos=" 0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="right_table" pos="-1 -0.45 0" euler="0 0 -1.5708">
+      <geom size="0.4 0.8 0.01" pos="0 0 0.74" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 1 1 1"/>
+      <geom size="0.02 0.02 0.37" pos=" 0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos=" 0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75  0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.37" pos="-0.75 -0.35 0.37" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="front_wall" pos="1.55 0 0">
+      <geom size="1.0 0.44 0.015" pos="0  1.1  1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.05 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.85  1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body>
+
+    <body name="left_wall" pos="0 1.55 0" euler="0 0 -1.5708">
+      <geom size="1.0 0.44 0.015" pos="0  1.1  1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.05 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.95 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body>
+
+    <!-- <body name="back_wall" pos="-1.4 0.2 0">
+      <geom size="1.0 0.44 0.015" pos="0  0.0 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0  0.9 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.49 0.015" pos="0 -0.955 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body>
+
+    <body name="right_wall" pos="0.05 -1.3 0" euler="0 0 -1.5708">
+      <geom size="1.0 0.49 0.015" pos="0  1. 1" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.49 0.015" pos="0  0. 1" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.49 0.015" pos="0 -1. 1" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body> -->
+
+    <body name="cabinet_1" pos="0.4 1.37 0" euler="0 0 1.5708">
+
+      <body pos="0.127 -0.15 1.53">
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.018 0.001" rgba="0 0.7 0.9 1"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="0.0002 0 0" rgba="1 1 1 0.8"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="-0.0002 0 0" rgba="1 1 1 0.8"/>
+      </body>
+
+      <body pos="0.127 0.15 1.53">
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.018 0.001" rgba="0 0.7 0.9 1"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="0.0002 0 0" rgba="1 1 1 0.8"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="-0.0002 0 0" rgba="1 1 1 0.8"/>
+      </body>
+
+      <geom size="0.15 0.01 1.015" pos="0  0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.01 1.015" pos="0 -0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.01 0.40 1.015" pos="0.14 0.0 1.015" type="box" rgba="0.9 0.9 0.9 1" />
+
+      <geom size="0.15 0.4 0.01" pos="0 0 0.09" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.41" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.73" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.05" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.37" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.69"  type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 2.01"  type="box" rgba="0.9 0.9 0.9 1" />
+    </body>
+
+    <body name="cabinet_2" pos="1.37 0.4 0">
+
+      <body pos="0.127 -0.15 1.53">
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.018 0.001" rgba="0 0.7 0.9 1"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="0.0002 0 0" rgba="1 1 1 0.8"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="-0.0002 0 0" rgba="1 1 1 0.8"/>
+      </body>
+
+      <body pos="0.127 0.15 1.53">
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.018 0.001" rgba="0 0.7 0.9 1"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="0.0002 0 0" rgba="1 1 1 0.8"/>
+        <geom type="cylinder" euler="0 -1.5708 0" size="0.015 0.001" pos="-0.0002 0 0" rgba="1 1 1 0.8"/>
+      </body>
+
+      <geom size="0.15 0.01 1.015" pos="0  0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.01 1.015" pos="0 -0.4 1.015"   type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.01 0.40 1.015" pos="0.14 0.0 1.015" type="box" rgba="0.9 0.9 0.9 1" />
+
+      <geom size="0.15 0.4 0.01" pos="0 0 0.09" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.41" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 0.73" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.05" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.37" type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 1.69"  type="box" rgba="0.9 0.9 0.9 1" />
+      <geom size="0.15 0.4 0.01" pos="0 0 2.01"  type="box" rgba="0.9 0.9 0.9 1" />
+    </body>
+
+  </worldbody>
+
+  <actuator>
+    <include file="mmk2/mmk2_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="mmk2/mmk2_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <!-- base position -->
+    <!-- base quat     -->
+    <!-- wheel         -->
+    <!-- slide         -->
+    <!-- head yaw pitch -->
+
+    <key name="pick" qpos='
+      -0.0087 -0.0859 0 -0.707 0 0 0.707   0 0 0 0 0
+      -0. -0.166 0.032 0.  1.5708  0.6522 0 0 
+      -0. -0.166 0.032 0. -1.5708 -0.6522 0 0
+      1.35 0.25 0.742 1 0 0 0 
+      0.5 -0.6 0.75 -0.707107 0 0 0.707107 
+      1.35 0.55 1.062 1 0 0 0 
+      1.3  0.25 0.88  1 0 0 0 
+      0.5 -0.62 0.95  0.5 -0.5 -0.5 -0.5 
+      1.325 0.585 1.179 0.707107 0 -0.707107 0 
+      -0. -0.878 0.828 1 0 0 0
+      -0. -0.9  1.062  1 0 0 0
+      -1 -0.585 0.75  1 0 0 0 
+      0.45 -0.9 0.75  -0.707 0 0 0.707
+      -1 -0.2 0.75  1 0 0 0 
+      -1 0 0.75   1 0 0 0 
+      -1 0.2 0.75 1 0 0 0 
+      -0.8 -0.7 0.75  0 0 0 1 
+      0.85 -0.9 0.75  -0.707 0 0 0.707
+      -0.4 -0.7 0.75  1 0 0 0 
+      -0.3 -0.7 0.75  1 0 0 0 
+       0 -0.9 0.75  0.707107 0 0 -0.707107 
+      0 0' ctrl="0 0 0 0 1
+      -0. -0.166 0.032 0.  1.5708  0.6522 0 
+      -0. -0.166 0.032 0. -1.5708 -0.6522 0
+      "/>
+
+    <key name="carry" qpos='
+      0 0 0  1 0 0 0   0 0 0 0 0
+      -0. -0.166 0.032 0.  1.5708  0.6522 0 0 
+      -0. -0.166 0.032 0. -1.5708 -0.6522 0 0
+      1.35 0.25 0.742 1 0 0 0 
+      0.25 1.35 0.422 0.707107 0 0 0.707107 
+      1.35 0.55 1.062 1 0 0 0 
+      1.3  0.25 0.88  1 0 0 0 
+      0.25 1.275 0.547  0.5 0.5 -0.5 0.5 
+      1.325 0.585 1.179 0.707107 0 -0.707107 0 
+      -0. -0.878 0.828 1 0 0 0
+      -0. -0.9  1.062  1 0 0 0
+      -1 -0.585 0.75  1 0 0 0 
+      -1 -0.385 0.75  1 0 0 0 
+      -1 -0.2 0.75  1 0 0 0 
+      -1 0 0.75   1 0 0 0 
+      -1 0.2 0.75 1 0 0 0 
+      -0.8 -0.7 0.75  0 0 0 1 
+      -0.6 -0.7 0.75  1 0 0 0 
+      -0.4 -0.7 0.75  1 0 0 0 
+      -0.3 -0.7 0.75  1 0 0 0 
+       0 -0.9 0.75  0.707107 0 0 -0.707107 
+      0 0' ctrl="0 0 0 0 0
+      -0. -0.166 0.032 0.  1.5708  0.6522 0 
+      -0. -0.166 0.032 0. -1.5708 -0.6522 0
+      "/>
+
+    
+
+  </keyframe>
+
+</mujoco>
