@@ -1,0 +1,71 @@
+<mujoco model="stack_block">
+
+  <include file="../scene.xml"/>
+  <include file="../airbot_play/airbot_play_options.xml"/>
+  <include file="../airbot_play/airbot_play_dependencies.xml"/>
+  <include file="../object/bowl_dependencies.xml"/>
+
+  <compiler meshdir="../../meshes/" texturedir="../../textures/"/>
+  <include file="../object/table_cloth_dependencies.xml"/>
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="6" solimp="2 1 0.01" solref="0.001 10" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
+  <worldbody>
+
+    <!-- ======= AITBOT PLAY ======= -->
+    <body name="arm_pose" pos="0.3 0.92 0.71" euler="0 0 3.1416">
+      <include file="../airbot_play/airbot_play_cam.xml"/>
+    </body>
+
+    <!-- ======= block_green ======= -->
+    <body name="block_green" pos="0 0.90 0.7125">
+      <joint type="free" frictionloss="0.00001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="1e-7 1e-7 1e-7" />
+      <geom rgba="0.21 0.70 0.21 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_blue ======= -->
+    <body name="block_blue" pos="0.06 1.0 0.7125">
+      <joint type="free" frictionloss="0.00001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="1e-7 1e-7 1e-7" />
+      <geom rgba="0.21 0.21 0.70 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <body name="cabinet" pos="0.915 0.58 0.01">
+      <include file="../object/cabinet.xml"/>
+    </body>
+
+    <include file="../lab3_env.xml"/>
+
+  </worldbody>
+
+  <equality>
+    <joint joint1='endleft' joint2='endright' polycoef='0 -1 0 0 0 '/>
+  </equality>
+
+  <actuator>
+    <include file="../airbot_play/airbot_play_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="../airbot_play/airbot_play_sensor.xml"/>
+  </sensor>
+
+  <!-- <keyframe>
+    <key name="ready" qpos='
+     -0.055 -0.547 0.905 1.599 -1.398 -1.599  0 0 
+     0 1.03 0.6988  1 0 0 0
+      0 0.85 0.7345 1 0 0 0
+      0 0'
+      ctrl="-0.055 -0.547 0.905 1.599 -1.398 -1.599  0"
+    />
+  </keyframe> -->
+
+</mujoco>
