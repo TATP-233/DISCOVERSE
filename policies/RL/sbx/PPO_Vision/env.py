@@ -1,6 +1,7 @@
 import numpy as np
 import gymnasium
 import mujoco
+import cv2
 from gymnasium import spaces
 from discoverse.examples.tasks_mmk2.kiwi_pick import SimNode, cfg
 from discoverse.task_base import MMK2TaskBase
@@ -35,25 +36,37 @@ class Env(gymnasium.Env):
 
         # 动作空间：机械臂关节角度控制
         # 使用actuator_ctrlrange来确定动作空间范围
-        ctrl_range = self.mj_model.actuator_ctrlrange  # 获取控制器范围
+        ctrl_range = self.mj_model.actuator_ctrlrange.astype(np.float32)  # 获取控制器范围并转换为float32
         self.action_space = spaces.Box(  # 定义动作空间
             low=ctrl_range[:, 0],
             high=ctrl_range[:, 1],
             dtype=np.float32
         )
 
-        # 观测空间：RGB图像 (3, 84, 84)
+        # 观测空间：堆叠的RGB图像 (3, 84, 84, 4) - 4帧堆叠
+        obs_shape = (3, 84, 84, 4)
         self.observation_space = spaces.Box(
-            low=np.zeros((3, 84, 84), dtype=np.float32),
-            high=np.ones((3, 84, 84), dtype=np.float32),
+            low=np.zeros(obs_shape, dtype=np.float32),
+            high=np.ones(obs_shape, dtype=np.float32),
             dtype=np.float32
         )
+        
+        # 初始化帧缓冲区，用于存储最近的4帧
+        self.frame_buffer = None
 
         self.max_steps = 1000  # 最大时间步数
         self.current_step = 0  # 当前时间步数
 
         # 初始化奖励信息字典
         self.reward_info = {}
+        
+        # 初始化帧缓冲区
+        self._init_frame_buffer()
+
+    def _init_frame_buffer(self):
+        """初始化帧缓冲区，用于存储最近的4帧"""
+        # 创建一个空的帧缓冲区
+        self.frame_buffer = None
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -64,9 +77,16 @@ class Env(gymnasium.Env):
             self.task_base.reset()  # 重置任务环境
             self.task_base.domain_randomization()  # 域随机化
 
-            observation = self._get_obs()  # 获取初始观测
+            # 重置帧缓冲区
+            self._init_frame_buffer()
+            
+            # 获取初始观测
+            initial_frame = self._get_frame()
+            # 初始时，用相同的帧填充整个缓冲区
+            self.frame_buffer = np.stack([initial_frame] * 4, axis=3)
+            
             info = {}
-            return observation, info  # 返回观察值和信息
+            return self.frame_buffer, info  # 返回堆叠的帧和信息
         except Exception as e:
             print(f"重置环境失败: {str(e)}")
             raise e
@@ -106,20 +126,40 @@ class Env(gymnasium.Env):
             print(f"执行动作失败: {str(e)}")
             raise e
 
-    def _get_obs(self):
+    def _get_frame(self):
+        """获取单帧图像"""
         # 获取摄像头图像
         # 使用task_base中的img_rgb_obs_s字典获取RGB图像
         rgb_img = self.task_base.img_rgb_obs_s[0]  # 获取第一个摄像头的RGB图像
         
-        # 调整图像大小为84x84
-        import cv2
-        rgb_img = cv2.resize(rgb_img, (84, 84))
+        # 使用cv2调整图像大小
         
         # 转换为PyTorch期望的格式：(C, H, W)
         rgb_img = np.transpose(rgb_img, (2, 0, 1))
         
+        # 调整图像大小为84x84
+        resized_img = np.zeros((3, 84, 84), dtype=np.float32)
+        for c in range(3):  # 对每个通道进行处理
+            # 使用cv2.resize调整大小
+            resized_img[c] = cv2.resize(rgb_img[c], (84, 84), interpolation=cv2.INTER_AREA)
+        
         # 将uint8转换为float32并归一化到[0,1]范围
-        return rgb_img.astype(np.float32) / 255.0
+        # 返回调整后的图像，形状为(3, 84, 84)
+        return resized_img.astype(np.float32) / 255.0
+    
+    def _get_obs(self):
+        """获取堆叠的多帧观察"""
+        # 获取当前帧
+        current_frame = self._get_frame()
+        
+        if self.frame_buffer is None:
+            # 如果帧缓冲区为空，用当前帧填充
+            self.frame_buffer = np.stack([current_frame] * 4, axis=3)
+        else:
+            # 移除最旧的帧，添加新帧
+            self.frame_buffer = np.concatenate([self.frame_buffer[:, :, :, 1:], current_frame[:, :, :, np.newaxis]], axis=3)
+        
+        return self.frame_buffer
 
     def _compute_reward(self):
         # 获取位置信息

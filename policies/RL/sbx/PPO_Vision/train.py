@@ -19,31 +19,49 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 class CNNFeatureExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
         super().__init__(observation_space, features_dim)
-        # 输入是(3, 84, 84)的RGB图像
-        n_input_channels = observation_space.shape[0]
+        self.frame_stack_size = observation_space.shape[3]  # 应该是4
+        n_input_channels = observation_space.shape[0] * self.frame_stack_size  # 3 * 4 = 12
         self.cnn = torch.nn.Sequential(
+            # 第一层卷积，处理原始尺寸的输入
             torch.nn.Conv2d(n_input_channels, 32, kernel_size=8, stride=4),
             torch.nn.ReLU(),
             torch.nn.Conv2d(32, 64, kernel_size=4, stride=2),
             torch.nn.ReLU(),
             torch.nn.Conv2d(64, 64, kernel_size=3, stride=1),
             torch.nn.ReLU(),
+            # 添加自适应平均池化层，将特征图调整为固定大小 (7x7)
+            torch.nn.AdaptiveAvgPool2d((7, 7)),
             torch.nn.Flatten()
         )
         
         # 计算CNN输出特征的维度
         with torch.no_grad():
-            n_flatten = self.cnn(
-                torch.as_tensor(observation_space.sample()[None]).float()
-            ).shape[1]
+            # 创建一个示例输入，形状为(1, 3, 84, 84, 4)
+            sample_input = torch.as_tensor(observation_space.sample()[None]).float()
+            # 重塑为(1, 12, 84, 84)
+            sample_input_reshaped = self._reshape_input(sample_input)
+            n_flatten = self.cnn(sample_input_reshaped).shape[1]
         
         self.linear = torch.nn.Sequential(
             torch.nn.Linear(n_flatten, features_dim),
             torch.nn.ReLU()
         )
+    
+    def _reshape_input(self, observations):
+        # 输入形状: (batch_size, channels, height, width, stack_size)
+        batch_size = observations.shape[0]
+        channels = observations.shape[1]
+        height = observations.shape[2]
+        width = observations.shape[3]
+        stack_size = observations.shape[4]
+        
+        # 重塑为 (batch_size, channels*stack_size, height, width)
+        return observations.permute(0, 1, 4, 2, 3).reshape(batch_size, channels*stack_size, height, width)
         
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
-        return self.linear(self.cnn(observations))
+        # 重塑输入以适应CNN
+        reshaped_obs = self._reshape_input(observations)
+        return self.linear(self.cnn(reshaped_obs))
 
 def make_env(render=True, seed=0):
     """创建环境的工厂函数
