@@ -1,0 +1,6 @@
+task_name: pick_kiwi
+task_path: discoverse/examples/tasks_mmk2/kiwi_pick.py
+
+obs_keys: [ 'jq', 'image0', 'image1', 'image2']
+max_steps: 100
+eval_num: 10

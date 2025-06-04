@@ -11,6 +11,8 @@ class Env():
         self.simnode = SimNode(cfg)
         self.args = args
         self.video_list = list()
+        self.last_qpos = np.zeros(19)
+        self.first_step = True
 
     def reset(self):
         obs, t = self.simnode.reset(), 0
@@ -32,14 +34,27 @@ class Env():
             result[f'image{id}'] = img_trans
 
         return result
+    
+    def match_euclidean(self, q_cur, q_seq):
+        dists = np.linalg.norm(q_seq - q_cur, axis=1)
+        best_idx = np.argmin(dists)
+        return best_idx + 1
 
     def step(self, action):
         success = 0
         num = 0
-        for act in action[4:]:  # 依次执行每个动作
+        # 动作状态匹配，从最接近的状态开始
+        # if self.first_step:
+        #     self.first_step = False
+        # else:
+        #     start_index = min(self.match_euclidean(self.last_qpos, action), action.shape[0]-1) # start_index要小于action长度
+        #     action = action[start_index:]
+
+        for act in action:  # 依次执行每个动作
             num += 1
             for _ in range(int(round(1. / self.simnode.render_fps / (self.simnode.delta_t)))):
                 obs, _, _, _, _ = self.simnode.step(act)
+            self.last_qpos = obs['jq']
             self.video_list.append(obs['img'])
             if self.simnode.check_success():
                 success = 1

@@ -12,7 +12,7 @@ from diffusion_policy.dataset.base_dataset import BaseImageDataset
 from diffusion_policy.common.normalize_util import get_image_range_normalizer
 import pdb
 
-class RobotImageDataset(BaseImageDataset):
+class AirbotImageDataset(BaseImageDataset):
     def __init__(self,
             zarr_path, 
             horizon=1,
@@ -27,8 +27,6 @@ class RobotImageDataset(BaseImageDataset):
         super().__init__()
         self.replay_buffer = ReplayBuffer.copy_from_path(
             zarr_path,
-            # keys=['head_camera', 'front_camera', 'left_camera', 'right_camera', 'state', 'action'],
-            # keys=['head_camera', 'state', 'action']
             keys=['image0', 'image1', 'jq', 'action']
         )
             
@@ -84,8 +82,6 @@ class RobotImageDataset(BaseImageDataset):
         normalizer.fit(data=data, last_n_dims=1, mode=mode, **kwargs)
         normalizer['image0'] = get_image_range_normalizer()
         normalizer['image1'] = get_image_range_normalizer()
-        # normalizer['left_cam'] = get_image_range_normalizer()
-        # normalizer['right_cam'] = get_image_range_normalizer()
         return normalizer
 
     def __len__(self) -> int:
@@ -95,15 +91,11 @@ class RobotImageDataset(BaseImageDataset):
         jq = sample['jq'].astype(np.float32) # (jqx2, block_posex3)
         image0 = np.moveaxis(sample['image0'],-1,1)/255
         image1 = np.moveaxis(sample['image1'],-1,1)/255
-        # left_cam = np.moveaxis(sample['left_camera'],-1,1)/255
-        # right_cam = np.moveaxis(sample['right_camera'],-1,1)/255
 
         data = {
             'obs': {
                 'image0': image0, # T, 3, H, W
                 'image1': image1, # T, 3, H, W
-                # 'left_cam': left_cam, # T, 3, H, W
-                # 'right_cam': right_cam, # T, 3, H, W
                 'jq': jq, # T, D
             },
             'action': sample['action'].astype(np.float32) # T, D
@@ -129,15 +121,11 @@ class RobotImageDataset(BaseImageDataset):
         jq = samples['jq'].to(device, non_blocking=True)
         image0 = samples['image0'].to(device, non_blocking=True) / 255.0
         image1 = samples['image1'].to(device, non_blocking=True) / 255.0
-        # left_cam = samples['left_camera'].to(device, non_blocking=True) / 255.0
-        # right_cam = samples['right_camera'].to(device, non_blocking=True) / 255.0
         action = samples['action'].to(device, non_blocking=True)
         return {
             'obs': {
                 'image0': image0, # B, T, 3, H, W
                 'image1': image1, # B, T, 3, H, W
-                # 'left_cam': left_cam, # B, T, 3, H, W
-                # 'right_cam': right_cam, # B, T, 3, H, W
                 'jq': jq, # B, T, D
             },
             'action': action # B, T, D

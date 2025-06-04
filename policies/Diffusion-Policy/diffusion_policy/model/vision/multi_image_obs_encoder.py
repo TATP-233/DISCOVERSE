@@ -162,7 +162,7 @@ class MultiImageObsEncoder(ModuleAttrMixin):
                     batch_size = img.shape[0]
                 else:
                     assert batch_size == img.shape[0]
-                assert img.shape[1:] == self.key_shape_map[key]
+                assert img.shape[1:] == self.key_shape_map[key], f"Expected image shape {self.key_shape_map[key]}, but got {img.shape[1:]}. Check the input image size and config size."
                 img = self.key_transform_map[key](img)
                 feature = self.key_model_map[key](img)
                 features.append(feature)

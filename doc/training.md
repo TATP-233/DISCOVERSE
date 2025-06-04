@@ -112,6 +112,12 @@ mv data/zarr/block_place.zarr policies/Diffusion-Policy/data
 ### 训练命令
 ```bash
 cd policies/Diffusion-Policy
-bash train.sh ${task_name} ${seed} ${gpu_id}
-# As example: bash train.sh block_place 0 0
+bash train.sh ${robot} ${task_name} ${gpu_id}
+# As example: bash train.sh airbot block_place 0
+# As example: bash train.sh mmk2 mmk2_pick_kiwi 0
 ```
+配置文件: policies/Diffusion-Policy/diffusion_policy/config
+
+### Note
+1. 建议在 MMK2 任务中使用 96×72 大小的图像，并在数据生成时采用该尺寸。MMK2 的 Diffusion Policy 配置文件中，图像大小默认为 96×72，可以根据需要进行调整。
+2. 配置文件中的 checkpoint_note 用于在 ckpt 文件名后附加额外的信息。通过修改该变量，可以为不同的任务配置保存具有区分度的 ckpt 文件名。
