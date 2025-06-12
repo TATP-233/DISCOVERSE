@@ -1,0 +1,28 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="spoon_texture" file="obj\spoon\spoon.png"/>
+    <material name="spoon_texture" texture="spoon_texture"/>
+
+    <mesh name="spoon" file="obj/spoon/spoon.obj"/>
+    <mesh name="spoon_part_0" file="obj/spoon/part_0.obj"/>
+    <mesh name="spoon_part_1" file="obj/spoon/part_1.obj"/>
+    <mesh name="spoon_part_2" file="obj/spoon/part_2.obj"/>
+    <mesh name="spoon_part_3" file="obj/spoon/part_3.obj"/>
+    <mesh name="spoon_part_4" file="obj/spoon/part_4.obj"/>
+    <mesh name="spoon_part_5" file="obj/spoon/part_5.obj"/>
+    <mesh name="spoon_part_6" file="obj/spoon/part_6.obj"/>
+    <mesh name="spoon_part_7" file="obj/spoon/part_7.obj"/>
+    <mesh name="spoon_part_8" file="obj/spoon/part_8.obj"/>
+    <mesh name="spoon_part_9" file="obj/spoon/part_9.obj"/>
+    <mesh name="spoon_part_10" file="obj/spoon/part_10.obj"/>
+    <mesh name="spoon_part_11" file="obj/spoon/part_11.obj"/>
+    <mesh name="spoon_part_12" file="obj/spoon/part_12.obj"/>
+    <mesh name="spoon_part_13" file="obj/spoon/part_13.obj"/>
+    <mesh name="spoon_part_14" file="obj/spoon/part_14.obj"/>
+    <mesh name="spoon_part_15" file="obj/spoon/part_15.obj"/>
+    <mesh name="spoon_part_16" file="obj/spoon/part_16.obj"/>
+    <mesh name="spoon_part_17" file="obj/spoon/part_17.obj"/>
+    <mesh name="spoon_part_18" file="obj/spoon/part_18.obj"/>
+    <mesh name="spoon_part_19" file="obj/spoon/part_19.obj"/>
+  </asset>
+</mujocoinclude>

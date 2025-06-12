@@ -1,0 +1,8 @@
+<mujocoinclude>
+  <joint type="free"/>
+  <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
+  <geom material="lemon_texture" mesh="lemon" class="obj_visual"/>
+
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="lemon_part_0"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="lemon_part_1"/>
+</mujocoinclude>

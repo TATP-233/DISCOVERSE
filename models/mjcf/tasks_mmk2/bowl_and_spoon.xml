@@ -1,0 +1,73 @@
+<mujoco model="pick_jujube_mmk2">
+
+  <include file="../scene.xml"/>
+  <include file="../mmk2/mmk2_options.xml"/>
+  <include file="../mmk2/mmk2_dependencies.xml"/>
+
+  <compiler meshdir="../../meshes/" texturedir="../../textures/"/>
+
+  <include file="../object/bowl_dependencies.xml"/>
+  <include file="../object/spoon_dependencies.xml"/>
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name='mmk2' pos="0 0 0" euler="0 0 0">
+      <joint type="free" frictionloss="0.0001" />
+      <include file="../mmk2/mmk2.xml"/>
+    </body>
+
+    <!-- ======= bowl ======= -->
+    <body name="bowl" pos="0.566151 -0.145157 0.76049" quat="0.6 0 0 0.7">
+      <include file="../object/bowl.xml"/>
+    </body>
+
+    <!-- ======= spoon ======= -->
+    <body name="spoon" pos=" 0.529063 0.0915262 0.760495" quat="0.6 0 0 0.7">
+      <include file="../object/spoon.xml"/>
+    </body>
+
+    <!-- 场景 -->
+        <!-- ======= TABLE write ======= -->
+    <body name="table-a" pos="0.65 0 0">
+      <geom size="0.35 0.6 0.01" pos="0. 0. 0.75" type="box" rgba="0.8 0.8 0.8 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+      <geom size="0.02 0.02 0.375" pos=" 0.3  0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos="-0.3  0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos=" 0.3 -0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos="-0.3 -0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+    </body>
+
+
+  </worldbody>
+
+  <actuator>
+    <include file="../mmk2/mmk2_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="../mmk2/mmk2_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="pick" qpos='
+       0 0 0  1 0 0 0
+       0 0 0  0 0
+       0.    -0.166  0.032  0.     1.571  2.223  0 0 
+       0.    -0.166  0.032  0.    -1.571 -2.223  0 0 
+       0.566151 -0.145157 0.76049  0.6 0 0 0.7
+       0.529063 0.0915262 0.760495  0.6 0 0 0.7'
+      ctrl = '
+       0 0 0  0 0
+       0.    -0.166  0.032  0.     1.571  2.223  0
+      -0.    -0.166  0.032  0.    -1.571 -2.223  0
+      '
+    />
+  </keyframe>
+</mujoco>

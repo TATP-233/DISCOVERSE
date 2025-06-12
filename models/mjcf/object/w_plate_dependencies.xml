@@ -1,0 +1,21 @@
+<mujocoinclude>
+  <asset>
+    <mesh name="w_plate" file="obj/w_plate/w_plate.obj"/>
+    <mesh name="w_plate_part_0" file="obj/w_plate/part_0.obj"/>
+    <mesh name="w_plate_part_1" file="obj/w_plate/part_1.obj"/>
+    <mesh name="w_plate_part_2" file="obj/w_plate/part_2.obj"/>
+    <mesh name="w_plate_part_3" file="obj/w_plate/part_3.obj"/>
+    <mesh name="w_plate_part_4" file="obj/w_plate/part_4.obj"/>
+    <mesh name="w_plate_part_5" file="obj/w_plate/part_5.obj"/>
+    <mesh name="w_plate_part_6" file="obj/w_plate/part_6.obj"/>
+    <mesh name="w_plate_part_7" file="obj/w_plate/part_7.obj"/>
+    <mesh name="w_plate_part_8" file="obj/w_plate/part_8.obj"/>
+    <mesh name="w_plate_part_9" file="obj/w_plate/part_9.obj"/>
+    <mesh name="w_plate_part_10" file="obj/w_plate/part_10.obj"/>
+    <mesh name="w_plate_part_11" file="obj/w_plate/part_11.obj"/>
+    <mesh name="w_plate_part_12" file="obj/w_plate/part_12.obj"/>
+    <mesh name="w_plate_part_13" file="obj/w_plate/part_13.obj"/>
+    <mesh name="w_plate_part_14" file="obj/w_plate/part_14.obj"/>
+    <mesh name="w_plate_part_15" file="obj/w_plate/part_15.obj"/>
+  </asset>
+</mujocoinclude>

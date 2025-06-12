@@ -1,0 +1,8 @@
+<mujocoinclude>
+  <asset>
+    <mesh name="steak" file="obj/steak/steak.obj"/>
+    <mesh name="steak_part_0" file="obj/steak/part_0.obj"/>
+    <mesh name="steak_part_1" file="obj/steak/part_1.obj"/>
+    <mesh name="steak_part_2" file="obj/steak/part_2.obj"/>
+  </asset>
+</mujocoinclude>

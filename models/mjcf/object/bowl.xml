@@ -1,46 +1,54 @@
 <mujocoinclude>
-  <!-- <body name="bowl" pos="0.2 0.25 0.725"> -->
-  <body name="bowl" pos="0.45 0.1 0.31">
-    <joint type="free" frictionloss="0.0002"/>
-    <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
-    <!-- <geom size="0.04 0.0002" pos="0 0 0" quat="0 1 0 0" type="cylinder" rgba="0.5 0.5 0 0.5"/> -->
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_0"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_1"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_2"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_3"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_4"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_5"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_6"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_7"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_8"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_9"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_10"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_11"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_12"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_13"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_14"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_15"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_16"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_17"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_18"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_19"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_20"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_21"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_22"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_23"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_24"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_25"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_26"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_27"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_28"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_29"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_30"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_31"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_32"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_33"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_34"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_35"/>
-    <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh" rgba="0.43 0.71 0.43 1" mesh="bowl_part_36"/>
-  </body>
+  <joint type="free"/>
+  <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
+  <geom material="bowl_texture" mesh="bowl" class="obj_visual"/>
 
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_0"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_1"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_2"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_3"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_4"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_5"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_6"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_7"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_8"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_9"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_10"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_11"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_12"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_13"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_14"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_15"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_16"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_17"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_18"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_19"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_20"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_21"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_22"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_23"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_24"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_25"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_26"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_27"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_28"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_29"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_30"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_31"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_32"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_33"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_34"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_35"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_36"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_37"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_38"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_39"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_40"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_41"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_42"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_43"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_44"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_45"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_46"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="bowl_part_47"/>
 </mujocoinclude>
