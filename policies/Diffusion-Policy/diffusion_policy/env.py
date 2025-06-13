@@ -7,11 +7,12 @@ class Env():
         SimNode = getattr(module, "SimNode")
         cfg = getattr(module, "cfg")
         self.cfg = cfg
-        cfg.headless = False
+        cfg.headless = True
         self.simnode = SimNode(cfg)
         self.args = args
         self.video_list = list()
         self.last_qpos = np.zeros(19)
+        self.last_action = np.zeros(19)
         self.first_step = True
 
     def reset(self):
@@ -35,26 +36,34 @@ class Env():
 
         return result
     
-    def match_euclidean(self, q_cur, q_seq):
-        dists = np.linalg.norm(q_seq - q_cur, axis=1)
-        best_idx = np.argmin(dists)
-        return best_idx + 1
+    # Interpolate the actions to make the robot move smoothly
+    def interpolate_action(self, prev_action, cur_action):
+        steps = 0.01 * np.ones(len(cur_action)) #The maximum change allowed for each joint per timestep
+        diff = np.abs(cur_action - prev_action)
+        step = np.ceil(diff / steps).astype(int)
+        step = np.max(step)
+        if step <= 1:
+            return cur_action[np.newaxis, :]
+        new_actions = np.linspace(prev_action, cur_action, step + 1)
+        return new_actions[1:]
 
-    def step(self, action):
+    def step(self, actions):
         success = 0
         num = 0
-        # 动作状态匹配，从最接近的状态开始
-        # if self.first_step:
-        #     self.first_step = False
-        # else:
-        #     start_index = min(self.match_euclidean(self.last_qpos, action), action.shape[0]-1) # start_index要小于action长度
-        #     action = action[start_index:]
-
-        for act in action:  # 依次执行每个动作
+        
+        for action in actions:  # 依次执行每个动作
             num += 1
-            for _ in range(int(round(1. / self.simnode.render_fps / (self.simnode.delta_t)))):
-                obs, _, _, _, _ = self.simnode.step(act)
-            self.last_qpos = obs['jq']
+            # 动作插值，使动作更平滑
+            if not self.first_step:
+                interp_actions = self.interpolate_action(self.last_action, action)
+            else:
+                self.first_step = False
+                interp_actions = action[np.newaxis, :]
+            for interp_action in interp_actions:
+                # 当前执行的动作
+                obs, _, _, _, _ = self.simnode.step(interp_action)
+                self.last_action = interp_action.copy()
+
             self.video_list.append(obs['img'])
             if self.simnode.check_success():
                 success = 1

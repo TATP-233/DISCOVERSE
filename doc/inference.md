@@ -68,3 +68,14 @@ python3 policies/dp/infer_real.py --config-path=configs --config-name=block_plac
 python3 eval.py "$task_name" "$checkpoint" "$gpu_id"
 # for example: bash eval.sh block_place note_1000 0
 ```
+
+## RDT
+
+### 推理命令
+
+```bash
+cd DISCOVERSE/policies/RDT
+bash eval.sh ${task_name} ${model_name} ${ckpt_id}
+# for example:
+bash eval.sh block_place model_name 20000
+```

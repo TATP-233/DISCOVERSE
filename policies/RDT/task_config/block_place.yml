@@ -1,0 +1,6 @@
+task_name: block_place
+task_path: discoverse/examples/tasks_airbot_play/block_place.py
+
+obs_keys: [ 'jq', 'image0', 'image1']
+max_steps: 300
+eval_num: 1

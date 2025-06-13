@@ -96,7 +96,7 @@ python3 policies/train.py dp --config-path=configs --config-name=block_place mod
 
 ## diffusion policy
 
-安装依赖:
+### 安装依赖:
 ```bash
 cd policies/Diffusion-Policy
 pip install -e .
@@ -121,3 +121,61 @@ bash train.sh ${robot} ${task_name} ${gpu_id}
 ### Note
 1. 建议在 MMK2 任务中使用 96×72 大小的图像，并在数据生成时采用该尺寸。MMK2 的 Diffusion Policy 配置文件中，图像大小默认为 96×72，可以根据需要进行调整。
 2. 配置文件中的 checkpoint_note 用于在 ckpt 文件名后附加额外的信息。通过修改该变量，可以为不同的任务配置保存具有区分度的 ckpt 文件名。
+
+## RDT
+
+### GPU
+训练至少需要25G内存（batch size = 4），
+推理需要0.5G内存
+
+### 环境
+```bash
+conda create -n rdt python=3.10.0
+conda activate rdt
+cd DISCOVERSE
+pip install -r requirements.txt
+pip install -e .
+pip install torch==2.1.0 torchvision==0.16.0 packaging==24.0 ninja 
+pip install flash-attn==2.7.2.post1 --no-build-isolation
+# 如果安装flash-attn失败，可以从官方下载对应的.whl安装: https://github.com/Dao-AILab/flash-attention/releases
+# 安装flash_attn-*.whl:
+# pip install flash_attn-*.whl
+cd DISCOVERSE/policies/RDT
+pip install -r requirements.txt
+pip install huggingface_hub==0.25.2
+```
+### 下载模型
+```bash
+cd DISCOVERSE/policies/RDT
+mkdir -p weights/RDT && cd cd weights/RDT
+huggingface-cli download google/t5-v1_1-xxl --local-dir t5-v1_1-xxl
+huggingface-cli download google/siglip-so400m-patch14-384 --local-dir siglip-so400m-patch14-384
+huggingface-cli download robotics-diffusion-transformer/rdt-1b --local-dir rdt-1b
+```
+
+### 生成language embeding
+```bash
+cd DISCOVERSE
+python3 policies/RDT/scripts/encode_lang_batch_once.py ${task_name} ${gpu_id}
+# for example:
+python3 policies/RDT/scripts/encode_lang_batch_once.py block_place 0
+```
+
+### 配置文件
+复制policies/RDT/model_config/model_name.yml，并重命名model_name
+
+### 训练微调
+```bash
+cd DISCOVERSE/policies/RDT
+python3 scripts/encode_lang_batch_once.py {task_name} {gpu_id}
+# for example:
+python3 scripts/encode_lang_batch_once.py block_place 0
+```
+
+### 推理
+```bash
+cd DISCOVERSE/policies/RDT
+bash eval.sh {robot} {task_name} {model_name} {ckpt_id}
+# for example:
+bash eval.sh airbot block_place model_name 20000
+```

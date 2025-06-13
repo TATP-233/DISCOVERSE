@@ -57,3 +57,43 @@ python3 policies/dp/raw2zarr.py -dir data -tn <task_name>
 - `-tn`: 任务名，程序将根据任务名从data目录中寻找相同名称的数据集文件夹
 
 转换后的数据存放于`discoverse/data/zarr`文件夹中。
+
+## RDT
+
+将仿真采集的原始数据格式转换为RDT算法中用到的hdf5格式，命令如下：
+```bash
+python3 policies/act/data_process/raw_to_hdf5.py -md mujoco -dir data -tn ${task_name}  -vn ${video_names}
+# for example:
+python3 policies/act/data_process/raw_to_hdf5.py -md mujoco -dir data -tn block_place -vn cam_0 cam_1
+```
+
+将hdf5文件移动到RDT需要的地址：
+```bash
+mv data/hdf5/${task_name} policies/RDT/training_data
+# for example:
+mv data/hdf5/block_place policies/RDT/training_data
+```
+
+将多个任务的数据都放在training_data，RDT会在一个模型中训练多个任务，目录结构为：
+```bash
+training_data
+├── instructions
+│   ├── ${task_1}.json
+│   ├── ${task_2}.json
+│   ├── ...
+├── ${task_1}
+│   ├── instructions
+│   │   ├── lang_embed_0.pt
+│   │   ├── ...
+│   ├── episode_0.hdf5
+│   ├── episode_1.hdf5
+│   ├── ...
+├── ${task_2}
+│   ├── instructions
+│   │   ├── lang_embed_0.pt
+│   │   ├── ...
+│   ├── episode_0.hdf5
+│   ├── episode_1.hdf5
+│   ├── ...
+├── ...
+```
