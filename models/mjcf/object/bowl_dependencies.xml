@@ -1,42 +1,56 @@
 <mujocoinclude>
-
   <asset>
-    <mesh name="bowl_part_0" file="stl/bowl/part_0.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_1" file="stl/bowl/part_1.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_2" file="stl/bowl/part_2.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_3" file="stl/bowl/part_3.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_4" file="stl/bowl/part_4.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_5" file="stl/bowl/part_5.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_6" file="stl/bowl/part_6.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_7" file="stl/bowl/part_7.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_8" file="stl/bowl/part_8.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_9" file="stl/bowl/part_9.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_10" file="stl/bowl/part_10.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_11" file="stl/bowl/part_11.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_12" file="stl/bowl/part_12.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_13" file="stl/bowl/part_13.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_14" file="stl/bowl/part_14.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_15" file="stl/bowl/part_15.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_16" file="stl/bowl/part_16.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_17" file="stl/bowl/part_17.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_18" file="stl/bowl/part_18.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_19" file="stl/bowl/part_19.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_20" file="stl/bowl/part_20.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_21" file="stl/bowl/part_21.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_22" file="stl/bowl/part_22.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_23" file="stl/bowl/part_23.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_24" file="stl/bowl/part_24.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_25" file="stl/bowl/part_25.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_26" file="stl/bowl/part_26.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_27" file="stl/bowl/part_27.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_28" file="stl/bowl/part_28.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_29" file="stl/bowl/part_29.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_30" file="stl/bowl/part_30.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_31" file="stl/bowl/part_31.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_32" file="stl/bowl/part_32.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_33" file="stl/bowl/part_33.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_34" file="stl/bowl/part_34.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_35" file="stl/bowl/part_35.STL" scale="1 1 1"/>
-    <mesh name="bowl_part_36" file="stl/bowl/part_36.STL" scale="1 1 1"/>
+    <texture type="2d" name="bowl_texture" file="obj\bowl\bowl.png"/>
+    <material name="bowl_texture" texture="bowl_texture"/>
+
+    <mesh name="bowl" file="obj/bowl/bowl.obj"/>
+    <mesh name="bowl_part_0" file="obj/bowl/part_0.obj"/>
+    <mesh name="bowl_part_1" file="obj/bowl/part_1.obj"/>
+    <mesh name="bowl_part_2" file="obj/bowl/part_2.obj"/>
+    <mesh name="bowl_part_3" file="obj/bowl/part_3.obj"/>
+    <mesh name="bowl_part_4" file="obj/bowl/part_4.obj"/>
+    <mesh name="bowl_part_5" file="obj/bowl/part_5.obj"/>
+    <mesh name="bowl_part_6" file="obj/bowl/part_6.obj"/>
+    <mesh name="bowl_part_7" file="obj/bowl/part_7.obj"/>
+    <mesh name="bowl_part_8" file="obj/bowl/part_8.obj"/>
+    <mesh name="bowl_part_9" file="obj/bowl/part_9.obj"/>
+    <mesh name="bowl_part_10" file="obj/bowl/part_10.obj"/>
+    <mesh name="bowl_part_11" file="obj/bowl/part_11.obj"/>
+    <mesh name="bowl_part_12" file="obj/bowl/part_12.obj"/>
+    <mesh name="bowl_part_13" file="obj/bowl/part_13.obj"/>
+    <mesh name="bowl_part_14" file="obj/bowl/part_14.obj"/>
+    <mesh name="bowl_part_15" file="obj/bowl/part_15.obj"/>
+    <mesh name="bowl_part_16" file="obj/bowl/part_16.obj"/>
+    <mesh name="bowl_part_17" file="obj/bowl/part_17.obj"/>
+    <mesh name="bowl_part_18" file="obj/bowl/part_18.obj"/>
+    <mesh name="bowl_part_19" file="obj/bowl/part_19.obj"/>
+    <mesh name="bowl_part_20" file="obj/bowl/part_20.obj"/>
+    <mesh name="bowl_part_21" file="obj/bowl/part_21.obj"/>
+    <mesh name="bowl_part_22" file="obj/bowl/part_22.obj"/>
+    <mesh name="bowl_part_23" file="obj/bowl/part_23.obj"/>
+    <mesh name="bowl_part_24" file="obj/bowl/part_24.obj"/>
+    <mesh name="bowl_part_25" file="obj/bowl/part_25.obj"/>
+    <mesh name="bowl_part_26" file="obj/bowl/part_26.obj"/>
+    <mesh name="bowl_part_27" file="obj/bowl/part_27.obj"/>
+    <mesh name="bowl_part_28" file="obj/bowl/part_28.obj"/>
+    <mesh name="bowl_part_29" file="obj/bowl/part_29.obj"/>
+    <mesh name="bowl_part_30" file="obj/bowl/part_30.obj"/>
+    <mesh name="bowl_part_31" file="obj/bowl/part_31.obj"/>
+    <mesh name="bowl_part_32" file="obj/bowl/part_32.obj"/>
+    <mesh name="bowl_part_33" file="obj/bowl/part_33.obj"/>
+    <mesh name="bowl_part_34" file="obj/bowl/part_34.obj"/>
+    <mesh name="bowl_part_35" file="obj/bowl/part_35.obj"/>
+    <mesh name="bowl_part_36" file="obj/bowl/part_36.obj"/>
+    <mesh name="bowl_part_37" file="obj/bowl/part_37.obj"/>
+    <mesh name="bowl_part_38" file="obj/bowl/part_38.obj"/>
+    <mesh name="bowl_part_39" file="obj/bowl/part_39.obj"/>
+    <mesh name="bowl_part_40" file="obj/bowl/part_40.obj"/>
+    <mesh name="bowl_part_41" file="obj/bowl/part_41.obj"/>
+    <mesh name="bowl_part_42" file="obj/bowl/part_42.obj"/>
+    <mesh name="bowl_part_43" file="obj/bowl/part_43.obj"/>
+    <mesh name="bowl_part_44" file="obj/bowl/part_44.obj"/>
+    <mesh name="bowl_part_45" file="obj/bowl/part_45.obj"/>
+    <mesh name="bowl_part_46" file="obj/bowl/part_46.obj"/>
+    <mesh name="bowl_part_47" file="obj/bowl/part_47.obj"/>
   </asset>
 </mujocoinclude>

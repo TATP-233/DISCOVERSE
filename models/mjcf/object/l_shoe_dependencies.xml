@@ -1,0 +1,50 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="l_shoe_texture" file="obj\l_shoe\r_shoe.png"/>
+    <material name="l_shoe_texture" texture="l_shoe_texture"/>
+
+    <mesh name="l_shoe" file="obj/l_shoe/l_shoe.obj"/>
+    <mesh name="l_shoe_part_0" file="obj/l_shoe/part_0.obj"/>
+    <mesh name="l_shoe_part_1" file="obj/l_shoe/part_1.obj"/>
+    <mesh name="l_shoe_part_2" file="obj/l_shoe/part_2.obj"/>
+    <mesh name="l_shoe_part_3" file="obj/l_shoe/part_3.obj"/>
+    <mesh name="l_shoe_part_4" file="obj/l_shoe/part_4.obj"/>
+    <mesh name="l_shoe_part_5" file="obj/l_shoe/part_5.obj"/>
+    <mesh name="l_shoe_part_6" file="obj/l_shoe/part_6.obj"/>
+    <mesh name="l_shoe_part_7" file="obj/l_shoe/part_7.obj"/>
+    <mesh name="l_shoe_part_8" file="obj/l_shoe/part_8.obj"/>
+    <mesh name="l_shoe_part_9" file="obj/l_shoe/part_9.obj"/>
+    <mesh name="l_shoe_part_10" file="obj/l_shoe/part_10.obj"/>
+    <mesh name="l_shoe_part_11" file="obj/l_shoe/part_11.obj"/>
+    <mesh name="l_shoe_part_12" file="obj/l_shoe/part_12.obj"/>
+    <mesh name="l_shoe_part_13" file="obj/l_shoe/part_13.obj"/>
+    <mesh name="l_shoe_part_14" file="obj/l_shoe/part_14.obj"/>
+    <mesh name="l_shoe_part_15" file="obj/l_shoe/part_15.obj"/>
+    <mesh name="l_shoe_part_16" file="obj/l_shoe/part_16.obj"/>
+    <mesh name="l_shoe_part_17" file="obj/l_shoe/part_17.obj"/>
+    <mesh name="l_shoe_part_18" file="obj/l_shoe/part_18.obj"/>
+    <mesh name="l_shoe_part_19" file="obj/l_shoe/part_19.obj"/>
+    <mesh name="l_shoe_part_20" file="obj/l_shoe/part_20.obj"/>
+    <mesh name="l_shoe_part_21" file="obj/l_shoe/part_21.obj"/>
+    <mesh name="l_shoe_part_22" file="obj/l_shoe/part_22.obj"/>
+    <mesh name="l_shoe_part_23" file="obj/l_shoe/part_23.obj"/>
+    <mesh name="l_shoe_part_24" file="obj/l_shoe/part_24.obj"/>
+    <mesh name="l_shoe_part_25" file="obj/l_shoe/part_25.obj"/>
+    <mesh name="l_shoe_part_26" file="obj/l_shoe/part_26.obj"/>
+    <mesh name="l_shoe_part_27" file="obj/l_shoe/part_27.obj"/>
+    <mesh name="l_shoe_part_28" file="obj/l_shoe/part_28.obj"/>
+    <mesh name="l_shoe_part_29" file="obj/l_shoe/part_29.obj"/>
+    <mesh name="l_shoe_part_30" file="obj/l_shoe/part_30.obj"/>
+    <mesh name="l_shoe_part_31" file="obj/l_shoe/part_31.obj"/>
+    <mesh name="l_shoe_part_32" file="obj/l_shoe/part_32.obj"/>
+    <mesh name="l_shoe_part_33" file="obj/l_shoe/part_33.obj"/>
+    <mesh name="l_shoe_part_34" file="obj/l_shoe/part_34.obj"/>
+    <mesh name="l_shoe_part_35" file="obj/l_shoe/part_35.obj"/>
+    <mesh name="l_shoe_part_36" file="obj/l_shoe/part_36.obj"/>
+    <mesh name="l_shoe_part_37" file="obj/l_shoe/part_37.obj"/>
+    <mesh name="l_shoe_part_38" file="obj/l_shoe/part_38.obj"/>
+    <mesh name="l_shoe_part_39" file="obj/l_shoe/part_39.obj"/>
+    <mesh name="l_shoe_part_40" file="obj/l_shoe/part_40.obj"/>
+    <mesh name="l_shoe_part_41" file="obj/l_shoe/part_41.obj"/>
+  </asset>
+</mujocoinclude>

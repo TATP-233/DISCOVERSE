@@ -176,5 +176,5 @@ if __name__ == "__main__":
         print(f"执行命令: {cmd_line}")
         os.system(cmd_line)
         
-        print(f"删除临时预览文件: {tmp_world_mjcf}")
-        os.remove(tmp_world_mjcf)
+        # print(f"删除临时预览文件: {tmp_world_mjcf}")
+        # os.remove(tmp_world_mjcf)

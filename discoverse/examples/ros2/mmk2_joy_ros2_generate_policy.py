@@ -134,7 +134,7 @@ if __name__ == "__main__":
         "height" : 1080
     }
     
-    cfg.mjcf_file_path = "mjcf/tasks_mmk2/kiwi_place.xml"
+    cfg.mjcf_file_path = "mjcf/tasks_mmk2/throw_rubbish.xml"
     
     exec_node = MMK2ROS2GP(cfg)
     exec_node.reset()

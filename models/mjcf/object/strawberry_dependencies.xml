@@ -1,0 +1,33 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="strawberry_texture" file="obj\strawberry\strawberry.png"/>
+    <material name="strawberry_texture" texture="strawberry_texture"/>
+
+    <mesh name="strawberry" file="obj/strawberry/strawberry.obj"/>
+    <mesh name="strawberry_part_0" file="obj/strawberry/part_0.obj"/>
+    <mesh name="strawberry_part_1" file="obj/strawberry/part_1.obj"/>
+    <mesh name="strawberry_part_2" file="obj/strawberry/part_2.obj"/>
+    <mesh name="strawberry_part_3" file="obj/strawberry/part_3.obj"/>
+    <mesh name="strawberry_part_4" file="obj/strawberry/part_4.obj"/>
+    <mesh name="strawberry_part_5" file="obj/strawberry/part_5.obj"/>
+    <mesh name="strawberry_part_6" file="obj/strawberry/part_6.obj"/>
+    <mesh name="strawberry_part_7" file="obj/strawberry/part_7.obj"/>
+    <mesh name="strawberry_part_8" file="obj/strawberry/part_8.obj"/>
+    <mesh name="strawberry_part_9" file="obj/strawberry/part_9.obj"/>
+    <mesh name="strawberry_part_10" file="obj/strawberry/part_10.obj"/>
+    <mesh name="strawberry_part_11" file="obj/strawberry/part_11.obj"/>
+    <mesh name="strawberry_part_12" file="obj/strawberry/part_12.obj"/>
+    <mesh name="strawberry_part_13" file="obj/strawberry/part_13.obj"/>
+    <mesh name="strawberry_part_14" file="obj/strawberry/part_14.obj"/>
+    <mesh name="strawberry_part_15" file="obj/strawberry/part_15.obj"/>
+    <mesh name="strawberry_part_16" file="obj/strawberry/part_16.obj"/>
+    <mesh name="strawberry_part_17" file="obj/strawberry/part_17.obj"/>
+    <mesh name="strawberry_part_18" file="obj/strawberry/part_18.obj"/>
+    <mesh name="strawberry_part_19" file="obj/strawberry/part_19.obj"/>
+    <mesh name="strawberry_part_20" file="obj/strawberry/part_20.obj"/>
+    <mesh name="strawberry_part_21" file="obj/strawberry/part_21.obj"/>
+    <mesh name="strawberry_part_22" file="obj/strawberry/part_22.obj"/>
+    <mesh name="strawberry_part_23" file="obj/strawberry/part_23.obj"/>
+    <mesh name="strawberry_part_24" file="obj/strawberry/part_24.obj"/>
+  </asset>
+</mujocoinclude>

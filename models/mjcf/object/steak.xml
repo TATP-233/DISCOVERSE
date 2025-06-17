@@ -1,0 +1,7 @@
+<mujocoinclude>
+  <joint type="free"/>
+  <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
+  <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="steak_part_0"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="steak_part_1"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="steak_part_2"/>
+</mujocoinclude>

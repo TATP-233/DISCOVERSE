@@ -1,0 +1,39 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="rubbish_texture" file="obj\rubbish\rubbish.png"/>
+    <material name="rubbish_texture" texture="rubbish_texture"/>
+
+    <mesh name="rubbish" file="obj/rubbish/rubbish.obj"/>
+    <mesh name="rubbish_part_0" file="obj/rubbish/part_0.obj"/>
+    <mesh name="rubbish_part_1" file="obj/rubbish/part_1.obj"/>
+    <mesh name="rubbish_part_2" file="obj/rubbish/part_2.obj"/>
+    <mesh name="rubbish_part_3" file="obj/rubbish/part_3.obj"/>
+    <mesh name="rubbish_part_4" file="obj/rubbish/part_4.obj"/>
+    <mesh name="rubbish_part_5" file="obj/rubbish/part_5.obj"/>
+    <mesh name="rubbish_part_6" file="obj/rubbish/part_6.obj"/>
+    <mesh name="rubbish_part_7" file="obj/rubbish/part_7.obj"/>
+    <mesh name="rubbish_part_8" file="obj/rubbish/part_8.obj"/>
+    <mesh name="rubbish_part_9" file="obj/rubbish/part_9.obj"/>
+    <mesh name="rubbish_part_10" file="obj/rubbish/part_10.obj"/>
+    <mesh name="rubbish_part_11" file="obj/rubbish/part_11.obj"/>
+    <mesh name="rubbish_part_12" file="obj/rubbish/part_12.obj"/>
+    <mesh name="rubbish_part_13" file="obj/rubbish/part_13.obj"/>
+    <mesh name="rubbish_part_14" file="obj/rubbish/part_14.obj"/>
+    <mesh name="rubbish_part_15" file="obj/rubbish/part_15.obj"/>
+    <mesh name="rubbish_part_16" file="obj/rubbish/part_16.obj"/>
+    <mesh name="rubbish_part_17" file="obj/rubbish/part_17.obj"/>
+    <mesh name="rubbish_part_18" file="obj/rubbish/part_18.obj"/>
+    <mesh name="rubbish_part_19" file="obj/rubbish/part_19.obj"/>
+    <mesh name="rubbish_part_20" file="obj/rubbish/part_20.obj"/>
+    <mesh name="rubbish_part_21" file="obj/rubbish/part_21.obj"/>
+    <mesh name="rubbish_part_22" file="obj/rubbish/part_22.obj"/>
+    <mesh name="rubbish_part_23" file="obj/rubbish/part_23.obj"/>
+    <mesh name="rubbish_part_24" file="obj/rubbish/part_24.obj"/>
+    <mesh name="rubbish_part_25" file="obj/rubbish/part_25.obj"/>
+    <mesh name="rubbish_part_26" file="obj/rubbish/part_26.obj"/>
+    <mesh name="rubbish_part_27" file="obj/rubbish/part_27.obj"/>
+    <mesh name="rubbish_part_28" file="obj/rubbish/part_28.obj"/>
+    <mesh name="rubbish_part_29" file="obj/rubbish/part_29.obj"/>
+    <mesh name="rubbish_part_30" file="obj/rubbish/part_30.obj"/>
+  </asset>
+</mujocoinclude>

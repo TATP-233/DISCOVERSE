@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="coke_texture" file="obj\coke\coke.png"/>
+    <material name="coke_texture" texture="coke_texture"/>
+
+    <mesh name="coke" file="obj/coke/coke.obj"/>
+    <mesh name="coke_part_0" file="obj/coke/part_0.obj"/>
+  </asset>
+</mujocoinclude>

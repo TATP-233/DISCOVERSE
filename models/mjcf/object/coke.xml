@@ -1,0 +1,7 @@
+<mujocoinclude>
+  <joint type="free"/>
+  <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
+  <geom material="coke_texture" mesh="coke" class="obj_visual"/>
+
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="coke_part_0"/>
+</mujocoinclude>

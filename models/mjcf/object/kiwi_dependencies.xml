@@ -1,9 +1,0 @@
-<mujocoinclude>
-
-  <asset>
-    <texture type="2d" name="kiwi_texture" file="obj/kiwi/texture.png"/>
-    <material name="kiwi_texture" texture="kiwi_texture" specular="0.5" shininess="0.5"/>
-    <mesh name="kiwi" file="obj/kiwi/kiwi.obj"/>
-  </asset>
-
-</mujocoinclude>

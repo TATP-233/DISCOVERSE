@@ -1,0 +1,10 @@
+<mujocoinclude>
+  <asset>
+    <texture type="2d" name="lemon_texture" file="obj\lemon\lemon.png"/>
+    <material name="lemon_texture" texture="lemon_texture"/>
+
+    <mesh name="lemon" file="obj/lemon/lemon.obj"/>
+    <mesh name="lemon_part_0" file="obj/lemon/part_0.obj"/>
+    <mesh name="lemon_part_1" file="obj/lemon/part_1.obj"/>
+  </asset>
+</mujocoinclude>

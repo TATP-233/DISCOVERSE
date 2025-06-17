@@ -1,0 +1,35 @@
+<mujocoinclude>
+  <joint type="free"/>
+  <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
+  <geom material="trashbin_texture" mesh="trashbin" class="obj_visual"/>
+
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_0"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_1"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_2"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_3"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_4"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_5"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_6"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_7"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_8"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_9"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_10"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_11"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_12"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_13"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_14"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_15"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_16"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_17"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_18"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_19"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_20"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_21"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_22"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_23"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_24"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_25"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_26"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_27"/>
+  <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="trashbin_part_28"/>
+</mujocoinclude>

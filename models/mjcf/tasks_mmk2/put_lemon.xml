@@ -1,0 +1,80 @@
+<mujoco model="pick_jujube_mmk2">
+
+  <include file="../scene.xml"/>
+  <include file="../mmk2/mmk2_options.xml"/>
+  <include file="../mmk2/mmk2_dependencies.xml"/>
+
+  <compiler meshdir="../../meshes/" texturedir="../../textures/"/>
+
+  <include file="../object/lemon_dependencies.xml"/>
+  <include file="../object/r_plate_dependencies.xml"/>
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name='mmk2' pos="0 0 0" euler="0 0 0">
+      <joint type="free" frictionloss="0.0001" />
+      <include file="../mmk2/mmk2.xml"/>
+    </body>
+
+    <!-- ======= lemon ======= -->
+    <body name="lemon" pos="0.566151 -0.145157 0.76049" quat="0.6 0 0 0.7">
+      <include file="../object/lemon.xml"/>
+    </body>
+
+    <!-- ======= r_plate ======= -->
+    <body name="r_plate" pos=" 0.529063 0.0915262 0.760495" quat="0.6 0 0 0.7">
+      <include file="../object/r_plate.xml"/>
+    </body>
+<!-- <key
+  time="53.96"
+  qpos="0.000385939 -7.09009e-07 0.00173848 1 4.6066e-08 -0.000993016 5.14587e-07 0.00419705 0.00419946 0.00606276 -0.000236702 0.00261231 -0.000175106 3.39873e-06 -6.8153e-06 3.79804e-05 0.00285183 5.9625e-05 0.000442203 0.00021889 0.000174875 3.4071e-06 -6.83899e-06 -3.79813e-05 -0.00285183 -5.96263e-05 -0.000222897 -0.000436027 0.561925 -0.150035 0.760491 0.637867 0.00314352 0.00506475 0.770124
+ 0.76284 0.00512907 0.00314347 0.646559"
+  qvel="6.33263e-10 6.67154e-16 -1.16662e-17 1.98154e-16 -4.32813e-17 9.90959e-14 8.00218e-09 8.00395e-09 2.03171e-16 -7.14229e-17 6.57484e-18 -4.48937e-18 1.82139e-18 1.50049e-19 -4.38681e-16 3.58378e-17 -1.3174e-16 -2.877e-18 -1.73752e-18 -9.23943e-18 1.07538e-18 -1.74845e-18 -5.64883e-16 -3.72941e-17 1.99718e-16 7.46866e-20 -1.69332e-19 -1.71402e-16 -4.53802e-15 1.06108e-14 -2.06763e-15 1.04391e-14 -3.78617e-14 -3.77786e-15 -2.29833e-15 1.04404e-14 -7.34029e-15 1.01701e-14 -4.1872e-15"
+  ctrl="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+/> -->
+    <!-- 场景 -->
+        <!-- ======= TABLE write ======= -->
+    <body name="table-a" pos="0.65 0 0">
+      <geom size="0.35 0.6 0.01" pos="0. 0. 0.75" type="box" rgba="0.8 0.8 0.8 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+      <geom size="0.02 0.02 0.375" pos=" 0.3  0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos="-0.3  0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos=" 0.3 -0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.375" pos="-0.3 -0.55 0.375" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+    </body>
+
+
+  </worldbody>
+
+  <actuator>
+    <include file="../mmk2/mmk2_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="../mmk2/mmk2_sensor.xml"/>
+  </sensor>
+
+  <!-- <keyframe>
+    <key name="pick" qpos='
+       0.25 0 0  0.707 0 0 -0.707
+       0 0 0  0 0
+       0.    -0.166  0.032  0.     1.571  2.223  0 0 
+      -0.    -0.166  0.032  0.    -1.571 -2.223  0 0 
+       0.1 -0.65 0.748046  1 0 0 0
+       0.5 -0.65 0.750937  1 0 0 0
+       0.3 -0.59 0.751955  1 0 0 0'
+      ctrl = '
+       0 0 0  0 0
+       0.    -0.166  0.032  0.     1.571  2.223  0
+      -0.    -0.166  0.032  0.    -1.571 -2.223  0
+      '
+    />
+  </keyframe> -->
+</mujoco>
