@@ -97,3 +97,42 @@ training_data
 │   ├── ...
 ├── ...
 ```
+
+## openpi
+
+将仿真采集的原始数据格式转换为pi0算法中用到的hdf5格式，命令如下：
+```bash
+cd DISCOVERSE
+python3 policies/act/data_process/raw_to_hdf5.py -md mujoco -dir data -tn ${task_name}  -vn ${video_names}
+# for example:
+python3 policies/act/data_process/raw_to_hdf5.py -md mujoco -dir data -tn block_place -vn cam_0 cam_1
+```
+
+将hdf5文件移动到pi0需要的地址：
+```bash
+mv data/hdf5/${task_name} policies/openpi/training_data
+cd policies/openpi/training_data/
+scp instructions/${task_name}.json ${task_name}/instructions.json
+cd ..
+```
+
+将多个任务的数据都放在training_data，Pi0会在一个模型中训练多个任务，目录结构为：
+```bash
+training_data/  
+├── instructions
+│   ├── ${task_1}.json
+│   ├── ${task_2}.json
+│   ├── ...
+├── ${task_1}
+|   ├── instructions.json  
+|   ├── episode_0.hdf5  
+|   ├── episode_1.hdf5  
+|   ├── ...  
+|
+├── ${task_2}
+|   ├── instructions.json  
+|   ├── episode_0.hdf5  
+|   ├── episode_1.hdf5  
+|   ├── ...  
+├──...
+```

@@ -13,3 +13,6 @@
 [submodule "submodule/XML-Editor"]
 	path = submodule/XML-Editor
 	url = https://github.com/xyys2003/XML-Editor
+[submodule "submodules/lerobot"]
+	path = submodules/lerobot
+	url = https://github.com/huggingface/lerobot

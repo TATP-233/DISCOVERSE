@@ -179,3 +179,67 @@ bash eval.sh {robot} {task_name} {model_name} {ckpt_id}
 # for example:
 bash eval.sh airbot block_place model_name 20000
 ```
+
+## openpi
+
+### 环境
+
+```bash
+conda create -n pi python=3.11.0
+conda activate pi
+cd DISCOVERSE
+pip install -r requirements.txt
+pip install -e .
+cd policies/openpi/packages/openpi-client/
+pip install -e .
+cd ../..
+pip install -e .
+cd ../../submodules/lerobot
+pip install -e .
+```
+
+### 配置文件
+
+- 在`policies/openpi/src/openpi/training/config.py`中有一个名为`_CONFIGS`的字典。你可以修改预设的PI0配置项：
+`pi0_base_aloha_robotwin_lora`
+`pi0_fast_aloha_robotwin_lora`
+`pi0_base_aloha_robotwin_full`
+`pi0_fast_aloha_robotwin_full`
+
+- 如果你的GPU显存不足，可以设置`fsdp_devices`，相关配置可参考`policies/openpi/src/openpi/training/config.py`。
+
+- 当你需要更换机器人，或更改机器人的观测和动作时，可以修改`policies/openpi/src/openpi/training/config.py`中`_CONFIGS`下的`RepackTransform`。
+
+### 设置缓存目录
+
+如果你的 `~/.cache` 路径下磁盘空间不足，请使用以下命令将缓存目录设置为有足够空间的其他路径：
+```bash
+export HF_LEROBOT_HOME=/path/to/your/cache
+# for example: 
+mkdir -p ~/openpi_cache
+export HF_LEROBOT_HOME=~/openpi_cache
+```
+
+### 处理数据
+
+```bash
+bash generate.sh ./training_data training_data
+```
+```bash
+python3 scripts/compute_norm_stats.py --config-name ${train_config_name}
+# for example:
+python3 scripts/compute_norm_stats.py --config-name pi0_base_aloha_full
+```
+
+### 训练微调
+
+```bash
+export HF_LEROBOT_HOME=/path/to/your/cache
+# for example: 
+export HF_LEROBOT_HOME=~/openpi_cache
+```
+```bash
+bash finetune.sh ${train_config_name} ${model_name}
+# for example:
+bash finetune.sh pi0_base_aloha_full model_a
+```

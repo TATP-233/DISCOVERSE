@@ -79,3 +79,13 @@ bash eval.sh ${task_name} ${model_name} ${ckpt_id}
 # for example:
 bash eval.sh block_place model_name 20000
 ```
+
+## openpi
+
+### 推理命令
+
+```bash
+bash eval.sh ${task_name} ${train_config_name} ${model_name} ${checkpoint}
+# for example:
+bash eval.sh block_place pi0_base_aloha_full model_a 9999
+```
