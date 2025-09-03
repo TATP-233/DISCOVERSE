@@ -58,6 +58,7 @@ gaussian-rendering = [
     "torchvision>=0.14.0", 
     "plyfile",
     "PyGlm",
+    "av",
 ]
 
 # XML场景编辑器
