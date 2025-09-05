@@ -30,13 +30,13 @@ class ProcessInfo:
             self.memory_usage = 0
         return 0
 
-def generate_data_wrapper(i, track_num, nw, py_dir, py_path, use_gs, process_info):
+def generate_data_wrapper(i, track_num, nw, py_dir, py_path, use_gs, process_info, extra_args=""):
     """包装原始的generate_data函数以获取PID和线程ID"""
     thread_id = threading.get_ident()
     logger.info(f"线程{i} 启动，线程ID: {thread_id}")
     
     n = track_num // nw
-    command = f"{py_dir} {py_path} --data_idx {i*n} --data_set_size {n} --auto" + (" --use_gs" if use_gs else "")
+    command = f"{py_dir} {py_path} --data_idx {i*n} --data_set_size {n} --auto" + (" --use_gs" if use_gs else "") + (f" {extra_args}" if extra_args else "")
     logger.info(f"线程{i} 执行命令: {command}")
     
     # 使用subprocess.Popen创建子进程
@@ -146,7 +146,8 @@ if __name__ == "__main__":
     parser.add_argument('--track_num', type=int, default=100, help='Number of tracks')
     parser.add_argument('--nw', type=int, required=True, default=8, help='Number of workers')
     parser.add_argument('--use_gs', action='store_true', help='Use gaussian splatting renderer')
-    parser.add_argument('--memory_threshold', type=float, default=95.0, help='Memory threshold percentage (default: 95%)')
+    parser.add_argument('--memory_threshold', type=float, default=95.0, help='Memory threshold percentage (default: 95 percent)')
+    parser.add_argument('--extra_args', type=str, default="", help='Extra arguments to pass to the task script')
     args = parser.parse_args()
 
     robot_name = args.robot_name
@@ -191,7 +192,7 @@ if __name__ == "__main__":
             processes_info.append(process_info)
             
             # 提交任务，将process_info传递给任务
-            future = executor.submit(generate_data_wrapper, i, track_num, nw, py_dir, py_path, use_gs, process_info)
+            future = executor.submit(generate_data_wrapper, i, track_num, nw, py_dir, py_path, use_gs, process_info, args.extra_args)
             process_info.future = future  # 设置Future
             futures.append(future)
         
