@@ -15,7 +15,7 @@
 	url = https://github.com/huggingface/lerobot
 [submodule "submodules/XML-Editor"]
 	path = submodules/XML-Editor
-	url = https://github.com/Yuchi-Zhang-00/XML-Editor.git
+	url = https://github.com/LZQ1204/XML-Editor.git
 [submodule "submodules/urdf2mjcf"]
 	path = submodules/urdf2mjcf
 	url = https://github.com/TATP-233/urdf2mjcf
