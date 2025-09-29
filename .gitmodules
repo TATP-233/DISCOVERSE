@@ -16,6 +16,7 @@
 [submodule "submodules/XML-Editor"]
 	path = submodules/XML-Editor
 	url = https://github.com/LZQ1204/XML-Editor.git
+	branch = main
 [submodule "submodules/urdf2mjcf"]
 	path = submodules/urdf2mjcf
 	url = https://github.com/TATP-233/urdf2mjcf
