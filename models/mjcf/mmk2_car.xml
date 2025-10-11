@@ -1,0 +1,47 @@
+<mujoco model="mmk2">
+
+  <include file="mmk2/mmk2_options.xml"/>
+  <include file="mmk2/mmk2_dependencies.xml"/>
+
+  <visual>
+    <global offwidth="1920" offheight="1080"/>
+    <quality shadowsize="4096" offsamples="4"/>
+    <headlight diffuse='0.6 0.6 0.6' ambient='.3 .3 .3' specular='0 0 0'/>
+    <scale com="0.05" camera="0.06" framelength="0.5" framewidth="0.02" forcewidth="0.1" contactwidth="0.01" contactheight="0.05"/>
+  </visual>
+
+  <asset>
+    <texture type='2d' name='groundplane' builtin='checker' mark='edge' rgb1='0.2 0.3 0.4' rgb2='0.1 0.2 0.3' markrgb='0.8 0.8 0.8' width='300' height='300'/>
+    <material name='groundplane' texture='groundplane' texuniform='true' texrepeat='5 5' reflectance='0.2'/>
+  </asset>
+
+  <worldbody>
+    <light castshadow="false" directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='-1 -1 1' dir='1 1 -1'/>
+    <light directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='0 0 1' dir='-1 1 -1'/>
+    <light castshadow="false" directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='0 1 1' dir='0 -1 -1'/>
+    <geom name='floor' type='plane' size='0 0 0.01' material='groundplane' pos='0 0 0'/>
+
+    <body name='mmk2' pos="-1 0 0">
+      <include file="mmk2/mmk2.xml"/>
+
+    </body>
+    <geom name="Box1" type="box" size="0.9 0.7 0.01" pos="2.284511640835171 0.1200000000000001 0.7215224357138159" rgba="0.800000011920929 0.5 0.20000000298023224 1.0"/>
+    <geom name="Car" type="box" size="0.9 0.7 0.35" pos="2.284511640835171 0.1200000000000001 0.35" rgba="0.800000011920929 0.5 0.20000000298023224 1.0"/>
+    <body name="trunk_lid" pos="1.4146016712798968 0.18670743271625534 1.611063516369371" euler="0 0 0">
+      <joint name="trunk_hinge" type="hinge" pos="0.61 0 0" axis="0 1 0" range="-1 0.2" damping="40" frictionloss="50" armature="0.01"/>
+      <geom name="Box2" type="box" size="0.61 0.4 0.01" pos="0 0 0" rgba="0.8 0.5 0.2 1.0"/>
+    </body>
+
+    
+  </worldbody>
+
+  <actuator>
+    <include file="mmk2/mmk2_control.xml"/>
+    <position name="trunk_lid_open" joint="trunk_hinge" kp="2000" kv="40" ctrlrange="-0.9 0.2"/>
+  </actuator>
+
+  <sensor>
+    <include file="mmk2/mmk2_sensor.xml"/>
+  </sensor>
+
+</mujoco>
