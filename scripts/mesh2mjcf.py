@@ -572,10 +572,7 @@ if __name__ == "__main__":
             "threshold": 0.01,          # 0.05
             "preprocess_resolution": 100, # 50
         }
-        coacd_config = coacd_config_scene if args.scene else {
-            "threshold": 0.02,          # 0.05
-            "preprocess_resolution": 100, # 50
-        }
+        coacd_config = coacd_config_scene if args.scene else {}
         parts = coacd.run_coacd(
             mesh_coacd,
             **coacd_config
