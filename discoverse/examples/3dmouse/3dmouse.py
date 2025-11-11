@@ -1,25 +1,14 @@
-import os
-
 import cv2
 import numpy as np
 
 from scipy.spatial.transform import Rotation
 
-from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.robots import AirbotPlayIK
 from discoverse.robots_env.airbot_play_base import AirbotPlayBase, AirbotPlayCfg
+from discoverse.utils import step_func
 
 # refer the configuration at https://pypi.org/project/pyspacemouse/
 import pyspacemouse 
-import time
-
-def step_func(current, target, step):
-    if current < target - step:
-        return current + step
-    elif current > target + step:
-        return current - step
-    else:
-        return target
 
 if __name__ == "__main__":
     cfg = AirbotPlayCfg()

@@ -6,15 +6,12 @@ import matplotlib.pyplot as plt
 import mujoco
 import mujoco.viewer
 
-from discoverse.envs import make_env
 from discoverse import DISCOVERSE_ASSETS_DIR
 
 np.set_printoptions(precision=3, suppress=True, linewidth=1000)
 
 robot_name = "airbot_play_force"
-# mjcf_path = os.path.join(DISCOVERSE_ASSETS_DIR, "mjcf", "tmp", f"{robot_name}_{task_name}.xml")
 mjcf_path = os.path.join(DISCOVERSE_ASSETS_DIR, "mjcf", "manipulator", f"robot_{robot_name}.xml")
-
 
 class CustomViewer:
     def __init__(self, model_path, distance=3, azimuth=0, elevation=-30):
@@ -66,11 +63,8 @@ class Test(CustomViewer):
         self.Kd = np.diag([5, 5, 5, 0.5, 0.5, 0.1])
 
         # 目标关节角度
-        # self.q_desired = np.zeros(self.model.nu)
-        # self.q_desired = [0.0, -0.1, 0.196, -0.662, -0.88, 0.1]
         self.q_desired = [-0.055, -0.547, 0.905, 1.599, -1.398, -1.599]
         self.data.qpos[:self.model.nu] = self.q_desired
-        # self.q_desired = [-0.055, -0.547, 0.905, 1.599, 0, -1.599]
 
         # 仿真参数
         self.total_time = 30  # 总仿真时间（秒）
@@ -104,19 +98,7 @@ class Test(CustomViewer):
         # 计算雅可比
         point = np.zeros(3, dtype=np.float64)
         mujoco.mj_jac(self.model, self.data, jacp, jacr, point, ee_id)
-        # print(bias)
         J = np.vstack((jacp[:, :self.model.nu], jacr[:, :self.model.nu]))
-        # print(J)
-
-        # sensor_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SENSOR, "ee_force")
-        # start = int(self.model.sensor_adr[sensor_id])
-        # ee_force = R @ self.data.sensordata[start : start + 3]
-        
-        # sensor_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SENSOR, "ee_torque")
-        # start = int(self.model.sensor_adr[sensor_id])
-        # ee_tau = R @ self.data.sensordata[start : start + 3]
-        
-        # ee_ft = np.hstack((ee_force, ee_tau))
 
         tau_act = self.data.qfrc_actuator.copy()[:self.model.nu]    # length = nv
         tau_bias = self.data.qfrc_bias.copy()[:self.model.nu]       # C + G 等偏置项，length = nv
@@ -131,24 +113,14 @@ class Test(CustomViewer):
         tau_net = self.data.qfrc_actuator[:self.model.nu] - self.data.qfrc_inverse[:self.model.nu]
         ee_ft_cal = np.linalg.pinv(J.T, rcond=1e-4) @ tau_net
         ee_ext = self.data.cfrc_ext[ee_id]
-        # print(tau_mass)
-        # print(tau_act)
-        # print('real:', ee_ext)
         print('cal:', ee_ft_cal)
 
         # 计算阻抗控制扭矩
         error = self.q_desired - q
-        # print(q)
-        # print(qdot)
-        # print(bias)
-        # print(self.index, self.num_steps, self.model.nu, error)
         torque = self.Kp @ error - self.Kd @ qdot
-        # print(torque)
-
 
         # 设置控制输入
         self.data.ctrl[:(self.model.nu)] = torque
-        # self.data.ctrl[self.model.nu] = 0
 
         if True:
             self.q_history[self.index] = q
@@ -192,8 +164,6 @@ class Test(CustomViewer):
                 plt.tight_layout()
                 plt.show()
 
-# test = Test("./model/trs_so_arm100/scene_without_position.xml")
-# test = Test("./model/airbot_play/airbot_play_floor.xml")
 test = Test(mjcf_path)
 test.run_loop()
 

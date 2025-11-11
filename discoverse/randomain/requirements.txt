@@ -1,4 +1,0 @@
-safetensors
-transformers
-PIL
-params_proto
