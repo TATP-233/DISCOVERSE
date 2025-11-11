@@ -1,0 +1,82 @@
+# ARX-L5机械臂配置
+robot_name: "arx_l5"
+description: "ARX-L5 6-DOF协作机械臂"
+
+# ============== 机械臂结构配置 ==============
+kinematics:
+  base_link: "base_link"             # 基座连杆名称
+  end_effector_site: "endpoint"      # 末端执行器site名称
+  qpos_dim: 8                        # qpos维度 (6臂+2夹爪)
+  ctrl_dim: 7                        # ctrl维度 (6臂+1夹爪)
+  arm_joints: 6                      # 机械臂关节数
+  arm_joint_names:                   # 机械臂关节名称 (按顺序)
+    - "joint1"
+    - "joint2"
+    - "joint3"
+    - "joint4"
+    - "joint5"
+    - "joint6"
+    
+# ============== 夹爪配置 ==============
+gripper:
+  type: "two_finger_single"          # 夹爪类型 (单关节控制)
+  ctrl_dim: 1                        # 控制器维度
+  ctrl_index: 6                      # 夹爪控制器索引 (0-based)
+  qpos_joints: ["joint7"]            # qpos关节名称
+  qpos_indices: [6]                  # qpos关节索引 (0-based)
+  ctrl_range: [0.0, 1.0]            # 控制范围 (0=闭合, 1=打开)
+  default_position: 1.0              # 默认位置 (完全打开)
+  close_position: 0.0                # 关闭位置
+  grasp_threshold: 0.5               # 抓取检测阈值
+  sensor_name: "gripper"             # 传感器名称
+
+# ============== 控制配置 ==============
+control:
+  control_mode: "position"           # 控制模式 (position/velocity/effort)
+  update_rate: 500                   # 控制频率 (Hz)
+  smoothing: true                    # 启用轨迹平滑
+  interpolation_type: "linear"       # 插值类型
+  
+  # 执行器配置 (按MuJoCo控制器顺序)
+  actuators:
+    - name: "joint1"                 # 机械臂关节1
+      type: "position"
+    - name: "joint2"                 # 机械臂关节2  
+      type: "position"
+    - name: "joint3"                 # 机械臂关节3
+      type: "position"
+    - name: "joint4"                 # 机械臂关节4
+      type: "position"
+    - name: "joint5"                 # 机械臂关节5
+      type: "position"
+    - name: "joint6"                 # 机械臂关节6
+      type: "position"
+    - name: "joint7"                 # 夹爪关节
+      type: "position"
+
+# ============== 传感器配置 ==============
+sensors:
+  joint_pos_sensors:
+    - "joint1_pos"
+    - "joint2_pos"
+    - "joint3_pos"
+    - "joint4_pos"
+    - "joint5_pos"
+    - "joint6_pos"
+    - "gripper_pos"  # 夹爪肌腱位置
+
+  end_effector_sensors:
+    position: "endpoint_pos"
+    orientation: "endpoint_quat"
+
+# ============== IK求解配置 ==============
+ik_solver:
+  solver_type: "quadprog"            # 使用quadprog求解器
+  position_tolerance: 0.01           # 位置收敛阈值 (m) 
+  orientation_tolerance: 0.05        # 姿态收敛阈值 (rad)
+  max_iterations: 50                 # 增加最大迭代次数
+  damping: 1.0                       # LM阻尼系数
+  position_cost: 100.0               # 位置任务权重
+  orientation_cost: 10.0             # 姿态权重
+  posture_cost: 0.01                 # 姿态保持权重
+  dt: 0.002                          # 积分时间步长

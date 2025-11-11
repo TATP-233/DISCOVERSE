@@ -1,7 +1,7 @@
 <mujocoinclude>
 
   <inertial pos="0 0 -0.02" mass="0.005" diaginertia="0.00002 0.00002 0.00002" />
-  <geom material="flower_bowl_texture" mesh="flower_bowl" class="obj_visual"/>
+  <geom material="flower_bowl_texture" mesh="flower_bowl" type="mesh" contype="0" conaffinity="0"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 0" mesh="flower_bowl_part_0"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 0" mesh="flower_bowl_part_1"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 0" mesh="flower_bowl_part_2"/>

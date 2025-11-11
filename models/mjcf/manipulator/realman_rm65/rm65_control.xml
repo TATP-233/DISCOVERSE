@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <position name="joint1" joint="joint1" class="upper_limb" ctrlrange="-3.1 3.1" />
+  <position name="joint2" joint="joint2" class="upper_limb" ctrlrange="-2.268 2.268" />
+  <position name="joint3" joint="joint3" class="upper_limb" ctrlrange="-2.355 2.355" />
+  <position name="joint4" joint="joint4" class="lower_limb" ctrlrange="-3.1 3.1" />
+  <position name="joint5" joint="joint5" class="lower_limb" ctrlrange="-2.233 2.233" />
+  <position name="joint6" joint="joint6" class="lower_limb" ctrlrange="-6.28 6.28" />
+  <position name="gripper" tendon="gripper_gear" class="gripper" ctrlrange="0.0 0.041" />
+</mujocoinclude>

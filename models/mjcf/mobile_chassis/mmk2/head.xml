@@ -1,0 +1,22 @@
+<mujocoinlcude>
+  <body name="head_yaw_link" pos="0.18375 0 0.023" euler="0 0 1.5708">
+    <inertial pos="-0.00312418 -0.000118833 -0.00687158" quat="0.945671 0.00553657 -0.32491 0.0104641" mass="0.083111" diaginertia="4.83755e-05 4.39275e-05 2.73932e-05"/>
+    <joint name="head_yaw_joint" class='head_yaw_joint'/>
+    <geom material="Paint_Matte_Black__1" mesh="head_yaw_link" class="visual"/>
+    <body name="head_pitch_link" pos="0.00099952 3.1059e-05 0.058" quat="0.5 -0.5 0.5 -0.5">
+      <inertial pos="-0.0352711 0.123044 -0.0165046" quat="0.714586 0.699243 0.0178013 0.0104566" mass="0.767298" diaginertia="0.00394021 0.00338829 0.00196438"/>
+      <joint name="head_pitch_joint" class='head_pitch_joint'/>
+      <geom type="box" rgba="0 0 1 1" group="4" size="0.07 0.08 0.06" pos="0.015 -0.14 0"/>
+      <geom type="cylinder" rgba="0 0 0 1" size="0.015 0.025"/>
+      <geom mesh="head_green" rgba="0.57 0.95 0.95 1" class="visual"/>
+      <geom mesh="head_black" material="Paint_Matte_Black__1" class="visual"/>
+      <geom mesh="head_white" material="Paint_Metallic_Cool_Grey__1" class="visual"/>
+      <body pos='0.0755 -0.1855 0' quat='0. 0.70711 0. -0.70711'>
+        <body name='head_cam' pos="-0.035 0 0" euler="-0.33 0 0">
+          <camera name='head_cam' fovy='72.5376526571421'/>
+          <site name="headeye" euler="3.1416 0 0" size='0.001' type='sphere'/>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinlcude>

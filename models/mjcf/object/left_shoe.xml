@@ -1,6 +1,6 @@
 <mujocoinclude>
   <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
-  <geom material="left_shoe_texture" mesh="left_shoe" class="obj_visual"/>
+  <geom material="left_shoe_texture" mesh="left_shoe" type="mesh" contype="0" conaffinity="0"/>
 
   <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="left_shoe_part_0"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="left_shoe_part_1"/>

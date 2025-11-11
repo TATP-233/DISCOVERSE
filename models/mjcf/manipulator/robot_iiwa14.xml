@@ -1,0 +1,27 @@
+<mujoco model="iiwa14">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="kuka_iiwa_14/iiwa14_dependencies.xml"/>
+  <include file="kuka_iiwa_14/iiwa14_appendix.xml"/>
+
+  <worldbody>
+    <body name="iiwa14_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="kuka_iiwa_14/iiwa14.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="kuka_iiwa_14/iiwa14_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="kuka_iiwa_14/iiwa14_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos=" 0 0.61 0 -1.57 0 0.88 0 0 0 0 0 0 0 0 0" ctrl="0 0.61 0 -1.57 0 0.88 0 0"/>
+  </keyframe>
+
+</mujoco>

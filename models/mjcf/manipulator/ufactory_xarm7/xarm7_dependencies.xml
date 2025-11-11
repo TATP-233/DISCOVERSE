@@ -1,0 +1,74 @@
+<mujocoinclude>
+
+  <default>
+    <default class="xarm7">
+      <geom type="mesh" material="white"/>
+      <joint axis="0 0 1" armature="0.1" range="-6.28319 6.28319" frictionloss="1"/>
+      <general biastype="affine" ctrlrange="-6.28319 6.28319"/>
+      <default class="size1">
+        <joint damping="4"/>
+        <general gainprm="2500" biasprm="0 -2500 -50" forcerange="-500 500"/>
+      </default>
+      <default class="size2">
+        <joint damping="3"/>
+        <general gainprm="2500" biasprm="0 -2500 -50" forcerange="-300 300"/>
+      </default>
+      <default class="size3">
+        <joint damping="2"/>
+        <general gainprm="2000" biasprm="0 -2000 -30" forcerange="-300 300"/>
+      </default>
+      <default class="spring_link">
+        <joint range="0 0.85" armature="0" damping="0.001" frictionloss="0.0001"/>
+      </default>
+      <default class="driver">
+        <joint range="0 0.85" armature="0" damping="0.001" frictionloss="0.0001"/>
+      </default>
+      <default class="follower">
+        <joint range="0 0.85" armature="0" damping="0.001" frictionloss="0.0001"/>
+      </default>
+      <default class="gripper">
+        <joint damping="0.1" armature="0.001" frictionloss="0.1"/>
+        <position kp="300.0" kv="0.5" forcerange="-300.0 300.0" />
+      </default>
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom type="mesh" group="3"/>
+        <default class="pad_box1">
+          <geom type="box" size="0.015 0.002 0.0095" rgba="0.0 0.1 0.7 1" condim="3" contype="0" conaffinity="1" priority="1" solimp="0.95 0.99 0.001" solref="0.005 1" friction="1 0.01 0.01"/>
+        </default>
+        <default class="pad_box2">
+          <geom type="box" size="0.015 0.002 0.0095" rgba="0.0 0.5 0.5 1" condim="3" contype="0" conaffinity="1" priority="1" solimp="0.95 0.99 0.001" solref="0.005 1" friction="1 0.01 0.01"/>
+        </default>
+      </default>
+      <site size="0.001" rgba="1 0 0 1"/>
+    </default>
+  </default>
+
+  <asset>
+    <material name="white" rgba="1 1 1 1"/>
+    <material name="gray" rgba="0.753 0.753 0.753 1"/>
+    <material name="black" rgba="0.149 0.149 0.149 1"/>
+  </asset>
+
+  <asset>
+    <mesh file="ufactory_xarm7/link_base.stl"/>
+    <mesh file="ufactory_xarm7/link1.stl"/>
+    <mesh file="ufactory_xarm7/link2.stl"/>
+    <mesh file="ufactory_xarm7/link3.stl"/>
+    <mesh file="ufactory_xarm7/link4.stl"/>
+    <mesh file="ufactory_xarm7/link5.stl"/>
+    <mesh file="ufactory_xarm7/link6.stl"/>
+    <mesh file="ufactory_xarm7/link7.stl"/>
+    <mesh file="ufactory_xarm7/end_tool.stl"/>
+    <mesh file="ufactory_xarm7/base_link.stl"/>
+    <mesh file="ufactory_xarm7/left_outer_knuckle.stl"/>
+    <mesh file="ufactory_xarm7/left_finger.stl"/>
+    <mesh file="ufactory_xarm7/left_inner_knuckle.stl"/>
+    <mesh file="ufactory_xarm7/right_outer_knuckle.stl"/>
+    <mesh file="ufactory_xarm7/right_finger.stl"/>
+    <mesh file="ufactory_xarm7/right_inner_knuckle.stl"/>
+  </asset>
+
+</mujocoinclude>

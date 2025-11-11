@@ -1,0 +1,64 @@
+<mujoco model="block_bridge_place">
+  <include file="../object/bridge_dependencies.xml"/>
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <worldbody>
+    <site name="manipulator_locate" pos="0.3 1. 0.71" euler="0 0 3.1416"/>
+    <body name="bridge1" pos="-0.03 0.42 0.8" euler="1.5707963 0 0">
+      <joint type="free" frictionloss="0.00001"/>
+      <include file="../object/bridge.xml"/>
+    </body>
+    <body name="bridge2" pos="-0.03 0.39 0.86" euler="-1.5707963 0 0">
+      <joint type="free" frictionloss="0.00001"/>
+      <inertial pos="0 0 0" mass="0.0005" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.15 0.65 0.63 1" type="mesh" mesh="bridge" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001"/>
+    </body>
+    <body name="block1_green" pos="0.09 0.405 0.835" euler="1.5707963 0 0">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.3 0.6 0.075 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.015 0.03 0.015" type="box"/>
+    </body>
+    <body name="block2_green" pos="-0.09 0.405 0.83" euler="1.5707963 0 0">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.3 0.6 0.075 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.015 0.03 0.015" type="box"/>
+    </body>
+    <body name="block_purple1" pos="-0.08 0.345 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="block_purple2" pos="0 0.345 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="block_purple3" pos="0.08 0.345 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="block_purple4" pos="-0.08 0.285 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="block_purple5" pos="0 0.285 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="block_purple6" pos="0.08 0.285 0.815">
+      <joint type="free" frictionloss="0.0001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002"/>
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+    <body name="table-a" pos="0 0 0">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.79" type="box" rgba="0.8 0.8 0.8 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001"/>
+      <geom size="0.02 0.02 0.39" pos=" 0.28  0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1"/>
+      <geom size="0.02 0.02 0.39" pos="-0.28  0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1"/>
+      <geom size="0.02 0.02 0.39" pos=" 0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1"/>
+      <geom size="0.02 0.02 0.39" pos="-0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1"/>
+    </body>
+  </worldbody>
+  <include file="../scene/qz_lab3.xml"/>
+</mujoco>

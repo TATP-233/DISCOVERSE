@@ -1,0 +1,14 @@
+<mujocoinclude>
+
+  <tendon>
+    <fixed name='gripper_gear'>
+      <joint joint='g2_left_joint'  coef='0.5'/>
+      <joint joint='g2_right_joint' coef='0.5'/>
+    </fixed>
+  </tendon>
+
+  <equality>
+    <joint joint1='g2_left_joint' joint2='g2_right_joint' polycoef='0 1 0 0 0 '/>
+  </equality>
+
+</mujocoinclude>

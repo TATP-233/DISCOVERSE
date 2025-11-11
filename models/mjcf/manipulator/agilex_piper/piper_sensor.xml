@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <jointpos name="joint1_pos" joint="joint1"/>
+  <jointpos name="joint2_pos" joint="joint2"/>
+  <jointpos name="joint3_pos" joint="joint3"/>
+  <jointpos name="joint4_pos" joint="joint4"/>
+  <jointpos name="joint5_pos" joint="joint5"/>
+  <jointpos name="joint6_pos" joint="joint6"/>
+  <jointpos name="gripper_pos" joint="finger_joint1"/>
+</mujocoinclude>

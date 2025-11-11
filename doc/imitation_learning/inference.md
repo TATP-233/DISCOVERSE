@@ -23,14 +23,14 @@ pip install -r policies/act/requirements/train_eval.txt -i https://pypi.tuna.tsi
 ### 推理命令
 
 ```bash
-python3 policies/infer.py act -tn <task_name> -mts 100 -ts 20241125-110709 -rn discoverse/examples/<tasks_folder>/<task_script>
+python3 policies/infer.py act -tn <task_name> -rn airbot_play -mts 100 -ts 20241125-110709
 ```
 
 其中：
-- `-tn` 任务名，程序会根据任务名分别在`task_configs`和`data`目录下寻找同名的配置文件和数据集
+- `-tn` 任务名，程序会根据任务名分别在`task_configs`和`data`目录下寻找同名的配置文件和数据集，同时需要与数据采集时使用的任务名一致，确保加载同样的场景
+- `-rn` 机器人类型，需与数据采集时使用的一致
 - `-mts` 动作执行总步数，该命令行参数会覆盖配置文件中的`max_timesteps`
 - `-ts` 时间戳，对应训练得到的模型文件所在的以时间戳命名的文件夹，程序会根据任务名和时间戳在policies/act/my_ckpt目录下寻找对应的模型文件
-- `-rn` 数据采集时使用的脚本文件路径，例如`discoverse/examples/tasks_airbot_play/drawer_open.py`，程序会加载其中的`SimNode`类和`AirbotPlayCfg`的实例`cfg`来创建仿真环境
 
 ## dp
 

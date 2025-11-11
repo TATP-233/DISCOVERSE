@@ -1,0 +1,66 @@
+<mujocoinclude>
+  <default>
+    <default class="ur5e">
+      <material specular="0.5" shininess="0.25"/>
+      <joint axis="0 1 0" range="-3.1416 3.1416" armature="0.1"/>
+      <general gaintype="fixed" biastype="affine" ctrlrange="-6.2831 6.2831" gainprm="3500" biasprm="0 -3500 -400" forcerange="-200 200"/>
+      <default class="size3">
+        <default class="size3_limited">
+          <joint range="-3.1415 3.1415"/>
+          <general ctrlrange="-3.1415 3.1415"/>
+        </default>
+      </default>
+      <default class="size1">
+        <general gainprm="1500" biasprm="0 -1500 -100" forcerange="-100 100"/>
+      </default>
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom type="capsule" group="3" condim="3" solimp="0.99 0.995 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+        <default class="eef_collision">
+          <geom type="cylinder"/>
+        </default>
+      </default>
+      <site size="0.001" group="3"/>
+    </default>
+  </default>
+
+  <asset>
+    <material class="ur5e" name="black" rgba="0.033 0.033 0.033 1"/>
+    <material class="ur5e" name="jointgray" rgba="0.278 0.278 0.278 1"/>
+    <material class="ur5e" name="linkgray" rgba="0.82 0.82 0.82 1"/>
+    <material class="ur5e" name="urblue" rgba="0.49 0.678 0.8 1"/>
+  </asset>
+
+  <asset>
+    <mesh name="base_0" file="universal_robots_ur5e/base_0.obj"/>
+    <mesh name="base_1" file="universal_robots_ur5e/base_1.obj"/>
+    <mesh name="shoulder_0" file="universal_robots_ur5e/shoulder_0.obj"/>
+    <mesh name="shoulder_1" file="universal_robots_ur5e/shoulder_1.obj"/>
+    <mesh name="shoulder_2" file="universal_robots_ur5e/shoulder_2.obj"/>
+    <mesh name="upperarm_0" file="universal_robots_ur5e/upperarm_0.obj"/>
+    <mesh name="upperarm_1" file="universal_robots_ur5e/upperarm_1.obj"/>
+    <mesh name="upperarm_2" file="universal_robots_ur5e/upperarm_2.obj"/>
+    <mesh name="upperarm_3" file="universal_robots_ur5e/upperarm_3.obj"/>
+    <mesh name="forearm_0" file="universal_robots_ur5e/forearm_0.obj"/>
+    <mesh name="forearm_1" file="universal_robots_ur5e/forearm_1.obj"/>
+    <mesh name="forearm_2" file="universal_robots_ur5e/forearm_2.obj"/>
+    <mesh name="forearm_3" file="universal_robots_ur5e/forearm_3.obj"/>
+    <mesh name="wrist1_0" file="universal_robots_ur5e/wrist1_0.obj"/>
+    <mesh name="wrist1_1" file="universal_robots_ur5e/wrist1_1.obj"/>
+    <mesh name="wrist1_2" file="universal_robots_ur5e/wrist1_2.obj"/>
+    <mesh name="wrist2_0" file="universal_robots_ur5e/wrist2_0.obj"/>
+    <mesh name="wrist2_1" file="universal_robots_ur5e/wrist2_1.obj"/>
+    <mesh name="wrist2_2" file="universal_robots_ur5e/wrist2_2.obj"/>
+    <mesh name="wrist3" file="universal_robots_ur5e/wrist3.obj"/>
+    <mesh name="WSG50_110" file="universal_robots_ur5e/WSG50_110.stl"/>
+    <mesh name="GUIDE_WSG50_110" file="universal_robots_ur5e/GUIDE_WSG50_110.stl"/>
+    <mesh name="WSG-FMF" file="universal_robots_ur5e/WSG-FMF.stl"/>
+  </asset>
+
+  <equality>
+    <joint joint1="base_joint_gripper_left" joint2="base_joint_gripper_right" solimp="0.95 0.99 0.001" solref="0.005 1" polycoef="0 -1 0 0 0"/>
+  </equality>
+
+</mujocoinclude>

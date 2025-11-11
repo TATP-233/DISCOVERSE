@@ -1,0 +1,11 @@
+<mujocoinclude>
+
+  <contact>
+    <exclude body1="base_link" body2="link1"/>
+  </contact>
+
+  <equality>
+    <joint joint1="joint7" joint2="joint8" polycoef="0 -1 0 0 0"/>
+  </equality>
+
+</mujocoinclude>

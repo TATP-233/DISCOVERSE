@@ -24,8 +24,6 @@ https://github.com/user-attachments/assets/78893813-d3fd-48a1-8bb4-5b0d87bf900f
 Our paper "DISCOVERSE: Efficient Robot Simulation in Complex High-Fidelity Environments" has been accepted by IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) 2025.
 
 
-
-
 ## 📦 Installation & Quick Start
 
 ### Quick Start
@@ -279,14 +277,6 @@ DISCOVERSE provides complete workflows for data collection, training, and infere
 - **2025.01.14**: 🏁 [S2R2025 Competition](https://sim2real.net/track/track?nav=S2R2025) launched
 - **2025.02.17**: 📈 Diffusion Policy baseline integration
 - **2025.02.19**: 📡 Point cloud sensor support added
-
-## 🤝 Community & Support
-
-<div align="center">
-<img src="./assets/wechat.png" alt="WeChat Community" style="zoom:50%;" />
-
-*Join our WeChat community for updates and discussions*
-</div>
 
 ## ❔ Troubleshooting
 

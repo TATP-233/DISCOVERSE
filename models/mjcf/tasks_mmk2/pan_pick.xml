@@ -4,7 +4,7 @@
   <include file="../mmk2/mmk2_options.xml"/>
   <include file="../mmk2/mmk2_dependencies.xml"/>
 
-  <compiler meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
 
   <include file="../object/box_dependencies.xml"/>
   <include file="../object/jujube_dependencies.xml"/>

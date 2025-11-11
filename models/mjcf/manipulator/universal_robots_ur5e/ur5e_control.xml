@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <general class="size3" name="shoulder_pan" joint="shoulder_pan_joint"/>
+  <general class="size3" name="shoulder_lift" joint="shoulder_lift_joint"/>
+  <general class="size3_limited" name="elbow" joint="elbow_joint"/>
+  <general class="size1" name="wrist_1" joint="wrist_1_joint"/>
+  <general class="size1" name="wrist_2" joint="wrist_2_joint"/>
+  <general class="size1" name="wrist_3" joint="wrist_3_joint"/>
+  <position name="gripper" joint="base_joint_gripper_right" ctrlrange="0 0.055" kp="1000" kv="20" forcerange="-500 500"/>
+</mujocoinclude>

@@ -1,0 +1,27 @@
+<mujocoinclude>
+  <statistic center="0.3 0 0.4" extent="1"/>
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+  <worldbody>
+    <!-- <camera name="high" pos="0.851 -1.066 1.602" xyaxes="0.915 0.404 0.000 -0.126 0.285 0.950"/> -->
+    <!-- <camera name="low" pos="0.524 -0.747 1.248" xyaxes="0.921 0.389 -0.000 -0.114 0.269 0.956"/> -->
+    <light pos="1 0 2." dir="-0.5 0 -0.8"/>
+    <light pos="0.3 1 2." dir="0 -0.5 -0.8"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+    <body name="skybox_table" pos="0.4 0 0" euler="0 0 1.5708">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.77" type="box" rgba="0.8 0.8 0.8 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+      <geom size="0.02 0.02 0.385" pos=" 0.28  0.56 0.385" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.385" pos="-0.28  0.56 0.385" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.385" pos=" 0.28 -0.56 0.385" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.385" pos="-0.28 -0.56 0.385" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+    </body>
+  </worldbody>
+</mujocoinclude>

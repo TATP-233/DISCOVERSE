@@ -1,0 +1,69 @@
+<mujocoinclude>
+  <default>
+
+    <default class='aribot_play'>
+      <default class="visual">
+        <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+      </default>
+      <default class="collision">
+        <geom group="3" condim="6" solimp="2 1 0.01" solref="0.001 10" friction="1 0.005 0.0001" type="mesh"/>
+      </default>
+      <default class='joint1'>
+        <joint axis='0 0 1' range="-3.151 2.089" actuatorfrcrange="-24 24" damping="0.2" frictionloss='15' />
+        <position ctrlrange="-3.151 2.089"/>
+      </default>
+      <default class='joint2'>
+        <joint axis='0 0 1' range="-2.963 0.181" actuatorfrcrange="-24 24" damping="0.2" frictionloss='15' />
+        <position ctrlrange="-2.963 0.181" />
+      </default>
+      <default class='joint3'>
+        <joint axis='0 0 1' range='-0.094 3.161' actuatorfrcrange="-24 24" damping="0.2" frictionloss='15' />
+        <position ctrlrange='-0.094 3.161'/>
+      </default>
+      <default class='joint4'>
+        <joint axis='0 0 1' range="-3.012 3.012" actuatorfrcrange="-8 8" damping="0.1" frictionloss='5' />
+        <position ctrlrange="-3.012 3.012"/>
+      </default>
+      <default class='joint5'>
+        <joint axis='0 0 1' range="-1.859 1.859" actuatorfrcrange="-8 8" damping="0.1" frictionloss='5' />
+        <position ctrlrange="-1.859 1.859"/>
+      </default>
+      <default class='joint6'>
+        <joint axis='0 0 1' range="-3.017 3.017" actuatorfrcrange="-8 8" damping="0.1" frictionloss='5' />
+        <position ctrlrange="-3.017 3.017"/>
+      </default>
+      <default class='finger1'>
+        <joint axis='0 1 0' range="-0.04 0" type='slide' damping="2"/>
+      </default>
+      <default class='finger2'>
+        <joint axis='0 1 0' range="0 0.04" type='slide' damping="2"/>
+      </default>
+    </default>
+    <site size="0.001" group="3"/>
+
+  </default>
+
+  <asset>
+    <material name="Paint_Matte_Black" specular="0.5" shininess="0.5" rgba="0.00111266039 0.00111266039 0.00111266039 1.0"/>
+    <material name="Paint_Metallic_White" specular="0.5" shininess="0.5" rgba="0.928523183 0.928523183 0.928523123 1.0"/>
+    <material name="Gree_Light_Base" specular="0.5" shininess="0.5" rgba="0.6 1 1 1"/>
+  </asset>
+
+  <asset>
+    <mesh name="arm_base_0" file="airbot_play/arm_base_0.obj"/>
+    <mesh name="arm_base_1" file="airbot_play/arm_base_1.obj"/>
+    <mesh name="link1" file="airbot_play/link1.obj"/>
+    <mesh name="link2_0" file="airbot_play/link2_0.obj"/>
+    <mesh name="link2_1" file="airbot_play/link2_1.obj"/>
+    <mesh name="link3_0" file="airbot_play/link3_0.obj"/>
+    <mesh name="link3_1" file="airbot_play/link3_1.obj"/>
+    <mesh name="link4" file="airbot_play/link4.obj"/>
+    <mesh name="link5_0" file="airbot_play/link5_0.obj"/>
+    <mesh name="link5_1" file="airbot_play/link5_1.obj"/>
+    <mesh name="link6" file="airbot_play/link6.obj"/>
+    <mesh name="camera_stand" file="airbot_play/camera_stand.obj"/>
+    <mesh name="left" file="airbot_play/left.obj"/>
+    <mesh name="right" file="airbot_play/right.obj"/>
+  </asset>
+
+</mujocoinclude>

@@ -6,8 +6,10 @@ import os
 import argparse
 import multiprocessing as mp
 
+import discoverse
+from discoverse.envs import make_env
 from discoverse.robots import AirbotPlayIK
-from discoverse import DISCOVERSE_ROOT_DIR
+from discoverse import DISCOVERSE_ROOT_DIR, DISCOVERSE_ASSETS_DIR
 from discoverse.robots_env.airbot_play_base import AirbotPlayCfg
 from discoverse.utils import get_body_tmat, step_func, SimpleStateMachine
 from discoverse.task_base import AirbotPlayTaskBase, recoder_airbot_play, copypy2
@@ -66,7 +68,12 @@ cfg.gs_model_dict["bowl_pink"]   = "object/bowl_pink.ply"
 cfg.gs_model_dict["block_green"] = "object/block_green.ply"
 cfg.init_qpos[:] = [-0.055, -0.547, 0.905, 1.599, -1.398, -1.599,  0.0]
 
-cfg.mjcf_file_path = "mjcf/tasks_airbot_play/stack_block.xml"
+robot_name = "airbot_play"
+task_name = "stack_block"
+cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
+env = make_env(robot_name, task_name)
+env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
+
 cfg.obj_list     = ["drawer_1", "drawer_2", "bowl_pink", "block_green"]
 cfg.timestep     = 1/240
 cfg.decimation   = 4
@@ -81,6 +88,8 @@ cfg.obs_rgb_cam_id = [0, 1]
 cfg.save_mjb_and_task_config = True
 
 if __name__ == "__main__":
+    print(f"Welcome to discoverse {discoverse.__version__} !")
+    print(discoverse.__logo__)
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 
     parser = argparse.ArgumentParser()
@@ -136,7 +145,7 @@ if __name__ == "__main__":
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.1 * tmat_jujube[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 1: # 伸到方块
                     tmat_jujube = get_body_tmat(sim_node.mj_data, "block_green")
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.028 * tmat_jujube[:3, 2]
@@ -158,7 +167,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.04
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 7: # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 8: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
@@ -167,7 +176,7 @@ if __name__ == "__main__":
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.1 * tmat_jujube[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 10: # 伸到red block
                     tmat_jujube = get_body_tmat(sim_node.mj_data, "block_red")
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.028 * tmat_jujube[:3, 2]
@@ -189,7 +198,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.04
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 16: # 松开block_red
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 17: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])

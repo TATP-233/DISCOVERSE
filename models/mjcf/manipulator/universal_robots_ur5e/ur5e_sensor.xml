@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <jointpos name="shoulder_pan_pos" joint="shoulder_pan_joint"/>
+  <jointpos name="shoulder_lift_pos" joint="shoulder_lift_joint"/>
+  <jointpos name="elbow_pos" joint="elbow_joint"/>
+  <jointpos name="wrist_1_pos" joint="wrist_1_joint"/>
+  <jointpos name="wrist_2_pos" joint="wrist_2_joint"/>
+  <jointpos name="wrist_3_pos" joint="wrist_3_joint"/>
+  <jointpos name="gripper_pos" joint="base_joint_gripper_right" />
+</mujocoinclude>

@@ -1,0 +1,18 @@
+<mujocoinclude>
+  <option integrator="implicitfast" timestep="0.004"/>
+
+  <asset>
+    <mesh name="base_link" file="airbot_play_force/base_link.STL"/>
+    <mesh name="link1" file="airbot_play_force/link1.STL"/>
+    <mesh name="link2" file="airbot_play_force/link2.STL"/>
+    <mesh name="link3" file="airbot_play_force/link3.STL"/>
+    <mesh name="link4" file="airbot_play_force/link4.STL"/>
+    <mesh name="link5" file="airbot_play_force/link5.STL"/>
+    <mesh name="link6" file="airbot_play_force/link6.STL"/>
+    <mesh name="eef_connect_base_link" file="airbot_play_force/eef_connect_base_link.STL"/>
+    <mesh name="g2_base_link" file="airbot_play_force/g2_base_link.STL"/>
+    <mesh name="g2_left_link" file="airbot_play_force/g2_left_link.STL"/>
+    <mesh name="g2_right_link" file="airbot_play_force/g2_right_link.STL"/>
+  </asset>
+
+</mujocoinclude>

@@ -1,0 +1,123 @@
+<mujocoinclude>
+  <default>
+    <default class="panda">
+      <material specular="0.5" shininess="0.25"/>
+      <joint armature="0.1" damping="1" axis="0 0 1" range="-2.8973 2.8973"/>
+      <general dyntype="none" biastype="affine" ctrlrange="-2.8973 2.8973" forcerange="-87 87"/>
+      <position forcerange="-100 100"/>
+      <default class="finger">
+        <joint axis="0 1 0" type="slide" range="0 0.04"/>
+      </default>
+
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom group="3" type="mesh" contype="0" conaffinity="0"/>
+        <default class="primitive_collision">
+          <geom group="3" type="box" contype="0" conaffinity="0" condim="3" solimp="0.99 0.995 0.01" solref="0.01 1" friction="1 0.005 0.0001"/>
+          <default class="fingertip_pad_collision_1">
+            <geom type="box" size="0.011 0.0075 0.01" pos="0 0.0185 0.011"/>
+          </default>
+          <default class="fingertip_pad_collision_2">
+            <geom type="box" size="0.011 0.0044 0.0019" pos="0 0.0068 0.0022"/>
+          </default>
+          <default class="fingertip_pad_collision_3">
+            <geom type="box" size="0.00875 0.0035 0.01175" pos="0 0.0159 0.02835" quat="1 0.25 0 0"/>
+          </default>
+          <default class="fingertip_pad_collision_4">
+            <geom type="box" size="0.00875 0.0076 0.00825" pos="0 0.00758 0.04525" conaffinity="3"/>
+          </default>
+        </default>
+      </default>
+    </default>
+    <site size="0.001" group="3"/>
+  </default>
+
+
+  <asset>
+    <material class="panda" name="white" rgba="1 1 1 1"/>
+    <material class="panda" name="off_white" rgba="0.901961 0.921569 0.929412 1"/>
+    <material class="panda" name="black" rgba="0.25 0.25 0.25 1"/>
+    <material class="panda" name="green" rgba="0 1 0 1"/>
+    <material class="panda" name="light_blue" rgba="0.039216 0.541176 0.780392 1"/>
+  </asset>
+
+  <asset>
+    <!-- Collision meshes -->
+    <mesh name="link0_c" file="franka_emika_panda/link0.stl"/>
+    <mesh name="link1_c" file="franka_emika_panda/link1.stl"/>
+    <mesh name="link2_c" file="franka_emika_panda/link2.stl"/>
+    <mesh name="link3_c" file="franka_emika_panda/link3.stl"/>
+    <mesh name="link4_c" file="franka_emika_panda/link4.stl"/>
+    <mesh name="link5_c0" file="franka_emika_panda/link5_collision_0.obj"/>
+    <mesh name="link5_c1" file="franka_emika_panda/link5_collision_1.obj"/>
+    <mesh name="link5_c2" file="franka_emika_panda/link5_collision_2.obj"/>
+    <mesh name="link6_c" file="franka_emika_panda/link6.stl"/>
+    <mesh name="link7_c" file="franka_emika_panda/link7.stl"/>
+    <mesh name="hand_c" file="franka_emika_panda/hand.stl"/>
+
+    <!-- Visual meshes -->
+    <mesh file="franka_emika_panda/link0_0.obj"/>
+    <mesh file="franka_emika_panda/link0_1.obj"/>
+    <mesh file="franka_emika_panda/link0_2.obj"/>
+    <mesh file="franka_emika_panda/link0_3.obj"/>
+    <mesh file="franka_emika_panda/link0_4.obj"/>
+    <mesh file="franka_emika_panda/link0_5.obj"/>
+    <mesh file="franka_emika_panda/link0_7.obj"/>
+    <mesh file="franka_emika_panda/link0_8.obj"/>
+    <mesh file="franka_emika_panda/link0_9.obj"/>
+    <mesh file="franka_emika_panda/link0_10.obj"/>
+    <mesh file="franka_emika_panda/link0_11.obj"/>
+    <mesh file="franka_emika_panda/link1.obj"/>
+    <mesh file="franka_emika_panda/link2.obj"/>
+    <mesh file="franka_emika_panda/link3_0.obj"/>
+    <mesh file="franka_emika_panda/link3_1.obj"/>
+    <mesh file="franka_emika_panda/link3_2.obj"/>
+    <mesh file="franka_emika_panda/link3_3.obj"/>
+    <mesh file="franka_emika_panda/link4_0.obj"/>
+    <mesh file="franka_emika_panda/link4_1.obj"/>
+    <mesh file="franka_emika_panda/link4_2.obj"/>
+    <mesh file="franka_emika_panda/link4_3.obj"/>
+    <mesh file="franka_emika_panda/link5_0.obj"/>
+    <mesh file="franka_emika_panda/link5_1.obj"/>
+    <mesh file="franka_emika_panda/link5_2.obj"/>
+    <mesh file="franka_emika_panda/link6_0.obj"/>
+    <mesh file="franka_emika_panda/link6_1.obj"/>
+    <mesh file="franka_emika_panda/link6_2.obj"/>
+    <mesh file="franka_emika_panda/link6_3.obj"/>
+    <mesh file="franka_emika_panda/link6_4.obj"/>
+    <mesh file="franka_emika_panda/link6_5.obj"/>
+    <mesh file="franka_emika_panda/link6_6.obj"/>
+    <mesh file="franka_emika_panda/link6_7.obj"/>
+    <mesh file="franka_emika_panda/link6_8.obj"/>
+    <mesh file="franka_emika_panda/link6_9.obj"/>
+    <mesh file="franka_emika_panda/link6_10.obj"/>
+    <mesh file="franka_emika_panda/link6_11.obj"/>
+    <mesh file="franka_emika_panda/link6_12.obj"/>
+    <mesh file="franka_emika_panda/link6_13.obj"/>
+    <mesh file="franka_emika_panda/link6_14.obj"/>
+    <mesh file="franka_emika_panda/link6_15.obj"/>
+    <mesh file="franka_emika_panda/link6_16.obj"/>
+    <mesh file="franka_emika_panda/link7_0.obj"/>
+    <mesh file="franka_emika_panda/link7_1.obj"/>
+    <mesh file="franka_emika_panda/link7_2.obj"/>
+    <mesh file="franka_emika_panda/link7_3.obj"/>
+    <mesh file="franka_emika_panda/link7_4.obj"/>
+    <mesh file="franka_emika_panda/link7_5.obj"/>
+    <mesh file="franka_emika_panda/link7_6.obj"/>
+    <mesh file="franka_emika_panda/link7_7.obj"/>
+    <mesh file="franka_emika_panda/hand_0.obj"/>
+    <mesh file="franka_emika_panda/hand_1.obj"/>
+    <mesh file="franka_emika_panda/hand_2.obj"/>
+    <mesh file="franka_emika_panda/hand_3.obj"/>
+    <mesh file="franka_emika_panda/hand_4.obj"/>
+    <mesh file="franka_emika_panda/finger_0.obj"/>
+    <mesh file="franka_emika_panda/finger_1.obj"/>
+  </asset>
+
+  <equality>
+    <joint joint1="finger_joint1" joint2="finger_joint2" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+  </equality>
+
+</mujocoinclude>

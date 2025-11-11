@@ -1,0 +1,315 @@
+<?xml version="1.0" ?>
+<robot name="play_g2">
+  <mujoco>
+    <compiler meshdir="../meshes"/>
+  </mujoco>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.018345 -0.002558 0.03724" rpy="0 0 0"/>
+      <mass value="0.6735"/>
+      <inertia ixx="0.00121381" ixy="-3.271E-05" ixz="-0.00023366" iyy="0.00164872" iyz="-2.757E-05" izz="0.00126552"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link1">
+    <inertial>
+      <origin xyz="0.00014396 -0.00098536 -0.020968" rpy="0 0 0"/>
+      <mass value="0.607"/>
+      <inertia ixx="0.0011117" ixy="1.605E-05" ixz="-1.45E-06" iyy="0.0010136" iyz="-7.07E-06" izz="0.0003867"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link1.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link1.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link2">
+    <inertial>
+      <origin xyz="0.13769 0.012537 0.0044739" rpy="0 0 0"/>
+      <mass value="0.918"/>
+      <inertia ixx="0.00094437" ixy="0.00112155" ixz="-0.00063705" iyy="0.03479442" iyz="-7.45E-06" izz="0.03461144"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link2.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link2.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link3">
+    <inertial>
+      <origin xyz="1.5134E-05 0.10706 0.0082136" rpy="0 0 0"/>
+      <mass value="0.7"/>
+      <inertia ixx="0.01565914" ixy="1.007E-05" ixz="1.02E-06" iyy="0.00045929" iyz="0.00010253" izz="0.0154811"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link3.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link3.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link4">
+    <inertial>
+      <origin xyz="-1.6216E-05 0.002995 -0.019407" rpy="0 0 0"/>
+      <mass value="0.359"/>
+      <inertia ixx="0.00051773" ixy="-4E-08" ixz="1.5E-07" iyy="0.00052925" iyz="-4.05E-06" izz="0.00013681"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link4.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link4.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link5">
+    <inertial>
+      <origin xyz="-4.5037E-05 0.033144 0.0024106" rpy="0 0 0"/>
+      <mass value="0.403"/>
+      <inertia ixx="0.00116016" ixy="-3.1E-07" ixz="-2.4E-07" iyy="0.00024251" iyz="-4.809E-05" izz="0.00108456"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link5.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link5.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="link6">
+    <inertial>
+      <origin xyz="-4.6366E-05 4.3424E-05 0.066592" rpy="0 0 0"/>
+      <mass value="0.11"/>
+      <inertia ixx="0.00051056" ixy="0" ixz="-3.4E-07" iyy="0.00051056" iyz="3.2E-07" izz="1.73E-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link6.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/link6.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="eef_connect_base_link">
+    <inertial>
+      <origin xyz="3.5687E-06 0.00020484 -0.004811" rpy="0 0 0"/>
+      <mass value="0.019009"/>
+      <inertia ixx="4.0476E-06" ixy="-9.5794E-10" ixz="1.8201E-10" iyy="3.9455E-06" iyz="7.997E-09" izz="7.498E-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/eef_connect_base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.89804 0.91765 0.92941 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/eef_connect_base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="joint1" type="revolute">
+    <origin xyz="0 0 0.1127" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.1416" upper="2.0944" effort="0" velocity="0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <origin xyz="0 0 0" rpy="-1.5708 -0.3867 3.1416"/>
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.9671" upper="0.17453" effort="0" velocity="0"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <origin xyz="0.27009 0 0" rpy="0 0 1.9575"/>
+    <parent link="link2"/>
+    <child link="link3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.087266" upper="3.1416" effort="0" velocity="0"/>
+  </joint>
+  <joint name="joint4" type="revolute">
+    <origin xyz="0 0.29015 0" rpy="-1.5708 -1.5708 0"/>
+    <parent link="link3"/>
+    <child link="link4"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.0107" upper="3.0107" effort="0" velocity="0"/>
+  </joint>
+  <joint name="joint5" type="revolute">
+    <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    <parent link="link4"/>
+    <child link="link5"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.7628" upper="1.7628" effort="0" velocity="0"/>
+  </joint>
+  <joint name="joint6" type="revolute">
+    <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
+    <parent link="link5"/>
+    <child link="link6"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.0107" upper="3.0107" effort="0" velocity="0"/>
+  </joint>
+  <joint name="arm_connect_joint" type="fixed">
+    <parent link="link6"/>
+    <child link="eef_connect_base_link"/>
+    <origin xyz="0.0 0.0 0.0955" rpy="0.0 0.0 0.0"/>
+  </joint>
+  <link name="g2_base_link">
+    <inertial>
+      <origin xyz="5.9308E-05 -3.262E-05 0.041814" rpy="0 0 0"/>
+      <mass value="0.488"/>
+      <inertia ixx="0.00115523" ixy="-2E-06" ixz="2.2E-07" iyy="0.00137334" iyz="-8.7E-07" izz="0.00042051"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_base_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_base_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="g2_left_link">
+    <inertial>
+      <origin xyz="0.018307 5.9636E-06 0.012505" rpy="0 0 0"/>
+      <mass value="0.054004"/>
+      <inertia ixx="2.46E-05" ixy="0" ixz="7.55E-06" iyy="4.78E-05" iyz="0" izz="4.892E-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_left_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_left_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="g2_right_link">
+    <inertial>
+      <origin xyz="0.018307 -6.8572E-07 0.012505" rpy="0 0 0"/>
+      <mass value="0.054004"/>
+      <inertia ixx="2.46E-05" ixy="0" ixz="-7.55E-06" iyy="4.78E-05" iyz="0" izz="4.892E-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_right_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://play_g2/meshes/g2_right_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="g2_left_joint" type="prismatic">
+    <origin xyz="0 0 0.0705" rpy="0 -1.5708 0"/>
+    <parent link="g2_base_link"/>
+    <child link="g2_left_link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="0.0366" effort="0" velocity="0"/>
+  </joint>
+  <joint name="g2_right_joint" type="prismatic">
+    <origin xyz="0 0 0.0705" rpy="3.1416 -1.5708 0"/>
+    <parent link="g2_base_link"/>
+    <child link="g2_right_link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="0.0366" effort="0" velocity="0"/>
+    <mimic joint="g2_left_joint" multiplier="1"/>
+  </joint>
+  <joint name="connect_eef_joint" type="fixed">
+    <parent link="eef_connect_base_link"/>
+    <child link="g2_base_link"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+  </joint>
+</robot>

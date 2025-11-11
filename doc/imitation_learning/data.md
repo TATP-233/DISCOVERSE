@@ -16,15 +16,12 @@ e.g. python tasks_data_gen.py --robot_name airbot_play --task_name kiwi_place --
 将仿真采集的原始数据格式转换为ACT算法中用到的hdf5格式，命令如下：
 
 ```bash
-python3 policies/act/data_process/raw_to_hdf5.py -md mujoco -dir data -tn <task_name> -vn <video_names>
+python3 -m airbot_ie.scripts.data_convert.discoverse2mcap --root data --task-name airbot_play_force_peg_in_hole --output-dir policies/act/data/mcap
 ```
 
-- `-md`: 转换模式，mujoco表示转换由discoverse仿真器采集的数据
-- `-dir`: 数据存放的根目录，默认为data
-- `-tn`: 任务名，程序将根据任务名从data目录中寻找相同名称的数据集文件夹
-- `-vn`: 视频名，指定需要转换的视频文件名（无后缀），多个名称用空格隔开
-
-转换后的数据存放于`discoverse/data/hdf5`文件夹中。
+- `--output-dir`: 转换后数据存放的目录，默认为`policies/act/data/mcap`
+- `--root`: 数据存放的根目录，默认为data
+- `--task-name`: 任务名，程序将根据任务名从data目录中寻找相同名称的数据集文件夹
 
 ## dp
 

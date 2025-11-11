@@ -277,14 +277,6 @@ DISCOVERSE提供数据收集、训练和推理的完整工作流：
 - **2025.02.17**：📈 集成Diffusion Policy基线
 - **2025.02.19**：📡 添加点云传感器支持
 
-## 🤝 社区与支持
-
-<div align="center">
-<img src="./assets/wechat.png" alt="微信社区" style="zoom:50%;" />
-
-*加入我们的微信社区获取更新和讨论*
-</div>
-
 ## ❔ 故障排除
 
 有关安装和运行时问题，请参考我们详细的**[故障排除指南](doc/troubleshooting.md)**。

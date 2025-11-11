@@ -1,5 +1,5 @@
 <mujocoinclude>
   <inertial pos="0 0 0" mass="0.0005" diaginertia="0.00002 0.00002 0.00002" />
-  <geom material="jujube_texture" mesh="jujube" class="obj_visual"/>
+  <geom material="jujube_texture" mesh="jujube" type="mesh" contype="0" conaffinity="0"/>
   <geom type="mesh" mesh="jujube" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" rgba="1 0 0 0.1"/>
 </mujocoinclude>

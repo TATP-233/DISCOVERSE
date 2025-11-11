@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <position name="joint1" joint="joint1" class="arx_l5" kp="500" kv="15" forcelimited="true" forcerange="-300 300"/>
+  <position name="joint2" joint="joint2" class="arx_l5" kp="500" kv="15" forcelimited="true" forcerange="-300 300"/>
+  <position name="joint3" joint="joint3" class="arx_l5" kp="500" kv="15" forcelimited="true" forcerange="-300 300"/>
+  <position name="joint4" joint="joint4" class="arx_l5" kp="200" kv="10" forcelimited="true" forcerange="-300 300"/>
+  <position name="joint5" joint="joint5" class="arx_l5" kp="50" kv="5" forcelimited="true" forcerange="-300 300"/>
+  <position name="joint6" joint="joint6" class="arx_l5" kp="50" kv="5" forcelimited="true" forcerange="-300 300"/>
+  <position name="gripper" joint="joint7" class="finger" kp="40" kv="5" forcelimited="true" forcerange="-100 100"/>
+</mujocoinclude>

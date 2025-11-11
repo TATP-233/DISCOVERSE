@@ -1,0 +1,74 @@
+<mujocoinclude>
+  <body name="base_link" childclass="piper">
+    <site name="armbase"/>
+    <geom name="base_link_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="base_link.STL" class="collision" />
+    <geom name="base_link_visual" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="base_link.obj" material="black" class="visual" />
+    <body name="link1" pos="0 0 0.123" quat="0.7071054825112363 0.0 0.0 -0.7071080798594735">
+      <inertial pos="0.00131676031927024 0.000310288842008612 -0.00922874512303437" quat="1.0 0.0 0.0 0.0" mass="0.0978679932242825" diaginertia="7.76684558296782e-05 9.24967780161547e-05 8.24589062407807e-05" />
+      <joint name="joint1" type="hinge" range="-2.618 2.618" axis="0 0 1" damping="20"/>
+      <geom name="link1_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link1.STL" class="collision" />
+      <geom name="link1_visual" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link1.obj" material="black" class="visual" />
+      <body name="link2" pos="0 0 0" quat="0.4999981633974483 0.49999999999662686 -0.5000018366025516 -0.49999999999662686">
+        <inertial pos="0.148793602378802 -0.00242026983944119 0.00175154638467948" quat="1.0 0.0 0.0 0.0" mass="0.290888938633388" diaginertia="0.000148959640166183 0.00172800946632652 0.0017754628344594" />
+        <joint name="joint2" type="hinge" range="0 3.14" axis="0 0 1" damping="20"/>
+        <geom name="link2_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link2.STL" class="collision" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_0" mesh="link2_0" material="link2_material_5" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_1" mesh="link2_1" material="link2_material_4" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_2" mesh="link2_2" material="link2_material_3" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_3" mesh="link2_3" material="link2_material_2" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_4" mesh="link2_4" material="link2_material_1" />
+        <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link2_visual_5" mesh="link2_5" material="link2_material_0" />
+        <body name="link3" pos="0.28358 0.028726 0" quat="0.9987264076189438 0.0 0.0 0.05045356998825135">
+          <inertial pos="-0.0996835215213704 0.0349477226691318 0.000508025815507312" quat="1.0 0.0 0.0 0.0" mass="0.290847697793211" diaginertia="0.000107879011637167 0.000214751671792086 0.000241923439340319" />
+          <joint name="joint3" type="hinge" range="-2.697 0" axis="0 0 1" damping="20"/>
+          <geom name="link3_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link3.STL" class="collision" />
+          <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link3_visual_0" mesh="link3_0" material="link2_material_4" />
+          <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link3_visual_1" mesh="link3_1" material="link2_material_2" />
+          <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link3_visual_2" mesh="link3_2" material="link2_material_5" />
+          <body name="link4" pos="-0.24221 0.068514 0" quat="0.5447666963008092 -0.5447686973442933 -0.4508091647208976 0.45080750880941434">
+            <inertial pos="0.000276464622387979 -0.00102803669324875 -0.00472830700561663" quat="1.0 0.0 0.0 0.0" mass="0.127087348341362" diaginertia="3.82011730423416e-05 4.87048555222578e-05 4.10592077565559e-05" />
+            <joint name="joint4" type="hinge" range="-1.832 1.832" axis="0 0 1" damping="10"/>
+            <geom name="link4_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link4.STL" class="collision" />
+            <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link4_visual_0" mesh="link4_0" material="link2_material_4" />
+            <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link4_visual_1" mesh="link4_1" material="link2_material_5" />
+            <body name="link5" pos="0 0 0" quat="0.7071054825112363 0.7071080798594735 0.0 0.0">
+              <inertial pos="8.82262433516967E-05 0.0566829014808256 -0.00196119720482461" quat="1.0 0.0 0.0 0.0" mass="0.144711242639457" diaginertia="4.39644313662493e-05 5.63173920951307e-05 4.88713664675268e-05" />
+              <joint name="joint5" type="hinge" range="-1.22 1.22" axis="0 0 1" damping="10"/>
+              <geom name="link5_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link5.STL" class="collision" />
+              <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link5_visual_0" mesh="link5_0" material="link2_material_0" />
+              <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link5_visual_1" mesh="link5_1" material="link2_material_4" />
+              <geom pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" class="visual" name="link5_visual_2" mesh="link5_2" material="link2_material_5" />
+              <body name="link6" pos="0 0.091 0.0014165" quat="1.894681827859535e-08 -1.894688787427276e-08 -0.7071054825112361 -0.7071080798594733">
+                <inertial pos="0.00103120214523473 0.0121761387587524 0.0315480874960164" quat="1.0 0.0 0.0 0.0" mass="0.195187143240719" diaginertia="6.43790256535539e-05 0.000126146396374301 0.000154087076816444" />
+                <joint name="joint6" type="hinge" range="-3.14 3.14" axis="0 0 1" damping="10"/>
+                <geom name="link6_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link6.STL" class="collision" />
+                <geom name="link6_visual" pos="0 0 0" quat="0.7071054825112363 0.0 0.0 0.7071080798594735" type="mesh" mesh="link6.obj" material="black" class="visual" />
+                <site name="endpoint" pos='0 0 0.13' quat="-0.707 0 0.707 0"/>
+                <body name="camera_mount" pos="0 0 -0.077" quat="0.7071054825112363 0.0 0.0 0.7071080798594735">
+                  <geom name="camera_mount_visual" pos="0 0 0.08" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="camera_link.obj" material="camera_link_black_medium_gloss_plastic" class="visual" />
+                  <body name="camera" pos="0.045 0.09 0.115" quat="0.6006548037091628 -0.3731136646936255 -0.37311366469362556 -0.6006548037091627">
+                    <geom name="camera_visual" pos="0.014 -0.045 -0.03" quat="0.7062230818371108 0.03534060950936697 -0.03534060950936696 -0.7062230818371107" type="mesh" mesh="camera.obj" material="default_material" class="visual" />
+                  </body>
+                </body>
+                <body name="link7" pos="0 0 0.13503" quat="1.894681827859535e-08 1.894688787427276e-08 0.7071080798594733 0.7071054825112361">
+                  <inertial pos="-0.000277778383727112 -0.0467673043650824 -0.00921029491873201" quat="1.0 0.0 0.0 0.0" mass="0.02648229234527" diaginertia="9.99787479924589e-06 6.1795212293655e-06 1.42102717246564e-05" />
+                  <joint name="finger_joint1" type="slide" range="0 0.04" axis="0 0 -1" damping="1"/>
+                  <geom name="link7_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link7.STL" class="collision" />
+                  <geom name="link7_visual" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link7.obj" material="black" class="visual" />
+                  <geom type="box" size=".01 .025 .002" pos="0 -0.02 -0.002" rgba="1 0 0 1" class="collision"/>
+                </body>
+                <body name="link8" pos="0 0 0.13503" quat="1.894681827859535e-08 -1.894688787427276e-08 -0.7071080798594733 0.7071054825112361">
+                  <inertial pos="0.000277816920932317 0.0467673824063769 -0.00921030054508036" quat="1.0 0.0 0.0 0.0" mass="0.0264822021416248" diaginertia="9.99779119357223e-06 6.17952441557932e-06 1.4210192754512e-05" />
+                  <joint name="finger_joint2" type="slide" range="0 0.04" axis="0 0 -1" damping="1"/>
+                  <geom name="link8_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link8.STL" class="collision" />
+                  <geom name="link8_visual" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link8.obj" material="black" class="visual" />
+                  <geom type="box" size=".01 .025 .002" pos="0 0.02 -0.002" rgba="1 0 0 1" class="collision"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinclude>

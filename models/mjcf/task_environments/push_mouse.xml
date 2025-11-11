@@ -1,0 +1,16 @@
+<mujoco model="push_mouse">
+  <include file="../object/mouse_dependencies.xml"/>
+  <include file="../object/mouse_pad_dependencies.xml"/>
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <worldbody>
+    <site name="manipulator_locate" pos="0.3 1. 0.71" euler="0 0 3.1416"/>
+    <body name="mouse_pad" pos="-0.15 0.93 0.700422">
+      <include file="../object/mouse_pad.xml"/>
+    </body>
+    <body name="mouse" pos="0.1 0.93 0.700422" euler="0 0 -1.57">
+      <joint type="free" frictionloss="0.00001"/>
+      <include file="../object/mouse.xml"/>
+    </body>
+  </worldbody>
+  <include file="../scene/qz_lab3.xml"/>
+</mujoco>

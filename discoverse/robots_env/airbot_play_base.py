@@ -6,7 +6,7 @@ from discoverse.envs import SimulatorBase
 from discoverse.utils.base_config import BaseConfig
 
 class AirbotPlayCfg(BaseConfig):
-    mjcf_file_path = "mjcf/airbot_play_floor.xml"
+    mjcf_file_path = "mjcf/robot_airbot_play.xml"
     decimation     = 4
     timestep       = 0.005
     sync           = True

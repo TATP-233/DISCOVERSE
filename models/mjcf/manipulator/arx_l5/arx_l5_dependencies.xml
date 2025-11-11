@@ -1,0 +1,39 @@
+<mujocoinclude>
+  <option integrator="implicitfast" cone="elliptic" impratio="10"/>
+
+  <default>
+    <default class="arx_l5">
+      <joint frictionloss="0.3" armature="0.005"/>
+      <position inheritrange="1" forcerange="-100 100"/>
+      <default class="finger">
+        <joint frictionloss="0" type="slide"/>
+        <position forcerange="-10 10"/>
+      </default>
+      <default class="visual">
+        <geom group="2" type="mesh" contype="0" conaffinity="0" density="0"/>
+      </default>
+      <default class="collision">
+        <geom group="3" type="capsule"/>
+      </default>
+    </default>
+    <site size="0.001" group="3"/>
+  </default>
+
+  <asset>
+    <material name="black_mat" rgba="0.1 0.1 0.1 1"/>
+  </asset>
+
+  <asset>
+    <mesh name="base_link" file="arx_l5/base_link.obj"/>
+    <mesh name="link1" file="arx_l5/link1.obj"/>
+    <mesh name="link2" file="arx_l5/link2.obj"/>
+    <mesh name="link3" file="arx_l5/link3.obj"/>
+    <mesh name="link4" file="arx_l5/link4.obj"/>
+    <mesh name="link5" file="arx_l5/link5.obj"/>
+    <mesh name="link6" file="arx_l5/link6.obj"/>
+    <mesh name="link7" file="arx_l5/link7.obj"/>
+    <mesh name="link8" file="arx_l5/link8.obj"/>
+    <mesh name="camera" file="arx_l5/camera.obj"/>
+  </asset>
+
+</mujocoinclude>

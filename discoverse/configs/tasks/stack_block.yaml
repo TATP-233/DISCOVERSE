@@ -1,0 +1,284 @@
+# ============== stack_block 任务配置 ==============
+
+task_name: "stack_block"
+description: "将绿色方块放到蓝色方块上，然后将红色方块放到绿色方块上，形成堆叠"
+
+# ============== 成功条件检查 ==============
+success_check:
+  method: "combined"  # 组合检查方法
+  operator: "and"     # 所有条件都必须满足
+  conditions:
+    - type: "orientation"  # 检查蓝色方块是否直立
+      object: "block_blue"
+      axis: "z"  # Z轴
+      direction: "up"  # 朝上
+      threshold: 0.99  # cos值阈值（对应原代码中的 abs(tmat_bowl[2, 2]) > 0.99）
+      description: "蓝色方块保持直立"
+      
+    - type: "distance_2d"  # 检查绿色方块是否在蓝色方块上
+      object1: "block_green"
+      object2: "block_blue"
+      threshold: 0.025  # 2.5cm容差
+      description: "绿色方块堆叠在蓝色方块上"
+      
+    - type: "distance_2d"  # 检查红色方块是否在绿色方块上
+      object1: "block_red"
+      object2: "block_green"
+      threshold: 0.025  # 2.5cm容差
+      description: "红色方块堆叠在绿色方块上"
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化
+  objects:
+    - name: "block_green"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.06  # 方块边长约4cm，最小距离6cm确保不碰撞
+      description: "绿色方块位置随机化"
+      
+    - name: "block_red"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.06  # 方块边长约4cm，最小距离6cm确保不碰撞
+      description: "红色方块位置随机化"
+      
+    - name: "block_blue"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.06  # 方块边长约4cm，最小距离6cm确保不碰撞
+      description: "蓝色方块位置随机化"
+  
+  # 相机随机化（可选，对应原代码中被注释的相机随机化）
+  cameras:
+    activate: true
+    eye_side:
+      position_offset: [0.05, 0.05, 0.05]  # 位置偏移范围 ±5cm
+      orientation_offset: [0.05, 0.05, 0.05]  # 姿态偏移范围 ±0.05弧度
+      description: "侧视相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    activate: true
+    random_color: true             # 随机化光源颜色
+    individual_colors: false       # 所有光源使用相同的颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.7        # 光源激活概率
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.3               # XY方向偏移标准差
+      z_scale: 0.2                # Z方向偏移标准差
+    intensity_range:               # 光强范围
+      min: 0.1                    # 最小光强倍数
+      max: 0.9                    # 最大光强倍数
+    description: "光照随机化，模拟不同照明条件"
+  
+  # 桌面高度随机化
+  table_height:
+    activate: true
+    table_name: "table"                # 桌面body名称
+    height_range: [0.0, 0.1]           # 高度变化范围
+    affected_objects:                  # 受桌面高度影响的物体
+      - "block_green"                  # 绿色方块
+      - "block_red"                    # 红色方块
+      - "block_blue"                   # 蓝色方块
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  # 纹理随机化
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+      - name: "wall_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化全局设置
+  settings:
+    collision_check: true          # 启用全局碰撞检测
+    max_attempts: 100              # 最大尝试次数
+    retry_on_failure: true         # 失败时重试
+    seed: null                     # 随机种子（null表示使用系统时间）
+    collision_tolerance: 0.01      # 碰撞检测容差（1cm）
+    debug_collision: false         # 是否输出碰撞检测调试信息
+    description: "三个方块位置随机化，启用智能碰撞避免"
+
+# ============== 运行时参数 ==============
+runtime_parameters:
+  green_block: "block_green"      # 绿色方块
+  red_block: "block_red"          # 红色方块
+  blue_block: "block_blue"        # 蓝色方块（底座）
+  approach_height: 0.1            # 接近高度
+  grasp_height: 0.028             # 抓取高度
+  lift_height: 0.07               # 提升高度
+  stack_height_1: 0.13            # 第一层堆叠高度（绿色到蓝色）
+  stack_height_2: 0.10            # 第二层堆叠高度（红色到绿色）
+  place_offset: 0.04              # 放置时的降低高度
+
+# ============== 状态序列 ==============
+states:
+  # 第一阶段：绿色方块 -> 蓝色方块
+  # 状态0: 接近绿色方块上方
+  - name: "approach_green_block_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_green"
+      offset: [0, 0, 0.1]  # approach_height
+    gripper_state: "open"
+    
+  # 状态1: 移动到绿色方块
+  - name: "approach_green_block_grasp"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_green"
+      offset: [0, 0, 0.005]  # grasp_height
+    gripper_state: "open"
+    
+  # 状态2: 等待位置稳定
+  - name: "wait_green_grasp"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0]
+      keep_orientation: true
+    gripper_state: "open"
+    delay: 0.35
+    
+  # 状态3: 抓取绿色方块
+  - name: "grasp_green_block"
+    primitive: "grasp_object"
+    params:
+      object_name: "block_green"
+    gripper_state: "close"
+    delay: 0.35
+    
+  # 状态4: 提起绿色方块
+  - name: "lift_green_block"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.07]  # lift_height
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态5: 移动到蓝色方块上方
+  - name: "move_green_to_blue_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_blue"
+      offset: [0, 0, 0.13]  # stack_height_1
+    gripper_state: "close"
+    
+  # 状态6: 降低高度放到蓝色方块上
+  - name: "place_green_on_blue"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, -0.08]  # place_offset
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态7: 释放绿色方块
+  - name: "release_green_block"
+    primitive: "release_object"
+    params:
+      object_name: "block_green"
+    gripper_state: "open"
+    
+  # 状态8: 从绿色方块上方移开
+  - name: "lift_away_from_green"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.05]
+      keep_orientation: true
+    gripper_state: "open"
+    
+  # 第二阶段：红色方块 -> 绿色方块
+  # 状态9: 接近红色方块上方
+  - name: "approach_red_block_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_red"
+      offset: [0, 0, 0.1]  # approach_height
+    gripper_state: "open"
+    
+  # 状态10: 移动到红色方块
+  - name: "approach_red_block_grasp"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_red"
+      offset: [0, 0, 0.005]  # grasp_height
+    gripper_state: "open"
+    
+  # 状态11: 等待位置稳定
+  - name: "wait_red_grasp"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0]
+      keep_orientation: true
+    gripper_state: "open"
+    delay: 0.35
+    
+  # 状态12: 抓取红色方块
+  - name: "grasp_red_block"
+    primitive: "grasp_object"
+    params:
+      object_name: "block_red"
+    gripper_state: "close"
+    delay: 0.35
+    
+  # 状态13: 提起红色方块
+  - name: "lift_red_block"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.07]  # lift_height
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态14: 移动到绿色方块上方
+  - name: "move_red_to_green_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "block_green"
+      offset: [0, 0, 0.10]  # stack_height_2
+    gripper_state: "close"
+    
+  # 状态15: 降低高度放到绿色方块上
+  - name: "place_red_on_green"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, -0.06]  # place_offset
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态16: 释放红色方块
+  - name: "release_red_block"
+    primitive: "release_object"
+    params:
+      object_name: "block_red"
+    gripper_state: "open"
+    
+  # 状态17: 最终移开
+  - name: "lift_away_final"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.05]
+      keep_orientation: true
+    gripper_state: "open"
+
+# ============== 物体配置 ==============
+objects:
+  block_green:
+    type: "block"
+    color: "green"
+    initial_position: "random"
+    
+  block_red:
+    type: "block"
+    color: "red" 
+    initial_position: "random"
+    
+  block_blue:
+    type: "block"
+    color: "blue"
+    initial_position: "fixed"
+    role: "base"  # 作为堆叠的底座

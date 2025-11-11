@@ -1,0 +1,26 @@
+<mujocoinclude>
+
+  <contact>
+    <exclude body1="right_inner_knuckle" body2="right_outer_knuckle"/>
+    <exclude body1="right_inner_knuckle" body2="right_finger"/>
+    <exclude body1="left_inner_knuckle" body2="left_outer_knuckle"/>
+    <exclude body1="left_inner_knuckle" body2="left_finger"/>
+  </contact>
+
+  <tendon>
+    <fixed name="split">
+      <joint joint="gripper_left_joint" coef="0.5"/>
+      <joint joint="gripper_right_joint" coef="0.5"/>
+    </fixed>
+  </tendon>
+
+  <equality>
+    <connect anchor="0 -0.015 0.015" body1="left_finger" body2="left_inner_knuckle" solref="0.005 1"/>
+    <connect anchor="0 0.015 0.015" body1="right_finger" body2="right_inner_knuckle" solref="0.005 1"/>
+    <joint joint1="gripper_left_joint" joint2="gripper_right_joint" polycoef="0 1 0 0 0" solref="0.005 1"/>
+    <joint joint1="left_driver_joint" joint2="right_driver_joint" polycoef="0 1 0 0 0" solref="0.005 1"/>
+    <joint joint1="gripper_left_joint" joint2="left_driver_joint" polycoef="0.045 -0.053 0 0 0" solref="0.005 1"/>
+    <joint joint1="gripper_right_joint" joint2="right_driver_joint" polycoef="0.045 -0.053 0 0 0" solref="0.005 1"/>
+  </equality>
+
+</mujocoinclude>

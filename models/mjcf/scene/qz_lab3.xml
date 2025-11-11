@@ -1,0 +1,62 @@
+<mujocoinclude>
+
+  <include file="../object/table_cloth_dependencies.xml"/>
+
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="3" solimp="0.99 0.995 0.01" solref="0.005 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" rgb1=".9 .8 .7" rgb2=".4 .4 .4" width="300" height="300" mark="edge" markrgb=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="2 2" texuniform="true" reflectance=".2"/>
+  </asset>
+  <visual>
+    <global offwidth="1920" offheight="1080"/>
+    <quality shadowsize="4096" offsamples="4"/>
+    <headlight ambient="0.4 0.4 0.4"/>
+  </visual>
+  <worldbody>
+    <light directional='true' diffuse="0.2 0.2 0.2" pos='0.5 1. 2.5'/>
+    <light directional='true' diffuse="0.2 0.2 0.2" pos='0 1. 2.5'/>
+    <camera name="eye_side" fovy="72.02" pos="-0.324 0.697 1.02" xyaxes=" 0.828 -0.561 0.    0.394 0.582 0.702"/>
+    <geom name="ground" type="plane" pos="0 0 0" size="3 3 0.1" material="grid" solimp=".9 .95 .001" solref='-10000 -1000'/>
+    <body name="cabinet" pos="0.915 0.58 0.01">
+      <include file="../object/cabinet.xml"/>
+    </body>
+    <body name="table" pos="-0.18 1.02 0">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.69" euler="0 0 1.5708" type="box" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" material="tc_texture"/>
+      <geom size="0.02 0.02 0.34" pos=" 0.55  0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos=" 0.55 -0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos="-0.55  0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <geom size="0.02 0.02 0.34" pos="-0.55 -0.25 0.35" type="box" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+    </body>
+
+    <body name="target" pos="0 0 0" quat="1 0 0 0" mocap="true">
+      <inertial pos="0 0 0" mass="1e-4" diaginertia="1e-9 1e-9 1e-9"/>
+      <site name="target_site" size='0.001' type='sphere'/>
+      <geom name="target_box" type="box" size="0.05 0.05 0.05" density="0" contype="0" conaffinity="0" rgba="0.3 0.6 0.3 0.2"/>
+      <geom type="cylinder" pos="0.05 0 0" euler="0 1.5708 0" size=".01 0.05" density="0" contype="0" conaffinity="0" rgba="1 0 0 .2"/>
+      <geom type="cylinder" pos="0 0.05 0" euler="1.5708 0 0" size=".01 0.05" density="0" contype="0" conaffinity="0" rgba="0 1 0 .2"/>
+      <geom type="cylinder" pos="0 0 0.05" euler="0 0 0"      size=".01 0.05" density="0" contype="0" conaffinity="0" rgba="0 0 1 .2"/>
+    </body>
+
+    <body name="front_wall" pos="1.1 0.25 0">
+      <geom size="1 1 0.015" pos="0 0 1" quat="0.5 -0.5 0.5 -0.5" type="box" material="wall_texture"/>
+    </body>
+    <!-- <body name="back_wall" pos="-1.1 0.35 0">
+      <geom size="1.0 0.44 0.015" pos="0  0.45 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+      <geom size="1.0 0.44 0.015" pos="0 -0.45 1.0" euler="0 1.5708 0" type="box" rgba="1 1 1 1"/>
+    </body> -->
+    <body name="left_wall" pos="0 1.44 0">
+      <geom size="1.1 1 0.015" pos="0 0 1" quat="1 1 0 0" type="box" material="wall_texture"/>
+    </body>
+    <!-- <body name="right_wall" pos="0 -0.8 0">
+      <geom size="1.1 0.015 1" pos="0 0 1" type="box" rgba="0 0 0 1"/>
+    </body> -->
+  </worldbody>
+
+</mujocoinclude>

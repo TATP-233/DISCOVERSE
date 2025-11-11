@@ -1,5 +1,5 @@
 <mujocoinclude>
   <inertial pos="0 0 -0.02" mass="0.05" diaginertia="0.00002 0.00002 0.00002" />
-  <geom material="mouse_texture" mesh="mouse" class="obj_visual"/>
+  <geom material="mouse_texture" mesh="mouse" type="mesh" contype="0" conaffinity="0"/>
   <geom type="mesh" mesh="mouse" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="0.1 0.0005 0.00001" rgba="1 1 1 0"/>
 </mujocoinclude>

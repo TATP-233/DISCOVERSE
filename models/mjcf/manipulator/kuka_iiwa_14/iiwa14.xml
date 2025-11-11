@@ -1,0 +1,177 @@
+<mujocoinclude>
+  <body name="base" childclass="iiwa">
+    <site name="armbase"/>
+    <inertial mass="5" pos="-0.1 0 0.07" diaginertia="0.05 0.06 0.03"/>
+    <geom class="visual" mesh="link_0"/>
+    <geom class="collision" size="0.12" pos="0 0 0.03"/>
+    <geom class="collision" size="0.08" pos="-0.08 0 0.103"/>
+    <geom class="collision" size="0.08" pos="-0.08 0 0.04"/>
+    <geom class="collision" size="0.1" pos="0 0 0.14"/>
+    <body name="link1" pos="0 0 0.1575">
+      <inertial mass="5.76" pos="0 -0.03 0.12" diaginertia="0.0333 0.033 0.0123"/>
+      <joint name="joint1" class="joint1"/>
+      <geom class="visual" mesh="link_1"/>
+      <geom class="collision" size="0.08" pos="0 0 -0.0005"/>
+      <geom class="collision" size="0.075" pos="0.01 -0.025 0.0425"/>
+      <geom class="collision" size="0.075" pos="-0.01 -0.025 0.0425"/>
+      <geom class="collision" size="0.07" pos="0.01 -0.045 0.1025"/>
+      <geom class="collision" size="0.07" pos="-0.01 -0.045 0.1025"/>
+      <body name="link2" pos="0 0 0.2025" quat="0 0 1 1">
+        <inertial mass="6.35" pos="0.0003 0.059 0.042" diaginertia="0.0305 0.0304 0.011" quat="0 0 1 1"/>
+        <joint name="joint2" class="joint2"/>
+        <geom class="visual" material="orange" mesh="link_2_orange"/>
+        <geom class="visual" mesh="link_2_grey"/>
+        <geom class="collision" size="0.095" pos="0 0 -0.01"/>
+        <geom class="collision" size="0.09" pos="0 0 0.045"/>
+        <geom class="collision" size="0.07" pos="-0.01 0.04 0.054"/>
+        <geom class="collision" size="0.065" pos="-0.01 0.09 0.04"/>
+        <geom class="collision" size="0.065" pos="-0.01 0.13 0.02"/>
+        <geom class="collision" size="0.07" pos="0.01 0.04 0.054"/>
+        <geom class="collision" size="0.065" pos="0.01 0.09 0.04"/>
+        <geom class="collision" size="0.065" pos="0.01 0.13 0.02"/>
+        <geom class="collision" size="0.075" pos="0 0.18 0"/>
+        <body name="link3" pos="0 0.2045 0" quat="0 0 1 1">
+          <inertial mass="3.5" pos="0 0.03 0.13" diaginertia="0.025 0.0238 0.0076"/>
+          <joint name="joint3" class="joint1"/>
+          <geom class="visual" mesh="link_3"/>
+          <geom class="visual" material="light_gray" mesh="band"/>
+          <geom class="visual" material="black" mesh="kuka"/>
+          <geom class="collision" size="0.075" pos="0 0 0.0355"/>
+          <geom class="collision" size="0.06" pos="0.01 0.023 0.0855"/>
+          <geom class="collision" size="0.055" pos="0.01 0.048 0.1255"/>
+          <geom class="collision" size="0.06" pos="0.01 0.056 0.1755"/>
+          <geom class="collision" size="0.06" pos="-0.01 0.023 0.0855"/>
+          <geom class="collision" size="0.055" pos="-0.01 0.048 0.1255"/>
+          <geom class="collision" size="0.06" pos="-0.01 0.056 0.1755"/>
+          <geom class="collision" size="0.075" pos="0 0.045 0.2155"/>
+          <geom class="collision" size="0.075" pos="0 0 0.2155"/>
+          <body name="link4" pos="0 0 0.2155" quat="1 1 0 0">
+            <inertial mass="3.5" pos="0 0.067 0.034" diaginertia="0.017 0.0164 0.006" quat="1 1 0 0"/>
+            <joint name="joint4" class="joint2"/>
+            <geom class="visual" material="orange" mesh="link_4_orange"/>
+            <geom class="visual" mesh="link_4_grey"/>
+            <geom class="collision" size="0.078" pos="0 0.01 0.046"/>
+            <geom class="collision" size="0.06" pos="0.01 0.06 0.052"/>
+            <geom class="collision" size="0.065" pos="0.01 0.12 0.034"/>
+            <geom class="collision" size="0.06" pos="-0.01 0.06 0.052"/>
+            <geom class="collision" size="0.065" pos="-0.01 0.12 0.034"/>
+            <geom class="collision" size="0.075" pos="0 0.184 0"/>
+            <body name="link5" pos="0 0.1845 0" quat="0 0 1 1">
+              <inertial mass="3.5" pos="0.0001 0.021 0.076" diaginertia="0.01 0.0087 0.00449"/>
+              <joint name="joint5" class="joint1"/>
+              <geom class="visual" mesh="link_5"/>
+              <geom class="visual" material="light_gray" mesh="band"/>
+              <geom class="visual" material="black" mesh="kuka"/>
+              <geom class="collision" size="0.075" pos="0 0 0.0335"/>
+              <geom class="collision" size="0.05" pos="-0.012 0.031 0.0755"/>
+              <geom class="collision" size="0.05" pos="0.012 0.031 0.0755"/>
+              <geom class="collision" size="0.04" pos="-0.012 0.06 0.1155"/>
+              <geom class="collision" size="0.04" pos="0.012 0.06 0.1155"/>
+              <geom class="collision" size="0.04" pos="-0.01 0.065 0.1655"/>
+              <geom class="collision" size="0.04" pos="0.01 0.065 0.1655"/>
+              <geom class="collision" size="0.035" pos="-0.012 0.065 0.1855"/>
+              <geom class="collision" size="0.035" pos="0.012 0.065 0.1855"/>
+              <body name="link6" pos="0 0 0.2155" quat="1 1 0 0">
+                <inertial mass="1.8" pos="0 0.0006 0.0004" diaginertia="0.0049 0.0047 0.0036" quat="1 1 0 0"/>
+                <joint name="joint6" class="joint2"/>
+                <geom class="visual" material="orange" mesh="link_6_orange"/>
+                <geom class="visual" mesh="link_6_grey"/>
+                <geom class="collision" size="0.055" pos="0 0 -0.059"/>
+                <geom class="collision" size="0.065" pos="0 -0.03 0.011"/>
+                <geom class="collision" size="0.08"/>
+                <body name="link7" pos="0 0.081 0" quat="0 0 1 1">
+                  <inertial mass="1.2" pos="0 0 0.02" diaginertia="0.001 0.001 0.001"/>
+                  <joint name="joint7" class="joint3"/>
+                  <geom class="visual" mesh="link_7"/>
+                  <geom class="collision" size="0.06" pos="0 0 0.001"/>
+                  <site name="endpoint" pos="0 0 0.2" quat="-1 0 1 0"/>
+
+                  <body name="2f85_base_mount" pos="0 0 0.052" quat="1 0 0 -1">
+                    <geom class="visual" mesh="2f85_base_mount" material="2f85_black"/>
+                    <geom class="collision" type="mesh" mesh="2f85_base_mount"/>
+                    <body name="2f85_base" pos="0 0 0.0038" quat="1 0 0 -1">
+                      <inertial mass="0.777441" pos="0 -2.70394e-05 0.0354675" quat="1 -0.00152849 0 0" diaginertia="0.000260285 0.000225381 0.000152708"/>
+                      <geom class="visual" mesh="2f85_base" material="2f85_black"/>
+                      <geom class="collision" type="mesh" mesh="2f85_base"/>
+                      <site name="pinch" pos="0 0 0.145" type="sphere" group="5" rgba="0.9 0.9 0.9 1" size="0.005"/>
+                      <!-- Right-hand side 4-bar linkage -->
+                      <body name="2f85_right_driver" pos="0 0.0306011 0.054904">
+                        <inertial mass="0.00899563" pos="2.96931e-12 0.0177547 0.00107314" quat="0.681301 0.732003 0 0" diaginertia="1.72352e-06 1.60906e-06 3.22006e-07"/>
+                        <joint name="right_driver_joint" class="2f85_driver"/>
+                        <geom class="visual" mesh="2f85_driver" material="gray"/>
+                        <geom class="collision" type="mesh" mesh="2f85_driver"/>
+                        <body name="2f85_right_coupler" pos="0 0.0315 -0.0041">
+                          <inertial mass="0.0140974" pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636" diaginertia="4.16206e-06 3.52216e-06 8.88131e-07"/>
+                          <joint name="right_coupler_joint" class="2f85_coupler"/>
+                          <geom class="visual" mesh="2f85_coupler" material="2f85_black"/>
+                          <geom class="collision" type="mesh" mesh="2f85_coupler"/>
+                        </body>
+                      </body>
+                      <body name="2f85_right_spring_link" pos="0 0.0132 0.0609">
+                        <inertial mass="0.0221642" pos="-8.65005e-09 0.0181624 0.0212658" quat="0.663403 -0.244737 0.244737 0.663403" diaginertia="8.96853e-06 6.71733e-06 2.63931e-06"/>
+                        <joint name="right_spring_link_joint" class="2f85_spring_link"/>
+                        <geom class="visual" mesh="2f85_spring_link" material="2f85_black"/>
+                        <geom class="collision" type="mesh" mesh="2f85_spring_link"/>
+                        <body name="2f85_right_follower" pos="0 0.055 0.0375">
+                          <inertial mass="0.0125222" pos="0 -0.011046 0.0124786" quat="1 0.1664 0 0" diaginertia="2.67415e-06 2.4559e-06 6.02031e-07"/>
+                          <joint name="right_follower_joint" class="2f85_follower"/>
+                          <geom class="visual" mesh="2f85_follower" material="2f85_black"/>
+                          <geom class="collision" type="mesh" mesh="2f85_follower"/>
+                          <body name="2f85_right_pad" pos="0 -0.0189 0.01352">
+                            <geom class="pad_box1" name="right_pad1"/>
+                            <geom class="pad_box2" name="right_pad2"/>
+                            <inertial mass="0.0035" pos="0 -0.0025 0.0185" quat="0.707107 0 0 0.707107" diaginertia="4.73958e-07 3.64583e-07 1.23958e-07"/>
+                            <geom class="visual" mesh="2f85_pad"/>
+                            <body name="2f85_right_silicone_pad">
+                              <geom class="visual" mesh="2f85_silicone_pad" material="2f85_black"/>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                      <!-- Left-hand side 4-bar linkage -->
+                      <body name="2f85_left_driver" pos="0 -0.0306011 0.054904" quat="0 0 0 1">
+                        <inertial mass="0.00899563" pos="0 0.0177547 0.00107314" quat="0.681301 0.732003 0 0" diaginertia="1.72352e-06 1.60906e-06 3.22006e-07"/>
+                        <joint name="left_driver_joint" class="2f85_driver"/>
+                        <geom class="visual" mesh="2f85_driver" material="gray"/>
+                        <geom class="collision" type="mesh" mesh="2f85_driver"/>
+                        <body name="2f85_left_coupler" pos="0 0.0315 -0.0041">
+                          <inertial mass="0.0140974" pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636" diaginertia="4.16206e-06 3.52216e-06 8.88131e-07"/>
+                          <joint name="left_coupler_joint" class="2f85_coupler"/>
+                          <geom class="visual" mesh="2f85_coupler" material="2f85_black"/>
+                          <geom class="collision" type="mesh" mesh="2f85_coupler"/>
+                        </body>
+                      </body>
+                      <body name="2f85_left_spring_link" pos="0 -0.0132 0.0609" quat="0 0 0 1">
+                        <inertial mass="0.0221642" pos="-8.65005e-09 0.0181624 0.0212658" quat="0.663403 -0.244737 0.244737 0.663403" diaginertia="8.96853e-06 6.71733e-06 2.63931e-06"/>
+                        <joint name="left_spring_link_joint" class="2f85_spring_link"/>
+                        <geom class="visual" mesh="2f85_spring_link" material="2f85_black"/>
+                        <geom class="collision" type="mesh" mesh="2f85_spring_link"/>
+                        <body name="2f85_left_follower" pos="0 0.055 0.0375">
+                          <inertial mass="0.0125222" pos="0 -0.011046 0.0124786" quat="1 0.1664 0 0"
+                            diaginertia="2.67415e-06 2.4559e-06 6.02031e-07"/>
+                          <joint name="left_follower_joint" class="2f85_follower"/>
+                          <geom class="visual" mesh="2f85_follower" material="2f85_black"/>
+                          <geom class="collision" type="mesh" mesh="2f85_follower"/>
+                          <body name="2f85_left_pad" pos="0 -0.0189 0.01352">
+                            <geom class="pad_box1" name="left_pad1"/>
+                            <geom class="pad_box2" name="left_pad2"/>
+                            <inertial mass="0.0035" pos="0 -0.0025 0.0185" quat="1 0 0 1" diaginertia="4.73958e-07 3.64583e-07 1.23958e-07"/>
+                            <geom class="visual" mesh="2f85_pad"/>
+                            <body name="2f85_left_silicone_pad">
+                              <geom class="visual" mesh="2f85_silicone_pad" material="2f85_black"/>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinclude>

@@ -1,0 +1,26 @@
+<mujoco model="ur5e">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="universal_robots_ur5e/ur5e_dependencies.xml"/>
+
+  <worldbody>
+    <body name="ur5e_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="universal_robots_ur5e/ur5e.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="universal_robots_ur5e/ur5e_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="universal_robots_ur5e/ur5e_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos="0 -1.5708 1.5708 -1.5708 -1.5708 0 0 0" ctrl="0 -1.5708 1.5708 -1.5708 -1.5708 0 0"/>
+  </keyframe>
+
+</mujoco>

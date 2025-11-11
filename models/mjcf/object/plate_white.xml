@@ -1,7 +1,7 @@
 <mujocoinclude>
 
   <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
-  <geom material="plate_white_texture" mesh="plate" class="obj_visual"/>
+  <geom material="plate_white_texture" mesh="plate" type="mesh" contype="0" conaffinity="0"/>
 
   <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="plate_white_part_0" class="obj_collision"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="plate_white_part_1" class="obj_collision"/>

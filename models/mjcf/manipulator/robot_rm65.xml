@@ -1,0 +1,27 @@
+<mujoco model="rm65">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="realman_rm65/rm65_dependencies.xml"/>
+  <include file="realman_rm65/rm65_appendix.xml"/>
+
+  <worldbody>
+    <body name="rm65_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="realman_rm65/rm65.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="realman_rm65/rm65_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="realman_rm65/rm65_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos="0 0.3 1.4 0 1.12 0 0.82 0.82 -0.82 -0.82 0.82 0.82 0 0" ctrl="0 0.3 1.4 0 1.12 0 0.82" />
+  </keyframe>
+
+</mujoco>

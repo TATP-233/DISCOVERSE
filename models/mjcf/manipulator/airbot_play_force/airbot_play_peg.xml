@@ -1,0 +1,44 @@
+<mujocoinclude>
+  <body name="arm_base">
+    <site name="armbase"/>
+    <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="base_link" contype="0" conaffinity="0"/>
+    <body name="link1" pos="0 0 0.1127">
+      <inertial pos="0.00014396 -0.00098536 -0.020968" quat="0.996851 -0.00552866 0.00131697 0.0790989" mass="0.607" diaginertia="0.00111427 0.00101111 0.000386618"/>
+      <joint name="joint1" pos="0 0 0" axis="0 0 1" range="-3.1416 2.0944"/>
+      <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link1"/>
+      <body name="link2" quat="0.135867 0.135871 -0.693931 0.69393">
+        <inertial pos="0.13769 0.012537 0.0044739" quat="0.544988 0.469712 0.519552 0.460896" mass="0.918" diaginertia="0.0348354 0.0346196 0.000895236"/>
+        <joint name="joint2" pos="0 0 0" axis="0 0 1" range="-2.9671 0.17453"/>
+        <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link2"/>
+        <body name="link3" pos="0.27009 0 0" quat="0.55806 0 0 0.8298">
+          <inertial pos="1.5134e-05 0.10706 0.0082136" quat="0.709512 0.704687 -0.00192802 0.00241094" mass="0.7" diaginertia="0.0156592 0.0154818 0.000458584"/>
+          <joint name="joint3" pos="0 0 0" axis="0 0 1" range="-0.087266 3.1416"/>
+          <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link3"/>
+          <body name="link4" pos="0 0.29015 0" quat="0.499998 -0.5 -0.5 -0.500002">
+            <inertial pos="-1.6216e-05 0.002995 -0.019407" quat="0.705825 -0.00378066 0.00351614 0.708367" mass="0.359" diaginertia="0.000529292 0.00051773 0.000136768"/>
+            <joint name="joint4" pos="0 0 0" axis="0 0 1" range="-3.0107 3.0107"/>
+            <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link4"/>
+            <body name="link5" quat="0.707105 0.707108 0 0">
+              <inertial pos="-4.5037e-05 0.033144 0.0024106" quat="0.686718 0.726922 0.00098681 -0.00117372" mass="0.403" diaginertia="0.00116016 0.0010873 0.000239772"/>
+              <joint name="joint5" pos="0 0 0" axis="0 0 1" range="-1.7628 1.7628"/>
+              <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link5"/>
+              <body name="link6" quat="0.707105 -0.707108 0 0">
+                <body pos="0 -0.075 0.1" euler="3.1416 0 0">
+                  <camera name="eye_arm" euler="-0.6 0 0" fovy="72.5376526571421"/>
+                </body>
+                <inertial pos="-1.12859e-05 -0.00288488 0.120334" quat="0.690668 -0.0374648 0.0402513 0.721078" mass="0.617009" diaginertia="0.00266817 0.00259226 0.000587714"/>
+                <joint name="joint6" pos="0 0 0" axis="0 0 1" range="-3.0107 3.0107"/>
+                <geom type="mesh" rgba="1 1 1 1" mesh="link6"/>
+                <geom pos="0 0 0.0955" quat="1 0 0 0" type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="eef_connect_base_link"/>
+                <!-- <geom pos="0 0 0.0955" quat="1 0 0 0" type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="g2_base_link"/> -->
+                <site name="endpoint" pos='0 0 0.165' quat="0.5 0.5 -0.5 0.5"/>
+                <geom name="peg_box" type="box" pos="0 0 0.13" size="0.04 0.0095 0.0095" quat="0.5 0.5 -0.5 0.5" solimp="0.995 0.999 0.001" solref="0.001 1" rgba="1 0 0 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+
+</mujocoinclude>

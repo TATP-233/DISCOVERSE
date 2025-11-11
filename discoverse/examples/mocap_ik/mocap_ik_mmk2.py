@@ -7,6 +7,7 @@ import mujoco
 import mujoco.viewer
 import numpy as np
 
+import discoverse
 from discoverse.examples.mocap_ik.mocap_ik_utils import \
     mj_quat2mat, \
     add_mocup_body_to_mjcf, \
@@ -24,6 +25,8 @@ if __name__ == "__main__":
     该程序创建一个MMK2机器人模型的MuJoCo仿真环境，添加运动捕捉(mocap)目标，
     并使用逆运动学(IK)控制机器人的双臂跟踪目标位置和姿态。
     """
+    print(f"Welcome to discoverse {discoverse.__version__} !")
+    print(discoverse.__logo__)
 
     parser = argparse.ArgumentParser(
         description="Airbot Play 机器人MuJoCo仿真主程序\n"
@@ -96,18 +99,18 @@ if __name__ == "__main__":
     rgt_mocap_name = "rgt_target"
     rgt_mocap_box_name = rgt_mocap_name + "_box"
 
-    # 生成左右臂的mocap刚体XML
-    mocap_body_xml = ""
-    mocap_body_xml += generate_mocap_xml(lft_mocap_name)
-    mocap_body_xml += generate_mocap_xml(rgt_mocap_name)
+    # 生成左右臂的mocap刚体XML元素
+    mocap_body_elements = []
+    mocap_body_elements.append(generate_mocap_xml(lft_mocap_name))
+    mocap_body_elements.append(generate_mocap_xml(rgt_mocap_name))
 
-    # 生成左右臂的mocap传感器XML
-    sensor_xml = ""
-    sensor_xml += generate_mocap_sensor_xml(lft_mocap_name, ref_name="base_link", ref_type="site")
-    sensor_xml += generate_mocap_sensor_xml(rgt_mocap_name, ref_name="base_link", ref_type="site")
+    # 生成左右臂的mocap传感器XML元素
+    sensor_elements = []
+    sensor_elements.extend(generate_mocap_sensor_xml(lft_mocap_name, ref_name="base_link", ref_type="site"))
+    sensor_elements.extend(generate_mocap_sensor_xml(rgt_mocap_name, ref_name="base_link", ref_type="site"))
 
     # 将mocap刚体和传感器添加到模型中
-    mj_model = add_mocup_body_to_mjcf(mjcf_path, mocap_body_xml, sensor_xml, keep_tmp_xml=True)
+    mj_model = add_mocup_body_to_mjcf(mjcf_path, mocap_body_elements, sensor_elements, keep_tmp_xml=True)
     # 计算渲染间隔，确保按照指定帧率渲染
     render_gap = int(1.0 / render_fps / mj_model.opt.timestep)
 
@@ -203,7 +206,7 @@ if __name__ == "__main__":
                 viewer.sync()
                 
                 # 计算下一步开始前需要等待的时间，保证帧率稳定
-                time_until_next_step = render_gap * mj_model.opt.timestep - (time.time() - step_start)
+                time_until_next_step = (1. / render_fps) - (time.time() - step_start)
                 if time_until_next_step > 0:
                     time.sleep(time_until_next_step)
 

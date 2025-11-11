@@ -1,0 +1,35 @@
+<mujocoinclude>
+
+  <contact>
+    <exclude body1="base" body2="link1"/>
+    <exclude body1="base" body2="link2"/>
+    <exclude body1="base" body2="link3"/>
+    <exclude body1="link1" body2="link3"/>
+    <exclude body1="link2" body2="link4"/>
+    <exclude body1="link2" body2="link5"/>
+    <exclude body1="link3" body2="link5"/>
+    <exclude body1="link4" body2="link7"/>
+    <exclude body1="link5" body2="link7"/>
+
+    <exclude body1="2f85_base" body2="2f85_left_driver"/>
+    <exclude body1="2f85_base" body2="2f85_right_driver"/>
+    <exclude body1="2f85_base" body2="2f85_left_spring_link"/>
+    <exclude body1="2f85_base" body2="2f85_right_spring_link"/>
+    <exclude body1="2f85_right_coupler" body2="2f85_right_follower"/>
+    <exclude body1="2f85_left_coupler" body2="2f85_left_follower"/>
+  </contact>
+
+  <tendon>
+    <fixed name="split">
+      <joint joint="right_driver_joint" coef="0.5"/>
+      <joint joint="left_driver_joint" coef="0.5"/>
+    </fixed>
+  </tendon>
+
+  <equality>
+    <connect anchor="0 0 0" body1="2f85_right_follower" body2="2f85_right_coupler" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+    <connect anchor="0 0 0" body1="2f85_left_follower" body2="2f85_left_coupler" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+    <joint joint1="right_driver_joint" joint2="left_driver_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+  </equality>
+
+</mujocoinclude>

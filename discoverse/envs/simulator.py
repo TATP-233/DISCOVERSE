@@ -283,15 +283,6 @@ class SimulatorBase:
         if self.config.use_gaussian_renderer and self.show_gaussian_img:
             self.gs_renderer.set_camera_resolution(height, width)
 
-    def get_random_texture(self):
-        TEXTURE_1K_PATH = os.getenv("TEXTURE_1K_PATH", os.path.join(DISCOVERSE_ASSETS_DIR, "textures_1k"))
-        if not TEXTURE_1K_PATH is None and os.path.exists(TEXTURE_1K_PATH):
-            return Image.open(os.path.join(TEXTURE_1K_PATH, random.choice(os.listdir(TEXTURE_1K_PATH))))
-        else:
-            # raise ValueError("TEXTURE_1K_PATH not found")
-            print("Warning: TEXTURE_1K_PATH not found! Please set the TEXTURE_1K_PATH environment variable to the path of the textures_1k directory.")
-            return Image.fromarray(np.random.randint(0, 255, (768, 768, 3), dtype=np.uint8))
-
     def update_texture(self, texture_name, mtl_img_pil, no_render=False):
         """更新纹理"""
         if not hasattr(self, 'renderer') or self.renderer is None:

@@ -1,7 +1,7 @@
 <mujocoinclude>
 
   <inertial pos="0 0 0" mass="0.05" diaginertia="0.00002 0.00002 0.00002" />
-  <geom mesh="box" rgba="0.7 0.7 0.7 1" class="obj_visual"/>
+  <geom mesh="box" rgba="0.7 0.7 0.7 1" type="mesh" contype="0" conaffinity="0"/>
 
   <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="box_part_0" class="obj_collision"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="box_part_1" class="obj_collision"/>

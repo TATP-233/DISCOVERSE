@@ -2,7 +2,7 @@
 
   <body name="cabinet_door" pos="-0.172 0.1145 0.312">
     <joint range='0 3.1416' axis='0 0 -1' frictionloss="0.5"/>
-    <geom size="0.015 0.127 0.145" pos="0 -0.1145 0.01" type="box" rgba=".6 .6 .6 1" class="obj_visual"/>
+    <geom size="0.015 0.127 0.145" pos="0 -0.1145 0.01" type="box" rgba=".6 .6 .6 1" type="mesh" contype="0" conaffinity="0"/>
     <geom size="0.01 0.12 0.14" pos="0 -0.1145 0.01" type="box" rgba="1 0 0 1"/>
     <geom size="0.005 0.015" pos="-0.015 -0.195  0.055" euler="0 1.5708 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="1 0.005 0.0001" rgba=".1 .1 .1 1"/>
     <geom size="0.005 0.015" pos="-0.015 -0.195 -0.055" euler="0 1.5708 0" type="cylinder" condim="4" solimp="2 1 0.01" solref="0.001 1" friction="1 0.005 0.0001" rgba=".1 .1 .1 1"/>

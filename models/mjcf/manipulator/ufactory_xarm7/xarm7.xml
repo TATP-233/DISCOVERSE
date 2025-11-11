@@ -1,0 +1,92 @@
+<mujocoinclude>
+  <geom type="cylinder" size=".06 .06" pos="0 0 .06" rgba="1 1 1 1"/>
+  <site name="armbase"/>
+  <body name="link_base" pos="0 0 .12" childclass="xarm7">
+    <inertial pos="-0.021131 -0.0016302 0.056488" quat="0.696843 0.20176 0.10388 0.680376" mass="0.88556" diaginertia="0.00382023 0.00335282 0.00167725"/>
+    <geom mesh="link_base"/>
+    <body name="link1" pos="0 0 0.267">
+      <inertial pos="-0.0002 0.02905 -0.01233" quat="0.978953 -0.202769 -0.00441617 -0.0227264" mass="2.382" diaginertia="0.00569127 0.00533384 0.00293865"/>
+      <joint name="joint1" class="size1"/>
+      <geom mesh="link1"/>
+      <body name="link2" quat="1 -1 0 0">
+        <inertial pos="0.00022 -0.12856 0.01735" quat="0.50198 0.86483 -0.00778841 0.00483285" mass="1.869" diaginertia="0.00959898 0.00937717 0.00201315"/>
+        <joint name="joint2" range="-2.059 2.0944" class="size1"/>
+        <geom mesh="link2"/>
+        <body name="link3" pos="0 -0.293 0" quat="1 1 0 0">
+          <inertial pos="0.0466 -0.02463 -0.00768" quat="0.913819 0.289775 0.281481 -0.0416455" mass="1.6383" diaginertia="0.00351721 0.00294089 0.00195868"/>
+          <joint name="joint3" class="size2"/>
+          <geom mesh="link3"/>
+          <body name="link4" pos="0.0525 0 0" quat="1 1 0 0">
+            <inertial pos="0.07047 -0.11575 0.012" quat="0.422108 0.852026 -0.126025 0.282832" mass="1.7269" diaginertia="0.00657137 0.00647948 0.00186763"/>
+            <joint name="joint4" range="-0.19198 3.927" class="size2"/>
+            <geom mesh="link4"/>
+            <body name="link5" pos="0.0775 -0.3425 0" quat="1 1 0 0">
+              <inertial pos="-0.00032 0.01604 -0.026" quat="0.999311 -0.0304457 0.000577067 0.0212082" mass="1.3203" diaginertia="0.00534729 0.00499076 0.0013489"/>
+              <joint name="joint5" class="size2"/>
+              <geom mesh="link5"/>
+              <body name="link6" quat="1 1 0 0">
+                <inertial pos="0.06469 0.03278 0.02141" quat="-0.217672 0.772419 0.16258 0.574069" mass="1.325" diaginertia="0.00245421 0.00221646 0.00107273"/>
+                <joint name="joint6" range="-1.69297 3.14159" class="size3"/>
+                <geom mesh="link6"/>
+                <body name="link7" pos="0.076 0.097 0" quat="1 -1 0 0">
+                  <inertial pos="0 -0.00677 -0.01098" quat="0.487612 0.512088 -0.512088 0.487612" mass="0.17" diaginertia="0.000132176 9.3e-05 5.85236e-05"/>
+                  <joint name="joint7" class="size3"/>
+                  <geom material="gray" mesh="end_tool"/>
+                  <body name="xarm_gripper_base_link" quat="0 0 0 1">
+                    <inertial pos="-0.00065489 -0.0018497 0.048028" quat="0.997403 -0.0717512 -0.0061836 0.000477479" mass="0.54156" diaginertia="0.000471093 0.000332307 0.000254799"/>
+                    <geom mesh="base_link"/>
+                    <body name="left_outer_knuckle" pos="0 0.035 0.059098">
+                      <inertial pos="0 0.021559 0.015181" quat="0.47789 0.87842 0 0" mass="0.033618" diaginertia="1.9111e-05 1.79089e-05 1.90167e-06"/>
+                      <joint name="left_driver_joint" axis="1 0 0" class="driver"/>
+                      <geom class="visual" material="black" mesh="left_outer_knuckle"/>
+                      <body name="left_finger" pos="0 0.035465 0.042039">
+                        <inertial pos="0 -0.016413 0.029258" quat="0.697634 0.115353 -0.115353 0.697634" mass="0.048304" diaginertia="1.88037e-05 1.7493e-05 3.56792e-06"/>
+                        <joint name="left_finger_joint" axis="-1 0 0" class="follower"/>
+                        <geom class="visual" material="black" mesh="left_finger"/>
+                        <!-- <geom class="pad_box1" name="left_finger_pad_1" pos="0 -0.024003 0.032"/>
+                        <geom class="pad_box2" name="left_finger_pad_2" pos="0 -0.024003 0.050"/> -->
+                      </body>
+                    </body>
+                    <body name="left_inner_knuckle" pos="0 0.02 0.074098">
+                      <inertial pos="1.86601e-06 0.0220468 0.0261335" quat="0.664139 -0.242732 0.242713 0.664146" mass="0.0230126" diaginertia="8.34216e-06 6.0949e-06 2.75601e-06"/>
+                      <joint name="left_inner_knuckle_joint" axis="1 0 0" class="spring_link"/>
+                      <geom class="visual" material="black" mesh="left_inner_knuckle"/>
+                    </body>
+                    <body name="right_outer_knuckle" pos="0 -0.035 0.059098">
+                      <inertial pos="0 -0.021559 0.015181" quat="0.87842 0.47789 0 0" mass="0.033618" diaginertia="1.9111e-05 1.79089e-05 1.90167e-06"/>
+                      <joint name="right_driver_joint" axis="-1 0 0" class="driver"/>
+                      <geom class="visual" material="black" mesh="right_outer_knuckle"/>
+                      <body name="right_finger" pos="0 -0.035465 0.042039">
+                        <inertial pos="0 0.016413 0.029258" quat="0.697634 -0.115356 0.115356 0.697634" mass="0.048304" diaginertia="1.88038e-05 1.7493e-05 3.56779e-06"/>
+                        <joint name="right_finger_joint" axis="1 0 0" class="follower"/>
+                        <geom class="visual" material="black" mesh="right_finger"/>
+                        <!-- <geom class="pad_box1" name="right_finger_pad_1" pos="0 0.024003 0.032"/>
+                        <geom class="pad_box2" name="right_finger_pad_2" pos="0 0.024003 0.050"/> -->
+                      </body>
+                    </body>
+                    <body name="right_inner_knuckle" pos="0 -0.02 0.074098">
+                      <inertial pos="1.866e-06 -0.022047 0.026133" quat="0.66415 0.242702 -0.242721 0.664144" mass="0.023013" diaginertia="8.34209e-06 6.0949e-06 2.75601e-06"/>
+                      <joint name="right_inner_knuckle_joint" axis="-1 0 0" class="spring_link"/>
+                      <geom class="visual" material="black" mesh="right_inner_knuckle"/>
+                    </body>
+
+                    <body name="gripper_left" pos="0 0.002 0.155">
+                      <joint name="gripper_left_joint" type="slide" range="0 0.045" axis="0 1 0" class="gripper"/>
+                      <geom type="box" size=".008 .002 .0165" rgba="0 0 1 1" class="collision"/>
+                    </body>
+                    <body name="gripper_right" pos="0 -0.002 0.155">
+                      <joint name="gripper_right_joint" type="slide" range="0 0.045" axis="0 -1 0" class="gripper"/>
+                      <geom type="box" size=".008 .002 .0165" rgba="0 0 1 1" class="collision"/>
+                    </body>
+
+                    <site name="endpoint" pos="0 0 0.16" quat="-1 0 1 0"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinclude>

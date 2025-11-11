@@ -1,0 +1,358 @@
+<mujoco model="hand_arm_build">
+
+  <include file="../scene.xml"/>
+  <include file="../airbot_play/airbot_play_dependencies.xml"/>
+  <include file="../object/bridge_dependencies.xml"/>
+
+  <include file="../object/usb_camera_dependencies.xml"/>
+
+
+  <option integrator="RK4" solver="Newton" />
+  <compiler angle="radian" inertiafromgeom="auto" inertiagrouprange="4 5" meshdir="../../meshes/" texturedir="../../textures/"/>
+  <size njmax="10000" nconmax="10000"/>
+
+  <asset>
+    <include file="hand_mjcf/convex_dec_include/base_link_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/palm_Link_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/palm_Link_1_asset_include.xml"/>
+
+    <include file="hand_mjcf/convex_dec_include/right_thumb_1_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_thumb_2_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_thumb_3_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_thumb_4_asset_include.xml"/>
+
+    <include file="hand_mjcf/convex_dec_include/right_index_1_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_index_2_asset_include.xml"/>
+
+    <include file="hand_mjcf/convex_dec_include/right_middle_1_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_middle_2_asset_include.xml"/>
+
+    <include file="hand_mjcf/convex_dec_include/right_ring_1_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_ring_2_asset_include.xml"/>
+
+    <include file="hand_mjcf/convex_dec_include/right_little_1_asset_include.xml"/>
+    <include file="hand_mjcf/convex_dec_include/right_little_2_asset_include.xml"/>
+  </asset>
+
+  <contact>
+    <exclude body1='arm_base' body2='link2'/>
+  </contact>
+
+  <worldbody>
+    <!-- ======= EYE SIDE ======= -->
+
+    <camera name="eye_side" fovy="72.02" pos="-0.3 0.15 0.9" xyaxes="1 -1.7 0.  0 0 1"/>
+
+    <!-- ======= 原机械臂结构 ======= -->
+    <body name="arm_base" pos="0 -0.05 0.78" euler="0 0 1.57">
+      <!-- 原机械臂的几何定义... -->
+      <geom type="box" pos="-0.02 0 0.005" size="0.0806 0.1375 0.0025" rgba="0.2 0.2 0.2 1"/>
+      <geom mesh="arm_base_0" pos="0 0 -0.0015" material="Gree_Light_Base" class="obj_visual"/>
+      <geom mesh="arm_base_1" material="Paint_Matte_Black" class="obj_visual"/>
+      <body name="link1" pos="0 0 0.1172">
+        <inertial pos="7.9126e-05 -0.002527 -0.0041359" quat="0.696716 0.716558 0.0238919 -0.0236876" mass="0.54639" diaginertia="0.000346294 0.000325437 0.000286269"/>
+        <joint name="joint1" class="joint1"/>
+        <geom type="mesh" contype="0" conaffinity="0" density="0" rgba="0.1 0.1 0.1 1" mesh="link1"/>
+        <body name="link2" quat="0.135866 0.135867 -0.69393 0.693932">
+          <inertial pos="0.22493 0.0047721 0.008023" quat="-0.210875 0.632473 -0.273056 0.693506" mass="0.64621" diaginertia="0.00516535 0.00505042 0.000418626"/>
+          <joint name="joint2" class="joint2"/>
+          <geom type="box" pos="0.08 0.015 0" euler="0 0 0.15" size="0.11 0.03 0.04" rgba="1 0 0 0"/>
+          <geom type="box" pos="0.235 0.015 0" euler="0 0 -0.3" size="0.065 0.025 0.045" rgba="1 0 0 0"/>
+          <geom mesh="link2_0" material="Paint_Matte_Black" class="obj_visual"/>
+          <geom mesh="link2_1" material="Paint_Metallic_White" class="obj_visual"/>
+          <body name="link3" pos="0.27009 0 0" quat="0.192144 0 0 -0.981367">
+            <inertial pos="0.16813 -5.5576e-05 0.0031184" quat="0.511278 0.488423 0.489191 0.510617" mass="0.26829" diaginertia="0.0031527 0.0030951 0.000239403"/>
+            <joint name="joint3" class="joint3"/>
+            <geom type="box" pos="0.13 0 0" size="0.13 0.025 0.025" rgba="1 0 0 0"/>
+            <geom mesh="link3_0" material="Paint_Matte_Black" class="obj_visual"/>
+            <geom mesh="link3_1" material="Paint_Metallic_White" class="obj_visual"/>
+            <body name="link4" pos="0.29015 0 0" quat="-2.59734e-06 0.707105 2.59735e-06 0.707108">
+              <inertial pos="5.2436e-06 0.00040412 -0.03228" quat="0.999969 -0.000174762 -0.00792041 -6.98144e-05" mass="0.34876" diaginertia="0.000423574 0.000412 0.000126826"/>
+              <joint name="joint4" class="joint4"/>
+              <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="link4"/>
+              <body name="link5" quat="0.707105 0.707108 0 0">
+                <inertial pos="8.3328e-06 0.026148 0.002525" quat="0.531568 0.4663 0.4663 0.531568" mass="0.36132" diaginertia="0.0004677 0.000432922 0.000178178"/>
+                <joint name="joint5" class="joint5"/>
+                <geom mesh="link5_0" material="Paint_Matte_Black" class="obj_visual"/>
+                <geom mesh="link5_1" material="Paint_Metallic_White" class="obj_visual"/>
+                <body name="link6" pos="0 0.070314 0" quat="0.499998 -0.5 0.5 0.500002">
+
+                  <inertial pos="-0.0047053 7.3857e-05 -0.12293" mass="0.53855" diaginertia="5e-05 5e-05 3.85e-05"/>
+                  <joint name="joint6" class="joint6"/>
+                  <site name="endpoint" euler="0 -1.5708 0"/>
+                    <!-- ======= 连接手部模型 ======= -->
+                    <body name="base_link" pos="0 0 0" quat="0.707388 0 0 0.706825">
+                      <include file="hand_mjcf/convex_dec_include/base_link_geom_include.xml"/>
+                    </body>
+                    
+                    <body name="palm_link" pos="0 0 0.041" quat="0.707388 0 0 0.706825">
+                      <body pos="-0.105 0 -0.12" euler="3.1416 0 1.5708">
+                        <camera name="eye" euler="-0.5236 0 0" fovy="72.5376526571421"/>
+                      </body>
+                      <include file="hand_mjcf/convex_dec_include/palm_Link_geom_include.xml"/>
+                      <include file="hand_mjcf/sensor_include/palm_site_include.xml"/>
+                    </body>
+
+                    <body name="palm_link_1" pos="0 0 0.041" quat="0.707388 0 0 0.706825">
+                      <include file="hand_mjcf/convex_dec_include/palm_Link_1_geom_include.xml"/>
+                    </body>
+
+                    <!-- Thumb -->
+                    <body name="right_thumb_1" pos="0.0210314 0.0268833 0.069" quat="-0.706828 0 0 0.707386">
+                      <inertial pos="-0.00178423 0.000649411 0.00488589" quat="0.609481 0.695344 0.128437 -0.358515" mass="0.00115519" diaginertia="6.58579e-08 5.87769e-08 3.77927e-08"/>
+                      <joint name="right_thumb_1_joint" pos="0 0 0" axis="0 0 -1" range="0 1.15" actuatorfrcrange="-10 10" damping="0.01" frictionloss='0.01'/>
+                      <include file="hand_mjcf/convex_dec_include/right_thumb_1_geom_include.xml"/>
+
+                      <body name="right_thumb_2" pos="-0.0063016 0.011924 0.003" quat="0.122797 0.122797 0.696364 0.696361">
+                        <inertial pos="0.0141071 0.013272 -0.0090503" quat="0.653094 0.270971 -0.653141 0.271017" mass="0.0064504" diaginertia="1.39688e-06 1.14175e-06 9.89349e-07"/>
+                        <joint name="right_thumb_2_joint" pos="0 0 0" axis="0 0 1" range="0 0.55" actuatorfrcrange="-10 10" damping="0.01" frictionloss='0.01'/>
+                        <include file="hand_mjcf/convex_dec_include/right_thumb_2_geom_include.xml"/>
+
+                        <body name="right_thumb_3" pos="0.034968 0.021325 -0.0015">
+                          <inertial pos="0.00937844 0.00404408 -0.00753947" quat="0.686654 0.690582 -0.161401 -0.159853" mass="0.00397613" diaginertia="4.9004e-07 4.24794e-07 3.76617e-07"/>
+                          <joint name="right_thumb_3_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10" damping="0.01" frictionloss='0.01'/>
+                          <include file="hand_mjcf/convex_dec_include/right_thumb_3_geom_include.xml"/>
+
+                          <body name="right_thumb_4" pos="0.018887 0.011501 -0.0002">
+                            <inertial pos="0.0159974 0.00631063 -0.00734352" quat="0.306916 0.308192 0.637344 0.636092" mass="0.00913038" diaginertia="9.67919e-07 9.25691e-07 4.39361e-07"/>
+                            <joint name="right_thumb_4_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10" damping="0.01" frictionloss='0.01'/>
+                            <include file="hand_mjcf/convex_dec_include/right_thumb_4_geom_include.xml"/>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+
+                    <!-- Index -->
+                    <body name="right_index_1" pos="0.000595471 0.0386785 0.1564" quat="0.000275312 0.000285093 0.719339 0.694659">
+                      <inertial pos="-0.00228224 0.0122806 -0.00664924" quat="0.475493 0.523357 -0.475453 0.523401" mass="0.0072" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
+                      <joint name="right_index_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-10 10"/>
+                      <include file="hand_mjcf/convex_dec_include/right_index_1_geom_include.xml"/>
+
+                      <body name="right_index_2" pos="-0.002817 0.032654 -0.00055">
+                        <inertial pos="0.000405081 0.0257028 -0.00609276" quat="0.703612 0.702971 0.0715956 0.0750715" mass="0.00968594" diaginertia="2.34184e-06 2.30201e-06 3.04584e-07"/>
+                        <joint name="right_index_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10"/>
+                        <include file="hand_mjcf/convex_dec_include/right_index_2_geom_include.xml"/>
+                      </body>
+                    </body>
+
+                    <!-- Middle -->
+                    <body name="right_middle" pos="0.000578287 0.0170995 0.157" quat="0.000280245 0.000280246 0.707108 0.707105">
+                      <inertial pos="-0.00229221 0.0122787 -0.00664924" quat="0.47528 0.52355 -0.47524 0.523594" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
+                      <joint name="right_middle_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-1 1"/>
+                      <include file="hand_mjcf/convex_dec_include/right_middle_1_geom_include.xml"/>
+
+                      <body name="right_middle_2" pos="-0.0028436 0.032651 -0.00055">
+                        <inertial pos="7.55635e-05 0.0274472 -0.00610051" quat="0.703921 0.703917 0.0669721 0.067155" mass="0.0104603" diaginertia="2.8477e-06 2.80695e-06 3.32744e-07"/>
+                        <joint name="right_middle_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-1 1"/>
+                        <include file="hand_mjcf/convex_dec_include/right_middle_2_geom_include.xml"/>
+                      </body>
+                    </body>
+
+                    <!-- Ring -->
+                    <body name="right_ring_1" pos="0.000561062 -0.00453065 0.15683" quat="0.00028749 0.000272808 0.688341 0.725387">
+                      <inertial pos="-0.00240481 0.0122572 -0.00664924" quat="0.472873 0.525725 -0.472833 0.52577" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
+                      <joint name="right_ring_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-10 10"/>
+                      <include file="hand_mjcf/convex_dec_include/right_ring_1_geom_include.xml"/>
+                      
+                      <body name="right_ring_2" pos="-0.0031431 0.032624 -0.00055">
+                        <inertial pos="0.000666831 0.0256973 -0.00609277" quat="0.703985 0.703327 0.0680113 0.0714909" mass="0.00968594" diaginertia="2.34184e-06 2.30201e-06 3.04584e-07"/>
+                        <joint name="right_ring_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-10 10"/>
+                        <include file="hand_mjcf/convex_dec_include/right_ring_2_geom_include.xml"/>
+                      </body>
+                    </body>
+
+                    <!-- Little -->
+                    <body name="right_little_1" pos="0.000544032 -0.0259164 0.15365" quat="0.000294525 0.000265198 0.669139 0.743137">
+                      <inertial pos="-0.00232893 0.0122718 -0.00664923" quat="0.474497 0.52426 -0.474457 0.524304" mass="0.00719999" diaginertia="1.32924e-06 1.28622e-06 5.76964e-07"/>
+                      <joint name="right_little_1_joint" pos="0 0 0" axis="0 0 1" range="0 1.6" actuatorfrcrange="-1 1"/>
+                      <include file="hand_mjcf/convex_dec_include/right_little_1_geom_include.xml"/>
+
+                      <body name="right_little_2" pos="-0.0029412 0.032643 -0.00055">
+                        <inertial pos="0.00160931 0.0209121 -0.00610004" quat="0.702906 0.702909 0.0768667 0.0770299" mass="0.00759283" diaginertia="1.28167e-06 1.2391e-06 2.26513e-07"/>
+                        <joint name="right_little_2_joint" pos="0 0 0" axis="0 0 1" range="0 3.14" actuatorfrcrange="-1 1"/>
+                        <include file="hand_mjcf/convex_dec_include/right_little_2_geom_include.xml"/>
+                      </body>
+                    </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    
+
+    <!-- ======= bridge1 ======= -->
+    <body name="bridge1" pos="-0.03 0.42 0.8" euler="1.5707963 0 0">
+      <include file="../object/bridge.xml"/>
+    </body>
+
+    <!-- ======= bridge2 ======= -->
+    <body name="bridge2" pos="-0.03 0.39 0.86" euler="-1.5707963 0 0">
+        <joint type="free" frictionloss="0.00001" />
+        <inertial pos="0 0 0" mass="0.0005" diaginertia="0.00002 0.00002 0.00002" />
+        <geom rgba="0.15 0.65 0.63 1" type="mesh" mesh="bridge" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001"/>
+    </body>
+
+
+    <!-- ======= block1 ======= -->
+    <body name="block1_green" pos="0.09 0.405 0.835" euler="1.5707963 0 0">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.3 0.6 0.075 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.015 0.03 0.015" type="box"/>
+    </body>
+
+    <!-- ======= block2 ======= -->
+    <body name="block2_green" pos="-0.09 0.405 0.83" euler="1.5707963 0 0">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.3 0.6 0.075 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.015 0.03 0.015" type="box"/>
+    </body>
+
+
+    <!-- ======= block_purple1 ======= -->
+    <body name="block_purple1" pos="-0.06 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_purple2 ======= -->
+    <body name="block_purple2" pos="0 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_purple3 ======= -->
+    <body name="block_purple3" pos="-0.12 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_purple4 ======= -->
+    <body name="block_purple4" pos="0.06 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_purple5 ======= -->
+    <body name="block_purple5" pos="0.12 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= block_purple6 ======= -->
+    <body name="block_purple6" pos="0.16 0.3 0.815">
+      <joint type="free" frictionloss="0.0001" />
+      <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
+      <geom rgba="0.65 0.27 0.64 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001" pos="0 0 0" size="0.0125 0.0125 0.0125" type="box"/>
+    </body>
+
+    <!-- ======= TABLE write ======= -->
+    <body name="table-a" pos="0 0 0">
+      <geom size="0.3 0.6 0.01" pos="0 0 0.79" type="box" rgba="0.8 0.8 0.8 1" condim="4" solimp="2 1 0.01" solref="0.01 1" friction="5 0.05 0.001"/>
+      <geom size="0.02 0.02 0.39" pos=" 0.28  0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.39" pos="-0.28  0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.39" pos=" 0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+      <geom size="0.02 0.02 0.39" pos="-0.28 -0.56 0.39" type="box" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1" />
+    </body>
+    
+  </worldbody>
+
+  <actuator>
+    <position name="joint1" ctrllimited="true" ctrlrange="-3.14 2.09"  joint="joint1" kp="1000" user="1" forcelimited="true" forcerange="-300 300"/>
+    <position name="joint2" ctrllimited="true" ctrlrange="-2.96 0.17"  joint="joint2" kp="1000" user="1" forcelimited="true" forcerange="-300 300"/>
+    <position name="joint3" ctrllimited="true" ctrlrange="-0.087 3.14" joint="joint3" kp="1000" user="1" forcelimited="true" forcerange="-300 300"/>
+    <position name="joint4" ctrllimited="true" ctrlrange="-2.96 2.96"  joint="joint4" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
+    <position name="joint5" ctrllimited="true" ctrlrange="-1.74 1.74"  joint="joint5" kp="350" user="1" forcelimited="true" forcerange="-300 300"/>
+    <position name="joint6" ctrllimited="true" ctrlrange="-3.14 3.14"  joint="joint6" kp="100" user="1" forcelimited="true" forcerange="-300 300"/>
+  
+    <!-- Thumb -->
+    <position name="right_thumb_1_joint" joint="right_thumb_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+    <position name="right_thumb_2_joint" joint="right_thumb_2_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+
+    <!-- Index -->
+    <position name="right_index_1_joint" joint="right_index_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+
+    <!-- Middle -->
+    <position name="right_middle_1_joint" joint="right_middle_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+
+    <!-- Ring -->
+    <position name="right_ring_1_joint" joint="right_ring_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+
+    <!-- Little -->
+    <position name="right_little_1_joint" joint="right_little_1_joint" kp="2" dampratio="0.1" inheritrange="1"/>
+
+  </actuator>
+
+  <equality>
+    <!-- Thumb -->
+    <joint name="right_thumb_3_joint" joint1="right_thumb_2_joint" joint2="right_thumb_3_joint" polycoef="0 0.8 0 0"/>
+    <joint name="right_thumb_4_joint" joint1="right_thumb_2_joint" joint2="right_thumb_4_joint" polycoef="0 1.2 0 0"/>
+
+    <!-- Index -->
+    <joint name="right_index_2_joint" joint1="right_index_1_joint" joint2="right_index_2_joint" polycoef="0 1 0 0"/>
+
+    <!-- Middle -->
+    <joint name="right_middle_2_joint" joint1="right_middle_1_joint" joint2="right_middle_2_joint" polycoef="0 1 0 0"/>
+
+    <!-- Ring -->
+    <joint name="right_ring_2_joint" joint1="right_ring_1_joint" joint2="right_ring_2_joint" polycoef="0 1 0 0"/>
+
+    <!-- Little -->
+    <joint name="right_little_2_joint" joint1="right_little_1_joint" joint2="right_little_2_joint" polycoef="0 1 0 0"/>
+  </equality>
+
+  <sensor>
+
+    <jointpos name="joint1_pos" joint="joint1" />
+    <jointpos name="joint2_pos" joint="joint2" />
+    <jointpos name="joint3_pos" joint="joint3" />
+    <jointpos name="joint4_pos" joint="joint4" />
+    <jointpos name="joint5_pos" joint="joint5" />
+    <jointpos name="joint6_pos" joint="joint6" />
+
+    <jointvel name="joint1_vel" joint="joint1" />
+    <jointvel name="joint2_vel" joint="joint2" />
+    <jointvel name="joint3_vel" joint="joint3" />
+    <jointvel name="joint4_vel" joint="joint4" />
+    <jointvel name="joint5_vel" joint="joint5" />
+    <jointvel name="joint6_vel" joint="joint6" />
+
+    <jointactuatorfrc name="joint1_torque" joint="joint1" />
+    <jointactuatorfrc name="joint2_torque" joint="joint2" />
+    <jointactuatorfrc name="joint3_torque" joint="joint3" />
+    <jointactuatorfrc name="joint4_torque" joint="joint4" />
+    <jointactuatorfrc name="joint5_torque" joint="joint5" />
+    <jointactuatorfrc name="joint6_torque" joint="joint6" />
+
+    <framepos name="endpoint_pos" objtype="site" objname="endpoint" reftype="body" refname="arm_base"/>
+    <framequat name="endpoint_quat" objtype="site" objname="endpoint" reftype="body" refname="arm_base"/>
+    <framelinvel name="endpoint_vel" objtype="site" objname="endpoint" reftype="body" refname="arm_base"/>
+    <gyro name="endpoint_gyro" site="endpoint"/>
+    <accelerometer name="endpoint_acc" site="endpoint" />
+
+    <jointpos name="thumb_pos_1" joint="right_thumb_1_joint" />
+    <jointpos name="thumb_pos_2" joint="right_thumb_2_joint" />
+    <jointpos name="index_pos" joint="right_index_1_joint" />
+    <jointpos name="middle_pos" joint="right_middle_1_joint" />
+    <jointpos name="ring_pos" joint="right_ring_1_joint" />
+    <jointpos name="little_pos" joint="right_little_1_joint" />
+
+    <include file="hand_mjcf/sensor_include/palm_touch_include.xml"/>
+
+  </sensor>
+
+  <keyframe>
+    <key name="0" qpos='5.27561e-16 0.001116 -0.00415415 -4.54375e-05 -1.34883e-07 -0.000159523 0.00508523 -0.000911625 -0.0124014 -0.00448687 0.0044232 0.0559355 0.00491804 0.0572803 0.00442206 0.0540305 0.00320973 0.0472641 -0.0299996 0.42 0.799873 0.707096 0.707118 -6.51912e-05 6.56395e-05 -0.0300162 0.389996 0.859745 0.707141 -0.707072 -0.000130785 -0.000130642 0.09 0.405 0.829989 0.707107 0.707107 2.42582e-15 2.42536e-15 -0.09 0.405 0.829989 0.707107 0.707107 1.1971e-14 1.19713e-14 -0.08 0.345 0.812489 1 8.32275e-17 -1.3219e-22 -1.6554e-21 -6.94899e-21 0.345 0.812489 1 8.4087e-17 -7.48416e-21 8.39024e-22 0.08 0.345 0.812489 1 8.32275e-17 -1.3219e-22 -1.6554e-21 -0.08 0.285 0.812489 1 8.66285e-17 -3.07748e-21 -8.86637e-22 -4.74118e-21 0.285 0.812489 1 8.5942e-17 -1.45313e-20 -3.67484e-22 0.08 0.285 0.812489 1 8.66285e-17 -3.07748e-21 -8.86637e-22'/>
+  </keyframe>
+  
+
+
+
+</mujoco>

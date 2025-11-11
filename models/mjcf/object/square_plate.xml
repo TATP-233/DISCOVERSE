@@ -1,6 +1,6 @@
 <mujocoinclude>
   <inertial pos="0 0 0" mass="0.001" diaginertia="2e-05 2e-05 2e-05" />
-  <geom material="square_plate_texture" mesh="square_plate" class="obj_visual"/>
+  <geom material="square_plate_texture" mesh="square_plate" type="mesh" contype="0" conaffinity="0"/>
 
   <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="square_plate_part_0"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 0.0" mesh="square_plate_part_1"/>

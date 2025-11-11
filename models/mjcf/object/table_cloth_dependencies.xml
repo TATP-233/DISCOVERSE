@@ -3,6 +3,8 @@
   <asset>
     <texture type="2d" name="tc_texture" file="object/table_cloth/texture7.png"/>
     <material name="tc_texture" texture="tc_texture"/>
+    <texture type="2d" name="wall_texture" file="object/table_cloth/texture0.png"/>
+    <material name="wall_texture" texture="wall_texture"/>
     <mesh name="table_cloth" file="object/table_cloth/table_cloth.obj" scale="1 1 1"/>
   </asset>
 

@@ -1,0 +1,11 @@
+<mujocoinclude>
+  <general name="actuator1" joint="joint1" class="joint1"/>
+  <general name="actuator2" joint="joint2" class="joint2" gainprm="8000" biasprm="0 -8000 -200"/>
+  <general name="actuator3" joint="joint3" class="joint1"/>
+  <general name="actuator4" joint="joint4" class="joint2"/>
+  <general name="actuator5" joint="joint5" class="joint1"/>
+  <general name="actuator6" joint="joint6" class="joint2"/>
+  <general name="actuator7" joint="joint7" class="joint3"/>
+  <position name="fingers_actuator" tendon="split" kp="100" kv="10" forcerange="-10 10" ctrlrange="0 0.8"/>
+  <!-- <general name="fingers_actuator" tendon="split" biastype="affine" forcerange="-5 5" ctrlrange="0 255" gainprm="0.3137255 0 0" biasprm="0 -100 -10"/> -->
+</mujocoinclude>

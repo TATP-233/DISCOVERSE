@@ -1,0 +1,7 @@
+<mujoco model="open_drawer">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <worldbody>
+    <site name="manipulator_locate" pos="0.3 1. 0.71" euler="0 0 3.1416"/>
+  </worldbody>
+  <include file="../scene/qz_lab3.xml"/>
+</mujoco>

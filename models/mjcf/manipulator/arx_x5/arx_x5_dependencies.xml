@@ -1,0 +1,36 @@
+<mujocoinclude>
+  <default>
+    <default class="arx_x5">
+      <default class="visual">
+        <geom contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom condim="3" contype="0" conaffinity="1" priority="1" group="3" solref="0.005 1" friction="1 0.01 0.01" />
+        <equality solimp="0.99 0.999 1e-05" solref="0.005 1" />
+      </default>
+    </default>
+    <site size="0.001" group="3"/>
+  </default>
+
+  <asset>
+    <material class="arx_x5" name="arx_logo" specular="0.5" shininess="0.25" rgba="0 0 0 1" />
+    <material class="arx_x5" name="metal_white" specular="0.5" shininess="0.25" rgba="0.9 0.9 0.9 1" />
+    <material class="arx_x5" name="metal_black" specular="0.5" shininess="0.25" rgba="0.05 0.05 0.05 1" />
+  </asset>
+
+  <asset>
+    <mesh name="base_link" file="arx_x5/base_link.STL"/>
+    <mesh name="link1" file="arx_x5/link1.STL"/>
+    <mesh name="link2" file="arx_x5/link2.STL"/>
+    <mesh name="link3" file="arx_x5/link3.STL" />
+    <mesh name="link3_0" file="arx_x5/link3_0.STL" />
+    <mesh name="link4" file="arx_x5/link4.STL"/>
+    <mesh name="link5" file="arx_x5/link5.STL"/>
+    <mesh name="link6" file="arx_x5/link6.STL"/>
+    <mesh name="link7" file="arx_x5/link7.STL"/>
+    <mesh name="link7_collision" file="arx_x5/link7_collision.stl"/>
+    <mesh name="link8" file="arx_x5/link8.STL"/>
+    <mesh name="link8_collision" file="arx_x5/link8_collision.stl"/>
+  </asset>
+
+</mujocoinclude>

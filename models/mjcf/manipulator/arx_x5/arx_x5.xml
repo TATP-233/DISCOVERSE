@@ -1,0 +1,55 @@
+<mujocoinclude>
+  <body name="link0" childclass="arx_x5">
+    <site name="armbase"/>
+    <geom type="mesh" material="metal_black" mesh="base_link"/>
+    <body name="link1" pos="0 0 0.0605">
+      <inertial pos="0.0054231 -0.0080289 0.017086" quat="0.653281 0.653281 -0.270598 0.270598" mass="0.066982" diaginertia="9e-05 7e-05 3e-05"/>
+      <joint name="joint1" pos="0 0 0" axis="0 0 1" range="-3.1416 3.1416" actuatorfrcrange="-100 100" damping="20"/>
+      <geom type="mesh" material="metal_black" mesh="link1"/>
+      <body name="link2" pos="0.02 0 0.04">
+        <inertial pos="-0.13237 0.0020852 0.00010549" quat="7.64729e-05 0.706196 -0.000379919 0.708016" mass="1.0795" diaginertia="0.0160501 0.01599 0.000509891"/>
+        <joint name="joint2" pos="0 0 0" axis="0 1 0" range="0 3.1416" actuatorfrcrange="-100 100" damping="20"/>
+        <geom type="mesh" material="metal_black" mesh="link2"/>
+        <body name="link3" pos="-0.264 0 0" quat="-3.67321e-06 1 0 0">
+          <inertial pos="0.18531 0.00068376 -0.051638" quat="0.223261 0.638184 0.206685 0.707218" mass="0.54534" diaginertia="0.00424842 0.004221 0.000320578"/>
+          <joint name="joint3" pos="0 0 0" axis="0 1 0" range="0 3.1416" actuatorfrcrange="-100 100" damping="20"/>
+          <geom name="link3" type="mesh" mesh="link3" class="collision"/>
+          <geom type="mesh" class="visual" name="link3_visual_0" mesh="link3_0" material="arx_logo" />
+          <geom type="mesh" class="visual" name="link3_visual_1" mesh="link3" material="metal_white" />
+          <body name="link4" pos="0.245 0 -0.056">
+            <inertial pos="0.040231 0.0044807 -0.035335" quat="0.911288 -0.0751532 0.308689 -0.261949" mass="0.11714" diaginertia="0.000275643 0.00021286 7.14977e-05"/>
+            <joint name="joint4" pos="0 0 0" axis="0 1 0" range="-1.6 1.5708" actuatorfrcrange="-50 50" damping="10"/>
+            <geom type="mesh" material="metal_black" mesh="link4"/>
+            <body name="link5" pos="0.06775 0.0005 -0.0865">
+              <inertial pos="0.003612 -1.5455e-05 0.055214" quat="0.998188 0 -0.0601752 0" mass="0.63488" diaginertia="0.000838471 0.00082 0.000251529"/>
+              <joint name="joint5" pos="0 0 0" axis="0 0 1" range="-1.6 1.6" actuatorfrcrange="-50 50" damping="10"/>
+              <geom type="mesh" material="metal_black" mesh="link5"/>
+              <body name="link6" pos="0.02895 0 0.0865" quat="-3.67321e-06 -1 0 0">
+                <inertial pos="0.041697 2.4368e-05 0.00014464" quat="0.5 0.5 -0.5 0.5" mass="0.44089" diaginertia="0.0005 0.00038 0.00028"/>
+                <joint name="joint6" pos="0 0 0" axis="1 0 0" range="-3.1416 3.1416" actuatorfrcrange="-50 50" damping="10"/>
+                <geom type="mesh" material="metal_black" mesh="link6"/>
+                <site name="endpoint" pos='0.15 0 0'/>
+                <body name="link7" pos="0.08657 0.024896 -0.0002436">
+                  <inertial pos="-0.00035522 -0.007827 -0.0029883" quat="0.5 0.5 0.5 0.5" mass="0.064798" diaginertia="3e-05 3e-05 2e-05"/>
+                  <joint name="finger_joint1" pos="0 0 0" axis="0 1 0" type="slide" range="0 0.044" actuatorfrcrange="-50 50" damping="2"/>
+                  <geom type="mesh" material="metal_black" mesh="link7" class="visual"/>
+                  <geom type="mesh" mesh="link7_collision" class="collision"/>
+                  <geom type="box" size=".02 .002 .00525" pos="0.05 -0.023 0" rgba="1 0 0 1" class="collision"/>
+                  <geom type="box" size=".015 .002 .018" pos="0.015 -0.023 0" rgba="0 0 1 1" class="collision"/>
+                </body>
+                <body name="link8" pos="0.08657 -0.0249 -0.00024366">
+                  <inertial pos="-0.00035522 0.0078277 0.0024201" quat="0.5 0.5 0.5 0.5" mass="0.064798" diaginertia="3e-05 3e-05 2e-05"/>
+                  <joint name="finger_joint2" pos="0 0 0" axis="0 -1 0" type="slide" range="0 0.044" actuatorfrcrange="-50 50" damping="2"/>
+                  <geom type="mesh" material="metal_black" mesh="link8" class="visual"/>
+                  <geom type="mesh" mesh="link8_collision" class="collision"/>
+                  <geom type="box" size=".02 .002 .00525" pos="0.05 0.023 0" rgba="1 0 0 1" class="collision"/>
+                  <geom type="box" size=".015 .002 .018" pos="0.015 0.023 0" rgba="0 0 1 1" class="collision"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinclude>

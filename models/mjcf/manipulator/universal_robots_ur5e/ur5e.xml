@@ -1,0 +1,77 @@
+<mujocoinclude>
+  <body name="base" childclass="ur5e">
+    <site name="armbase"/>
+    <inertial mass="4.0" pos="0 0 0" diaginertia="0.00443333156 0.00443333156 0.0072"/>
+    <geom mesh="base_0" material="black" class="visual"/>
+    <geom mesh="base_1" material="jointgray" class="visual"/>
+    <body name="shoulder_link" pos="0 0 0.163">
+      <inertial mass="3.7" pos="0 0 0" diaginertia="0.0102675 0.0102675 0.00666"/>
+      <joint name="shoulder_pan_joint" class="size3" axis="0 0 1"/>
+      <geom mesh="shoulder_0" material="urblue" class="visual"/>
+      <geom mesh="shoulder_1" material="black" class="visual"/>
+      <geom mesh="shoulder_2" material="jointgray" class="visual"/>
+      <geom class="collision" size="0.06 0.06" pos="0 0 -0.04"/>
+      <body name="upper_arm_link" pos="0 0.138 0" quat="1 0 1 0">
+        <inertial mass="8.393" pos="0 0 0.2125" diaginertia="0.133886 0.133886 0.0151074"/>
+        <joint name="shoulder_lift_joint" class="size3"/>
+        <geom mesh="upperarm_0" material="linkgray" class="visual"/>
+        <geom mesh="upperarm_1" material="black" class="visual"/>
+        <geom mesh="upperarm_2" material="jointgray" class="visual"/>
+        <geom mesh="upperarm_3" material="urblue" class="visual"/>
+        <geom class="collision" pos="0 -0.04 0" quat="1 1 0 0" size="0.06 0.06"/>
+        <geom class="collision" size="0.05 0.2" pos="0 0 0.2"/>
+        <body name="forearm_link" pos="0 -0.131 0.425">
+          <inertial mass="2.275" pos="0 0 0.196" diaginertia="0.0311796 0.0311796 0.004095"/>
+          <joint name="elbow_joint" class="size3_limited"/>
+          <geom mesh="forearm_0" material="urblue" class="visual"/>
+          <geom mesh="forearm_1" material="linkgray" class="visual"/>
+          <geom mesh="forearm_2" material="black" class="visual"/>
+          <geom mesh="forearm_3" material="jointgray" class="visual"/>
+          <geom class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.055 0.06"/>
+          <geom class="collision" size="0.038 0.19" pos="0 0 0.2"/>
+          <body name="wrist_1_link" pos="0 0 0.392" quat="1 0 1 0">
+            <inertial mass="1.219" pos="0 0.127 0" diaginertia="0.0025599 0.0025599 0.0021942"/>
+            <joint name="wrist_1_joint" class="size1"/>
+            <geom mesh="wrist1_0" material="black" class="visual"/>
+            <geom mesh="wrist1_1" material="urblue" class="visual"/>
+            <geom mesh="wrist1_2" material="jointgray" class="visual"/>
+            <geom class="collision" pos="0 0.05 0" quat="1 1 0 0" size="0.04 0.07"/>
+            <body name="wrist_2_link" pos="0 0.127 0">
+              <inertial mass="1.219" pos="0 0 0.1" diaginertia="0.0025599 0.0025599 0.0021942"/>
+              <joint name="wrist_2_joint" axis="0 0 1" class="size1"/>
+              <geom mesh="wrist2_0" material="black" class="visual"/>
+              <geom mesh="wrist2_1" material="urblue" class="visual"/>
+              <geom mesh="wrist2_2" material="jointgray" class="visual"/>
+              <geom class="collision" size="0.04 0.06" pos="0 0 0.04"/>
+              <geom class="collision" pos="0 0.02 0.1" quat="1 1 0 0" size="0.04 0.04"/>
+              <body name="wrist_3_link" pos="0 0 0.1">
+                <inertial mass="0.1889" pos="0 0.0771683 0" quat="1 0 0 1" diaginertia="0.000132134 9.90863e-05 9.90863e-05"/>
+                <joint name="wrist_3_joint" class="size1"/>
+                <geom material="linkgray" mesh="wrist3" class="visual"/>
+                <geom class="eef_collision" pos="0 0.08 0" quat="1 1 0 0" size="0.04 0.02"/>
+                <site name="endpoint" pos="0 0.225 0" quat="1 0 0 1"/>
+                <geom pos="0 0.0823 0" quat="3.40583e-05 3.4055e-05 0.707073 0.707141" type="mesh" rgba="0.4 0.4 0.4 1" mesh="WSG50_110"/>
+                <body name="gripper_left" pos="0 0.0823 0" quat="3.40583e-05 3.4055e-05 0.707073 0.707141">
+                  <inertial pos="0 0 0.0115" mass="0.2" diaginertia="0.0001 0.0001 0.0001"/>
+                  <joint name="base_joint_gripper_left" pos="0 0 0" axis="1 0 0" type="slide" range="-0.055 -0.0027" actuatorfrcrange="-200 200" damping="2"/>
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.4 0.4 0.4 1" mesh="GUIDE_WSG50_110"/>
+                  <geom pos="0 0 0.023" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.4 0.4 0.4 1" mesh="WSG-FMF"/>
+                  <geom pos="0 0 0.023" type="mesh" rgba="1 0 0 1" mesh="WSG-FMF" class="collision"/>
+                  <geom type="box" pos="-0.002 0 0.143" size="0.005 0.01 0.01" rgba="1 0 0 1" class="collision"/>
+                </body>
+                <body name="gripper_right" pos="0 0.0823 0" quat="-0.707141 0.707073 -3.31169e-05 3.49965e-05">
+                  <inertial pos="0 0 0.0115" mass="0.2" diaginertia="0.0001 0.0001 0.0001"/>
+                  <joint name="base_joint_gripper_right" pos="0 0 0" axis="-1 0 0" type="slide" range="0.0027 0.055" actuatorfrcrange="-200 200" damping="2"/>
+                  <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.4 0.4 0.4 1" mesh="GUIDE_WSG50_110"/>
+                  <geom pos="0 0 0.023" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.4 0.4 0.4 1" mesh="WSG-FMF"/>
+                  <geom pos="0 0 0.023" type="mesh" rgba="1 0 0 1" mesh="WSG-FMF" class="collision"/>
+                  <geom type="box" pos="-0.002 0 0.143" size="0.005 0.01 0.01" rgba="1 0 0 1" class="collision"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </body>
+</mujocoinclude>

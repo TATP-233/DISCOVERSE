@@ -1,0 +1,71 @@
+<mujocoinclude>
+
+  <option integrator="implicitfast"/>
+
+  <default>
+    <default class="rm65">
+      <default class="upper_limb">
+        <joint damping="20.0" />
+        <position kp="500.0" kv="5.0" forcerange="-150.0 150.0" />
+      </default>
+      <default class="lower_limb">
+        <joint damping="10.0" />
+        <position kp="350.0" kv="2.0" forcerange="-100.0 100.0" />
+      </default>
+      <default class="gripper">
+        <joint damping="0.2" />
+        <position kp="300.0" kv="0.5" forcerange="-100.0 100.0" />
+      </default>
+      <default class="visual">
+        <geom material="visualgeom" contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom material="collision_material" condim="3" contype="0" conaffinity="1" priority="1" group="3" solimp="0.99 0.995 0.01" solref="0.005 1" friction="1 0.005 0.0001" />
+        <equality solimp="0.99 0.999 1e-05" solref="0.005 1" />
+      </default>
+    </default>
+    <site size="0.001" group="3"/>
+  </default>
+
+  <asset>
+    <material name="camera_white" rgba="1 1 1 1" />
+    <material name="camera_black" rgba="0.149 0.149 0.149 1" />
+    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <material name="collision_material" rgba="1.0 0.28 0.1 0.9" />
+    <material name="base_link_Material-橡胶_001-material" specular="0.4" shininess="1.0" rgba="0 0 0 1.0" />
+    <material name="base_link_Material-塑胶_001-material" specular="0.4" shininess="1.0" rgba="0 0.2 0.63529412 1" />
+    <material name="base_link_Material-外壳_001-material" specular="0.4" shininess="1.0" rgba="0.98823529 0.98823529 0.98823529 1.0" />
+    <mesh name="base_link.STL" file="realman_rm65/collision/base_link.STL" />
+    <mesh name="link1.STL" file="realman_rm65/collision/link1.STL" />
+    <mesh name="link2.STL" file="realman_rm65/collision/link2.STL" />
+    <mesh name="link3.STL" file="realman_rm65/collision/link3.STL" />
+    <mesh name="link4.STL" file="realman_rm65/collision/link4.STL" />
+    <mesh name="link5.STL" file="realman_rm65/collision/link5.STL" />
+    <mesh name="link6.STL" file="realman_rm65/collision/link6.STL" />
+    <mesh name="camera_base_link.STL" file="realman_rm65/gripper/camera_base_link.STL" />
+    <mesh name="gripper_base_link.STL" file="realman_rm65/gripper/gripper_base_link.STL" />
+    <mesh name="link7.STL" file="realman_rm65/gripper/link7.STL" />
+    <mesh name="link11.STL" file="realman_rm65/gripper/link11.STL" />
+    <mesh name="link8.STL" file="realman_rm65/gripper/link8.STL" />
+    <mesh name="link9.STL" file="realman_rm65/gripper/link9.STL" />
+    <mesh name="link10.STL" file="realman_rm65/gripper/link10.STL" />
+    <mesh name="link12.STL" file="realman_rm65/gripper/link12.STL" />
+    <mesh name="camera_link.STL" file="realman_rm65/gripper/camera_link.STL" />
+    <mesh name="base_link_0" file="realman_rm65/visual/base_link/base_link_0.obj" />
+    <mesh name="base_link_1" file="realman_rm65/visual/base_link/base_link_1.obj" />
+    <mesh name="base_link_2" file="realman_rm65/visual/base_link/base_link_2.obj" />
+    <mesh name="link1_0" file="realman_rm65/visual/link1/link1_0.obj" />
+    <mesh name="link1_1" file="realman_rm65/visual/link1/link1_1.obj" />
+    <mesh name="link2_0" file="realman_rm65/visual/link2/link2_0.obj" />
+    <mesh name="link2_1" file="realman_rm65/visual/link2/link2_1.obj" />
+    <mesh name="link3_0" file="realman_rm65/visual/link3/link3_0.obj" />
+    <mesh name="link3_1" file="realman_rm65/visual/link3/link3_1.obj" />
+    <mesh name="link4_0" file="realman_rm65/visual/link4/link4_0.obj" />
+    <mesh name="link4_1" file="realman_rm65/visual/link4/link4_1.obj" />
+    <mesh name="link5_0" file="realman_rm65/visual/link5/link5_0.obj" />
+    <mesh name="link5_1" file="realman_rm65/visual/link5/link5_1.obj" />
+    <mesh name="link6_0" file="realman_rm65/visual/link6/link6_0.obj" />
+    <mesh name="link6_1" file="realman_rm65/visual/link6/link6_1.obj" />
+  </asset>
+
+</mujocoinclude>

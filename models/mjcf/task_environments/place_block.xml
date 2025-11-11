@@ -1,0 +1,17 @@
+<mujoco model="place_block">
+  <include file="../object/bowl_dependencies.xml"/>
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <worldbody>
+    <site name="manipulator_locate" pos="0.3 1. 0.71" euler="0 0 3.1416"/>
+    <body name="block_green" pos="0 0.85 0.7145">
+      <joint type="free" frictionloss="0.00001"/>
+      <inertial pos="0 0 0" mass="0.001" diaginertia="1e-7 1e-7 1e-7"/>
+      <geom rgba="0.21 0.36 0.21 1" size="0.0145 0.0145 0.0145" type="box" class="obj_collision" group="1"/>
+    </body>
+    <body name="bowl_pink" pos="0 1.03 0.6988">
+      <joint type="free" frictionloss="0.00001"/>
+      <include file="../object/bowl_pink.xml"/>
+    </body>
+  </worldbody>
+  <include file="../scene/qz_lab3.xml"/>
+</mujoco>

@@ -1,0 +1,10 @@
+<mujocoinclude>
+  <jointpos name="act1" joint="joint1" />
+  <jointpos name="act2" joint="joint2" />
+  <jointpos name="act3" joint="joint3" />
+  <jointpos name="act4" joint="joint4" />
+  <jointpos name="act5" joint="joint5" />
+  <jointpos name="act6" joint="joint6" />
+  <jointpos name="act7" joint="joint7" />
+  <tendonpos name="gripper" tendon="split" />
+</mujocoinclude>

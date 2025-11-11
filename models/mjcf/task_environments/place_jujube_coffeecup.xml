@@ -1,0 +1,27 @@
+<mujoco model="place_jujube_coffeecup">
+  <include file="../object/coffeecup_dependencies.xml"/>
+  <include file="../object/plate_white_dependencies.xml"/>
+  <include file="../object/wood_dependencies.xml"/>
+  <include file="../object/jujube_dependencies.xml"/>
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <worldbody>
+    <site name="manipulator_locate" pos="0.3 1. 0.71" euler="0 0 3.1416"/>
+    <body name="jujube" pos="0 1.05 0.69928" euler="0 0 1.5708">
+      <joint type="free" frictionloss="0.00005"/>
+      <include file="../object/jujube.xml"/>
+    </body>
+    <body name="coffeecup_white" pos="-0.2 1.03 0.700422" quat="0.707 0 0 -0.707">
+      <joint type="free" frictionloss="0.00005"/>
+      <include file="../object/coffeecup_white.xml"/>
+    </body>
+    <body name="plate_white" pos="-0.0667474 0.825 0.714159">
+      <joint type="free" frictionloss="0.00005"/>
+      <include file="../object/plate_white.xml"/>
+    </body>
+    <body name="wood" pos="-0.0683076 0.832 0.701954" euler="0 0 0">
+      <joint type="free" frictionloss="0.00005"/>
+      <include file="../object/wood.xml"/>
+    </body>
+  </worldbody>
+  <include file="../scene/qz_lab3.xml"/>
+</mujoco>

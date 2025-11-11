@@ -1,0 +1,27 @@
+<mujoco model="xarm7">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast"/>
+
+  <include file="../scene/skybox.xml"/>
+  <include file="ufactory_xarm7/xarm7_dependencies.xml"/>
+  <include file="ufactory_xarm7/xarm7_appendix.xml"/>
+
+  <worldbody>
+    <body name="xarm7_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="ufactory_xarm7/xarm7.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="ufactory_xarm7/xarm7_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="ufactory_xarm7/xarm7_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos="0 -0.247 0 .909 0 1.15644 0  0.849981 0.84985 0.850033 0.84998 0.849849 0.850033  0 0" ctrl="0 -.247 0 .909 0 1.15644 0 0.045"/>
+  </keyframe>
+
+</mujoco>

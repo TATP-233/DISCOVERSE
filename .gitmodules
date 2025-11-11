@@ -20,3 +20,6 @@
 [submodule "submodules/urdf2mjcf"]
 	path = submodules/urdf2mjcf
 	url = https://github.com/TATP-233/urdf2mjcf
+[submodule "discoverse/examples/force_control_data_collect_using_joy/joy"]
+	path = discoverse/examples/force_control_data_collect_using_joy/joy
+	url = git@github.com:LueApp/joy.git

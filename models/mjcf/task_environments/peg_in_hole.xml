@@ -1,0 +1,20 @@
+<mujoco model="peg_in_hole">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
+  <visual>
+    <map force="0.05"/>
+    <scale forcewidth="0.01"/>
+  </visual>
+  <worldbody>
+    <camera name="eye_side" pos="0.646 -0.342 1.126" xyaxes="0.716 0.698 0.000 -0.290 0.298 0.910"/>
+    <site name="manipulator_locate" pos="0 0 0.78" euler="0 0 0"/>
+    <body name="hole" pos="0.3 0 .79">
+      <replicate count="4" euler="0 0 1.5708">
+        <geom type="box" pos="0.04 -0.05 0.01" size=".05 .04 .0001" solimp="0.995 0.999 0.001" solref="0.001 1" rgba="0.3 0.3 0.7 1"/>
+      </replicate>
+      <replicate count="4" euler="0 0 1.5708">
+        <geom type="box" pos="0.04 -0.05 0" size=".05 .04 .01" solimp="0.995 0.999 0.001" solref="0.001 1" rgba="0. 0. 0. 1"/>
+      </replicate>
+    </body>
+  </worldbody>
+  <include file="../scene/skybox.xml"/>
+</mujoco>

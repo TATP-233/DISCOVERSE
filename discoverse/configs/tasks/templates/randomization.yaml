@@ -1,0 +1,154 @@
+# ============== 通用随机化模板 ==============
+# 可被其他任务配置继承的随机化模板
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化模板
+  objects:
+    # 示例物体随机化配置
+    - name: "${object_name}"  # 物体名称（运行时替换）
+      position:
+        offset_range: [0.05, 0.05, 0.0]  # X轴±5cm, Y轴±5cm, Z轴固定
+      orientation:
+        euler_range: [0.0, 0.0, 0.1]  # 欧拉角随机范围 [roll, pitch, yaw] (弧度)
+        # 或者使用完全随机旋转
+        # random_rotation: true
+      min_distance: 0.03  # 最小距离（米）
+      description: "物体位置和姿态随机化"
+  
+  # 相机随机化模板
+  cameras:
+    "${camera_name}":  # 相机名称（运行时替换）
+      position_offset: [0.03, 0.03, 0.03]  # 位置偏移范围 ±3cm
+      orientation_offset: [0.03, 0.03, 0.03]  # 姿态偏移范围 ±0.03弧度
+      description: "相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    random_color: true             # 随机化光源颜色
+    individual_colors: true        # 每个光源独立颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.75       # 光源激活概率
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.2               # 较小的XY偏移，适合精细操作
+      z_scale: 0.1                # 较小的Z偏移
+    intensity_range:               # 光强范围
+      min: 0.2                    # 最小光强倍数
+      max: 0.7                    # 最大光强倍数
+    description: "光照随机化，适合精细操作的照明变化"
+
+  # 桌面高度随机化
+  table_height:
+    table_name: "table"                # 桌面body名称
+    height_range: [0.0, 0.1]           # 高度变化范围 0-10cm，参考airbot_task_base.py
+    affected_objects:                  # 受桌面高度影响的物体，参考cover_cup.py
+      - "plate_white"                  # 白色盘子
+      - "coffeecup_white"              # 咖啡杯
+      - "cup_lid"                      # 杯盖
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化全局设置
+  settings:
+    collision_check: true      # 启用碰撞检测
+    max_attempts: 100          # 最大尝试次数
+    retry_on_failure: true     # 失败时重试
+    seed: null                 # 随机种子（null表示使用系统时间）
+    description: "通用场景随机化配置模板"
+
+
+# ============== 随机化预设配置 ==============
+randomization_presets:
+  
+  # 轻度随机化：小范围的位置偏移
+  light:
+    objects:
+      - name: "${object_name}"
+        position:
+          offset_range: [0.02, 0.02, 0.0]  # ±2cm
+        min_distance: 0.02
+    settings:
+      max_attempts: 50
+      description: "轻度随机化 - 小范围位置偏移"
+  
+  # 中等随机化：中等范围的位置和小幅度姿态偏移
+  medium:
+    objects:
+      - name: "${object_name}"
+        position:
+          offset_range: [0.05, 0.05, 0.0]  # ±5cm
+        orientation:
+          euler_range: [0.0, 0.0, 0.05]  # ±0.05弧度 yaw
+        min_distance: 0.03
+    cameras:
+      "${camera_name}":
+        position_offset: [0.02, 0.02, 0.02]
+        orientation_offset: [0.02, 0.02, 0.02]
+    settings:
+      max_attempts: 100
+      description: "中等随机化 - 位置和姿态偏移"
+  
+  # 强度随机化：大范围的位置和姿态偏移
+  heavy:
+    objects:
+      - name: "${object_name}"
+        position:
+          offset_range: [0.08, 0.08, 0.0]  # ±8cm
+        orientation:
+          euler_range: [0.1, 0.1, 0.1]  # ±0.1弧度
+        min_distance: 0.04
+    cameras:
+      "${camera_name}":
+        position_offset: [0.05, 0.05, 0.05]
+        orientation_offset: [0.05, 0.05, 0.05]
+    settings:
+      max_attempts: 150
+      description: "强度随机化 - 大范围位置和姿态偏移"
+  
+  # 极端随机化：最大范围的随机化
+  extreme:
+    objects:
+      - name: "${object_name}"
+        position:
+          offset_range: [0.12, 0.12, 0.0]  # ±12cm
+        orientation:
+          random_rotation: true  # 完全随机旋转
+        min_distance: 0.05
+    cameras:
+      "${camera_name}":
+        position_offset: [0.08, 0.08, 0.08]
+        orientation_offset: [0.08, 0.08, 0.08]
+    settings:
+      max_attempts: 200
+      description: "极端随机化 - 最大范围随机化"
+
+# ============== 使用说明 ==============
+# 
+# 在具体任务配置中使用随机化:
+# 
+# 方法1: 继承模板并覆盖参数
+# extends: "templates/randomization.yaml"
+# runtime_parameters:
+#   object_name: "block_green"
+#   camera_name: "eye_side"
+# 
+# 方法2: 直接定义随机化配置
+# randomization:
+#   objects:
+#     - name: "block_green"
+#       position:
+#         offset_range: [0.08, 0.06, 0.0]
+#       # ... 其他配置
+# 
+# 方法3: 使用预设配置
+# randomization: "${randomization_presets.medium}"
+# runtime_parameters:
+#   object_name: "block_green"
+#   camera_name: "eye_side"

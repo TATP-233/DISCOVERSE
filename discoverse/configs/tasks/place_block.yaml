@@ -1,0 +1,88 @@
+# ============== place_block 任务配置 ==============
+# 继承自place_object模板，将绿色方块放入粉色碗中
+
+extends: "templates/place_object.yaml"
+
+task_name: "place_block"
+description: "将绿色方块抓取并放入粉色碗中"
+
+# ============== 运行时参数覆盖 ==============
+runtime_parameters:
+  source_object: "block_green"         # 绿色方块
+  target_location: "bowl_pink"         # 粉色碗
+  approach_height: 0.05                # 降低接近高度到5cm
+  grasp_height: 0.005                  # 方块抓取高度
+  lift_height: 0.07                    # 提升高度
+  place_height: 0.13                   # 放置高度
+  final_height: 0.04                   # 最终下降高度
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化
+  objects:
+    - name: "block_green"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.05  # 方块碰撞检测半径5cm
+      description: "绿色方块位置大范围随机化"
+      
+    - name: "bowl_pink"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.12  # 碗的直径较大，需要更大的避让距离
+      description: "粉色碗位置随机化"
+  
+  # 相机随机化（可选，对应原代码中被注释的相机随机化）
+  cameras:
+    activate: true
+    eye_side:
+      position_offset: [0.05, 0.05, 0.05]  # 位置偏移范围 ±5cm
+      orientation_offset: [0.05, 0.05, 0.05]  # 姿态偏移范围 ±0.05弧度
+      description: "侧视相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    activate: true
+    random_color: true             # 随机化光源颜色
+    individual_colors: false       # 所有光源使用相同的颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.8        # 光源激活概率（稍高一些，确保良好照明）
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.25              # XY方向偏移标准差
+      z_scale: 0.15               # Z方向偏移标准差
+    intensity_range:               # 光强范围
+      min: 0.1                    # 最小光强倍数
+      max: 0.9                    # 最大光强倍数
+    description: "光照随机化，适合大范围物体随机化的照明变化"
+  
+  # 桌面高度随机化
+  table_height:
+    activate: true
+    table_name: "table"                # 桌面body名称
+    height_range: [-0.05, 0.1]         # 高度变化范围
+    affected_objects:                  # 受桌面高度影响的物体
+      - "block_green"                  # 绿色方块
+      - "bowl_pink"                    # 粉色碗
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  # 纹理随机化
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+      - name: "wall_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化设置
+  settings:
+    collision_check: true          # 启用碰撞检测，确保方块与碗有足够距离
+    max_attempts: 50               # 增加尝试次数，确保在大范围随机化下找到合适位置
+    retry_on_failure: true
+    seed: null
+    collision_tolerance: 0.02      # 碰撞检测容差（2cm）
+    debug_collision: true          # 启用调试信息，便于调优
+    description: "绿色方块和粉色碗位置大范围随机化，启用碰撞避免，参考place_block.py实现"

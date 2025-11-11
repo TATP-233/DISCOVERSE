@@ -1,0 +1,26 @@
+<mujoco model="piper">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="agilex_piper/piper_dependencies.xml"/>
+
+  <worldbody>
+    <body name="piper_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="agilex_piper/piper.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="agilex_piper/piper_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="agilex_piper/piper_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos='0 1.4 -1.1 0 1 0 0 0' ctrl='0 1.4 -1.1 0 1 0 0'/>
+  </keyframe>
+
+</mujoco>

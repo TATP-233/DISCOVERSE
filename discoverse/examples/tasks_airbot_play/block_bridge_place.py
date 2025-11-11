@@ -7,8 +7,10 @@ import argparse
 import multiprocessing as mp
 
 import traceback
+import discoverse
+from discoverse.envs import make_env
 from discoverse.robots import AirbotPlayIK
-from discoverse import DISCOVERSE_ROOT_DIR
+from discoverse import DISCOVERSE_ROOT_DIR, DISCOVERSE_ASSETS_DIR
 from discoverse.robots_env.airbot_play_base import AirbotPlayCfg
 from discoverse.utils import get_body_tmat, step_func, SimpleStateMachine
 from discoverse.task_base import AirbotPlayTaskBase, recoder_airbot_play, batch_encode_videos, copypy2
@@ -76,7 +78,12 @@ cfg.gs_model_dict["drawer_2"] = "hinge/drawer_2.ply"
 cfg.gs_model_dict["bowl_pink"] = "object/bowl_pink.ply"
 cfg.gs_model_dict["block_green"] = "object/block_green.ply"
 
-cfg.mjcf_file_path = "mjcf/tasks_airbot_play/block_bridge_place.xml"
+robot_name = "airbot_play"
+task_name = "block_bridge_place"
+cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
+env = make_env(robot_name, task_name)
+env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
+
 cfg.obj_list = [
     "bridge1",
     "bridge2",
@@ -97,8 +104,9 @@ cfg.render_set = {"fps": 20, "width": 448, "height": 448}
 cfg.obs_rgb_cam_id = [0, 1]
 cfg.save_mjb_and_task_config = True
 
-
 if __name__ == "__main__":
+    print(f"Welcome to discoverse {discoverse.__version__} !")
+    print(discoverse.__logo__)
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 
     parser = argparse.ArgumentParser()

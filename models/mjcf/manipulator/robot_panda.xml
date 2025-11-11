@@ -1,0 +1,26 @@
+<mujoco model="panda">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="franka_emika_panda/panda_dependencies.xml"/>
+
+  <worldbody>
+    <body name="panda_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="franka_emika_panda/panda.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="franka_emika_panda/panda_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="franka_emika_panda/panda_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos="0 0 0 -1.57079 0 1.57079 0.7853 0.04 0.04" ctrl="0 0 0 -1.57079 0 1.57079 0.7853 0.04"/>
+  </keyframe>
+
+</mujoco>

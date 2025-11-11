@@ -480,7 +480,7 @@ if __name__ == "__main__":
     parser.add_argument("--diaginertia", nargs=3, type=float, default=[0.00002, 0.00002, 0.00002], help="网格的对角惯性张量，默认为 [2e-5, 2e-5, 2e-5]。")
     parser.add_argument("--free_joint", action="store_true", help="是否为物体添加free自由度")
     parser.add_argument("-cd", "--convex_decomposition", action="store_true", help="是否将网格分解为多个凸部分以进行更精确的碰撞检测，默认为 False。需要安装 coacd 和 trimesh。")
-    parser.add_argument("--scene", action="store_true", help="是否为物体添加场景信息，默认为 False。")
+    parser.add_argument("--scene", action="store_true", help="进行高精度的凸分解 False。")
     parser.add_argument("--verbose", action="store_true", help="是否在转换完成后使用 MuJoCo 查看器可视化生成的模型，默认为 False。")
     args = parser.parse_args()
 
@@ -625,7 +625,7 @@ if __name__ == "__main__":
         preview_xml = create_preview_xml(asset_name)
         save_xml_with_formatting(preview_xml, tmp_world_mjcf)
             
-        cmd_line = f"{py_dir} -m mujoco.viewer --mjcf={tmp_world_mjcf}"
+        cmd_line = f"{py_dir} -m mujoco.viewer --mjcf {tmp_world_mjcf}"
         print(f"执行命令: {cmd_line}")
         os.system(cmd_line)
         

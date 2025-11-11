@@ -2,6 +2,7 @@ import os
 import argparse
 
 import cv2
+import time
 import json
 import glfw
 import mujoco
@@ -167,8 +168,8 @@ class CamEnv(SimulatorBase):
     camera_pitch = 0.0    # 俯仰角(抬头/低头)
 
     # 是否触发空格键
-    key_space_triger = False
-    key_s_triger = False
+    key_space_trigger = False
+    key_c_trigger = False
 
     mouse_in_tk = False
 
@@ -378,12 +379,12 @@ class CamEnv(SimulatorBase):
             self.mj_model.body("stereo").pos[2] += dz
 
             if glfw.get_key(window, glfw.KEY_SPACE) == glfw.PRESS:
-                self.key_space_triger = True
+                self.key_space_trigger = True
                 if self.show_gui:
                     self.save_current_viewpoint()
 
-            if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-                self.key_s_triger = True
+            if glfw.get_key(window, glfw.KEY_C) == glfw.PRESS:
+                self.key_c_trigger = True
 
             if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
                 if len(self.viewpoints) > 0:
@@ -580,10 +581,17 @@ if __name__ == "__main__":
     robot.printHelp()
     print("-" * 50)
 
+    robot.config.obs_rgb_cam_id = []
+    robot.config.obs_depth_cam_id = []
+
     # 主循环
     while robot.running:
         obs, _, _, _, _ = robot.step()
-        
+        if robot.key_c_trigger:
+            robot.key_c_trigger = False
+            img_vis = robot.getRgbImg(robot.cam_id)
+            stamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+            cv2.imwrite(f"camera_view_{stamp}.png", cv2.cvtColor(img_vis, cv2.COLOR_RGB2BGR))
         if robot.show_gui:
             try:
                 robot.update_gui()

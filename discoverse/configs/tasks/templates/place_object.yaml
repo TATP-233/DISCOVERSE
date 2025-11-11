@@ -1,0 +1,198 @@
+# ============== place_object 任务配置模板 ==============
+# Pick and Place类型任务的基础模板
+# 其他任务可以继承这个模板
+
+task_meta:
+  version: "1.0"
+  category: "pick_and_place"
+  difficulty: "easy"
+  description: "通用抓取并放置物体任务"
+  compatibility:
+    robots: ["airbot_play", "panda", "ur5e", "iiwa14", "arx_x5", "arx_l5", "piper", "rm65", "xarm7"]
+    mujoco_version: ">=2.3.0"
+
+task_objects:
+  - name: "${source_object}"
+    type: "manipulatable"
+    required: true
+  - name: "${target_location}"
+    type: "target"
+    required: true
+
+task_name: "place_object"
+description: "通用抓取并放置物体任务"
+task_type: "pick_and_place"
+
+# ============== 成功条件检查 ==============
+success_check:
+  method: "simple"  # simple | combined | custom
+  conditions:
+    - type: "distance_2d"  # 检查源物体与目标位置的2D距离
+      object1: "${source_object}"
+      object2: "${target_location}" 
+      threshold: 0.05  # 5cm容差
+      description: "${source_object}在${target_location}的5cm范围内"
+
+# ============== 运行时参数 ==============
+runtime_parameters:
+  source_object: "block_green"         # 源物体名称
+  target_location: "bowl_pink"         # 目标位置名称
+  approach_height: 0.1                 # 接近高度偏移
+  grasp_height: 0.028                  # 抓取高度偏移
+  lift_height: 0.07                    # 提升高度
+  release_bias_x : 0.0                 # 放置时的X偏移
+  release_bias_y : 0.0                 # 放置时的Y偏移
+  place_height: 0.1                    # 放置高度
+  final_height: 0.04                   # 最终下降高度
+  grasp_force: 0.5                     # 抓取力度
+  stabilize_time: 0.35                 # 稳定等待时间
+
+# ============== 状态序列模板 ==============
+task_states:
+  # 状态0: 移动到源物体上方
+  - name: "approach_source_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "${source_object}"
+      offset: [0, 0, "${approach_height}"]
+    gripper_state: "open"
+
+  # 状态1: 下降到抓取位置
+  - name: "approach_source_grasp"
+    primitive: "move_to_object"
+    params:
+      object_name: "${source_object}"
+      offset: [0, 0, "${grasp_height}"]
+    gripper_state: "open"
+
+  # 状态2: 抓取物体
+  - name: "grasp_object"
+    primitive: "grasp_object"
+    params:
+      object_name: "${source_object}"
+      grasp_force: "${grasp_force}"
+    gripper_state: "close"
+    delay: "${stabilize_time}"  # 稳定时间
+
+  # 状态3: 提升物体
+  - name: "lift_object"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, "${lift_height}"]
+    gripper_state: "close"
+
+  # 状态4: 移动到目标位置上方
+  - name: "move_to_target_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "${target_location}"
+      offset: [0, 0, "${place_height}"]
+    gripper_state: "close"
+
+  # 状态5: 下降到放置位置
+  - name: "place_approach"
+    primitive: "move_to_object"
+    params:
+      object_name: "${target_location}"
+      offset: [0, 0, "${final_height}"]
+    gripper_state: "close"
+
+  # 状态6: 释放物体
+  - name: "release_object"
+    primitive: "release_object"
+    params:
+      object_name: "${source_object}"
+    gripper_state: "open"
+    delay: "${stabilize_time}"  # 稳定时间
+
+  # 状态7: 提升末端执行器
+  - name: "retreat"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, "${lift_height}"]
+    gripper_state: "open"
+
+# ============== 向后兼容 ==============
+states:
+  # 状态0: 移动到源物体上方
+  - name: "approach_source_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "${source_object}"
+      offset: [0, 0, "${approach_height}"]
+    gripper_state: "open"
+
+  # 状态1: 下降到抓取位置
+  - name: "approach_source_grasp"
+    primitive: "move_to_object"
+    params:
+      object_name: "${source_object}"
+      offset: [0, 0, "${grasp_height}"]
+    gripper_state: "open"
+
+  # 状态2: 等待位置稳定
+  - name: "wait_before_grasp"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0]
+      keep_orientation: true
+    gripper_state: "open"
+    delay: "${stabilize_time}"
+
+  # 状态3: 抓取物体
+  - name: "grasp_source"
+    primitive: "grasp_object"
+    params:
+      object_name: "${source_object}"
+      grasp_type: "pinch"
+      force: "${grasp_force}"
+    gripper_state: "close"
+
+  # 状态4: 等待抓取稳定
+  - name: "stabilize_grasp"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0]
+      keep_orientation: true
+    gripper_state: "close"
+    delay: "${stabilize_time}"
+
+  # 状态5: 提升物体
+  - name: "lift_source"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, "${lift_height}"]
+      keep_orientation: true
+    gripper_state: "close"
+
+  # 状态6: 移动到目标位置上方
+  - name: "move_above_target"
+    primitive: "move_to_object"
+    params:
+      object_name: "${target_location}"
+      offset: ["${release_bias_x}", "${release_bias_y}", "${place_height}"]
+    gripper_state: "close"
+
+  # 状态7: 下降到放置位置
+  - name: "lower_to_target"
+    primitive: "move_to_object"
+    params:
+      object_name: "${target_location}"
+      offset: ["${release_bias_x}", "${release_bias_y}", "${final_height}"]
+    gripper_state: "close"
+
+  # 状态8: 释放物体
+  - name: "release_source"
+    primitive: "release_object"
+    params:
+      object_name: "${source_object}"
+    gripper_state: "open"
+
+  # 状态9: 抬升离开
+  - name: "lift_away"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.05]
+      keep_orientation: true
+    gripper_state: "open"
+    delay: "${stabilize_time}"

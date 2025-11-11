@@ -1,0 +1,28 @@
+<mujoco model="arx_l5">
+  <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/" autolimits="true"/>
+  <option integrator="implicitfast" />
+
+  <include file="../scene/skybox.xml"/>
+  <include file="arx_l5/arx_l5_dependencies.xml"/>
+  <include file="arx_l5/arx_l5_appendix.xml"/>
+
+  <worldbody>
+    <body name="arx_l5_pose" pos="0 0 0.78" euler="0 0 0">
+      <include file="arx_l5/arx_l5.xml"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <include file="arx_l5/arx_l5_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="arx_l5/arx_l5_sensor.xml"/>
+  </sensor>
+
+  <keyframe>
+    <key name="home" qpos="0 1.5 1.3 -0.8 0 0 0 0" ctrl="0 1.5 1.3 -0.8 0 0 0"/>
+    <key qpos="0 0.251 0.314 0 0 0 0.044 -0.044" ctrl="0 0.251 0.314 0 0 0 0.044"/>
+  </keyframe>
+
+</mujoco>

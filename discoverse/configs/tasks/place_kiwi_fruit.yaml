@@ -1,0 +1,103 @@
+# ============== place_kiwi_fruit 任务配置 ==============
+# 继承自place_object模板，将猕猴桃放入花碗中
+
+extends: "templates/place_object.yaml"
+
+task_name: "place_kiwi_fruit"
+description: "将猕猴桃抓取并放入花碗中"
+
+# ============== 成功条件检查覆盖 ==============
+success_check:
+  method: "combined"
+  operator: "and"
+  conditions:
+    - type: "distance_2d"
+      object1: "kiwi"
+      object2: "flower_bowl"
+      threshold: 0.02  # 2cm容差，参考原代码
+      description: "猕猴桃在花碗的2cm范围内"
+    - type: "orientation"
+      object: "flower_bowl"
+      axis: "z"
+      direction: "up"
+      threshold: 0.99  # 花碗保持直立
+      description: "花碗必须保持直立"
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化
+  objects:
+    - name: "kiwi"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.07  # 猕猴桃较小，最小距离7cm
+      description: "猕猴桃位置随机化"
+      
+    - name: "flower_bowl"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.09  # 花碗作为目标容器，需要足够空间
+      description: "花碗位置随机化"
+  
+  # 相机随机化（可选）
+  cameras:
+    activate: true
+    eye_side:
+      position_offset: [0.03, 0.03, 0.03]  # 位置偏移范围 ±3cm
+      orientation_offset: [0.03, 0.03, 0.03]  # 姿态偏移范围 ±0.03弃度
+      description: "侧视相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    activate: true
+    random_color: true             # 随机化光源颜色
+    individual_colors: true        # 每个光源独立颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.75       # 光源激活概率
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.25              # XY方向偏移标准差
+      z_scale: 0.15               # Z方向偏移标准差
+    intensity_range:               # 光强范围
+      min: 0.1                    # 最小光强倍数
+      max: 0.9                    # 最大光强倍数
+    description: "光照随机化，适合猕猴桃任务的中等范围随机化"
+  
+  # 桌面高度随机化
+  table_height:
+    activate: true
+    table_name: "table"                # 桌面body名称
+    height_range: [-0.05, 0.1]         # 高度变化范围
+    affected_objects:                  # 受桌面高度影响的物体
+      - "kiwi"                         # 猕猴桃
+      - "flower_bowl"                  # 花碗
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  # 纹理随机化
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+      - name: "wall_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化设置
+  settings:
+    collision_check: false    # 不限制物体相对位置
+    max_attempts: 20
+    retry_on_failure: true
+    seed: null
+    description: "猕猴桃、盘子和花碗位置随机化"
+
+# ============== 运行时参数覆盖 ==============
+runtime_parameters:
+  source_object: "kiwi"                # 猕猴桃
+  target_location: "flower_bowl"       # 花碗
+  approach_height: 0.1                 # 接近高度
+  grasp_height: 0.035                  # 猕猴桃抓取高度
+  lift_height: 0.15                    # 提升高度
+  place_height: 0.13                   # 放置高度
+  final_height: 0.10                   # 最终下降高度

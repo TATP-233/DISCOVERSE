@@ -1,0 +1,125 @@
+# ============== place_coffeecup 任务配置 ==============
+# 继承自place_object模板，将咖啡杯放到白色盘子上
+
+extends: "templates/place_object.yaml"
+
+task_name: "place_coffeecup"
+description: "将咖啡杯抓取并放到白色盘子上"
+
+# ============== 成功条件检查覆盖 ==============
+success_check:
+  method: "combined"
+  operator: "and"
+  conditions:
+    - type: "distance_2d"
+      object1: "coffeecup_white"
+      object2: "plate_white" 
+      threshold: 0.03
+      description: "咖啡杯在盘子的2cm范围内"
+    - type: "orientation"
+      object: "coffeecup_white"
+      axis: "z"
+      direction: "up"
+      threshold: 0.95
+      description: "咖啡杯必须保持直立"
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化
+  objects:
+    - name: "coffeecup_white"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.1  # 咖啡杯需要较大操作空间，最小距离15cm
+      description: "咖啡杯位置大范围随机化"
+      
+    - name: "plate_white"
+      x_range: [0.2, 0.4]
+      y_range: [-0.2, 0.2]
+      collision_radius: 0.12  # 盘子作为目标位置，需要足够空间
+      description: "白色盘子位置随机化"
+  
+  # 相机随机化（可选，对应原代码中被注释的相机随机化）
+  cameras:
+    activate: true
+    eye_side:
+      position_offset: [0.05, 0.05, 0.05]  # 位置偏移范围 ±5cm
+      orientation_offset: [0.05, 0.05, 0.05]  # 姿态偏移范围 ±0.05弧度
+      description: "侧视相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    activate: true
+    random_color: true             # 随机化光源颜色
+    individual_colors: false       # 所有光源使用相同的颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.8        # 光源激活概率（较高，确保良好照明）
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.3               # XY方向偏移标准差
+      z_scale: 0.2                # Z方向偏移标准差
+    intensity_range:               # 光强范围
+      min: 0.1                    # 最小光强倍数
+      max: 0.9                    # 最大光强倍数
+    description: "光照随机化，适合咖啡杯的大范围位置随机化"
+  
+  # 桌面高度随机化
+  table_height:
+    activate: true
+    table_name: "table"                # 桌面body名称
+    height_range: [-0.05, 0.1]         # 高度变化范围
+    affected_objects:                  # 受桌面高度影响的物体
+      - "coffeecup_white"              # 白色咖啡杯
+      - "plate_white"                  # 白色盘子
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  # 纹理随机化
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+      - name: "wall_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化设置
+  settings:
+    collision_check: false    # 不限制物体相对位置
+    max_attempts: 20          # 减少尝试次数，因为无碰撞检测
+    retry_on_failure: true
+    seed: null
+    description: "咖啡杯和盘子位置大范围随机化，不限制相对位置，参考place_coffeecup.py实现"
+
+# ============== 运行时参数覆盖 ==============
+runtime_parameters:
+  source_object: "coffeecup_white"     # 白色咖啡杯
+  target_location: "plate_white"       # 白色盘子
+  approach_height: 0.1                 # 接近高度
+  grasp_height: 0.05                   # 杯把抓取高度
+  release_bias_x : 0.05                # 放置时的X偏移
+  release_bias_y : 0.0                 # 放置时的Y偏移
+  lift_height: 0.12                    # 提升高度
+  place_height: 0.11                   # 放置高度
+  final_height: 0.08                   # 最终下降高度
+  grasp_force: 0.7                     # 稍大的抓取力度
+  stabilize_time: 0.5                  # 更长的稳定时间
+
+# ============== 状态序列覆盖（针对杯把抓取的特殊处理）==============
+states:
+  # 状态0: 移动到咖啡杯前方（杯把方向）
+  - name: "approach_cup_front"
+    primitive: "move_to_object"
+    params:
+      object_name: "coffeecup_white"
+      offset: [0.1, 0, 0.1]  # X方向(杯把方向)和Z方向偏移
+    gripper_state: "open"
+
+  # 状态1: 移动到杯把位置
+  - name: "approach_handle"
+    primitive: "move_to_object"
+    params:
+      object_name: "coffeecup_white"
+      offset: [0.045, 0, 0.05]  # 杯把的具体位置
+    gripper_state: "open"

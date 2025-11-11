@@ -1,0 +1,271 @@
+# ============== cover_cup 任务配置 ==============
+# 将杯子从桌面移到盘子上，然后用杯盖盖住杯子
+
+task_name: "cover_cup"
+description: "将咖啡杯移到盘子上，然后用杯盖盖住"
+
+observation:
+  fps : 30        # 帧率
+  cameras:
+    - name: "eye_side" # 侧视相机
+      fovy: 60        # 视场角 (degrees)
+      width: 640      # 分辨率宽度
+      height: 480     # 分辨率高度
+    - name: "eye_arm" # 机械臂末端相机
+      fovy: 72.54     # 视场角 (degrees)
+      width: 640      # 分辨率宽度
+      height: 480     # 分辨率高度
+
+# ============== 成功条件检查 ==============
+success_check:
+  method: "combined"  # 组合检查方法
+  operator: "and"     # 所有条件都必须满足
+  conditions:
+    - type: "orientation"  # 检查杯子是否直立
+      object: "coffeecup_white"
+      axis: "z"  # Z轴
+      direction: "up"  # 朝上
+      threshold: 0.99  # cos值阈值，参考原代码
+      description: "咖啡杯直立（底部朝下）"
+      
+    - type: "distance_2d"  # 检查杯子是否在盘子上
+      object1: "coffeecup_white"
+      object2: "plate_white"
+      threshold: 0.04  # 4cm容差，参考原代码
+      description: "咖啡杯在盘子上"
+      
+    - type: "distance_2d"  # 检查杯盖是否盖在杯子上
+      object1: "cup_lid"
+      object2: "coffeecup_white"
+      threshold: 0.02  # 2cm容差，参考原代码
+      description: "杯盖盖在杯子上"
+
+# ============== 场景随机化配置 ==============
+randomization:
+  # 物体随机化 
+  objects:
+    - name: "coffeecup_white"
+      x_range: [0.2, 0.4]  # X轴范围 [15cm, 30cm]
+      y_range: [-0.2, 0.2]  # Y轴范围 [-20cm, 20cm] 
+      collision_radius: 0.05  # 咖啡杯碰撞检测半径8cm
+      description: "咖啡杯位置随机化（边界框模式）"
+      
+    - name: "plate_white"
+      x_range: [0.2, 0.4]  # X轴范围 [15cm, 30cm]
+      y_range: [-0.2, 0.2]  # Y轴范围 [-20cm, 20cm]
+      collision_radius: 0.1  # 盘子碰撞检测半径10cm
+      description: "白色盘子位置随机化（边界框模式）"
+      
+    - name: "cup_lid"
+      x_range: [0.2, 0.4]  # X轴范围 [15cm, 30cm]
+      y_range: [-0.2, 0.2]  # Y轴范围 [-20cm, 20cm]
+      collision_radius: 0.05  # 杯盖碰撞检测半径6cm
+      description: "杯盖位置随机化（边界框模式）"
+  
+  # 相机随机化（可选）
+  cameras:
+    activate: true
+    eye_side:
+      position_offset: [0.03, 0.03, 0.03]  # 位置偏移范围 ±3cm
+      orientation_offset: [0.03, 0.03, 0.03]  # 姿态偏移范围 ±0.03弧度
+      description: "侧视相机视角随机化"
+  
+  # 光照随机化
+  lighting:
+    activate: true
+    random_color: true             # 随机化光源颜色
+    individual_colors: true        # 每个光源独立颜色随机化
+    random_active: true            # 随机化光源激活状态
+    active_probability: 0.75       # 光源激活概率
+    random_direction: true         # 随机化光源方向
+    position_offset:               # 光源位置偏移
+      xy_scale: 0.2               # 较小的XY偏移，适合精细操作
+      z_scale: 0.1                # 较小的Z偏移
+    intensity_range:               # 光强范围
+      min: 0.1                    # 最小光强倍数
+      max: 0.9                    # 最大光强倍数
+    description: "光照随机化，适合精细操作的照明变化"
+  
+  # 桌面高度随机化
+  table_height:
+    activate: true
+    table_name: "table"                # 桌面body名称
+    height_range: [-0.05, 0.1]         # 高度变化范围
+    affected_objects:                  # 受桌面高度影响的物体，参考cover_cup.py
+      - "plate_white"                  # 白色盘子
+      - "coffeecup_white"              # 咖啡杯
+      - "cup_lid"                      # 杯盖
+    description: "随机化桌面高度，模拟不同桌面环境"
+
+  # 纹理随机化
+  textures:
+    activate: true
+    objects:
+      - name: "tc_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+      - name: "wall_texture"
+        mtl_type: "texture_1k"  # 使用1K纹理
+        description: "纹理随机化，适用于物体表面细节"
+
+  # 随机化设置
+  settings:
+    max_attempts: 20             # 增加最大尝试次数以处理碰撞检测
+    retry_on_failure: true
+    seed: null
+    description: "基于armbase坐标系的边界框随机化"
+
+# ============== 运行时参数 ==============
+runtime_parameters:
+  cup_object: "coffeecup_white"       # 咖啡杯
+  lid_object: "cup_lid"               # 杯盖
+  plate_object: "plate_white"         # 盘子
+  approach_height: 0.1                # 接近高度
+  grasp_height: 0.05                  # 抓取高度 
+  lift_height: 0.15                   # 提升高度
+  place_height: 0.08                  # 放置高度
+
+# ============== 状态序列 ==============
+states:
+  # 第一阶段：处理咖啡杯
+  
+  # 状态0: 移动到杯子前方（杯把位置）
+  - name: "approach_cup_handle"
+    primitive: "move_to_object"
+    params:
+      object_name: "coffeecup_white"
+      offset: [0.1, 0, 0.1]  # 从侧面接近杯把，高度10cm
+    gripper_state: "open"
+    
+  # 状态1: 伸向杯把
+  - name: "move_to_handle"
+    primitive: "move_to_object"
+    params:
+      object_name: "coffeecup_white"
+      offset: [0.05, 0, 0.05]  # 更接近杯把位置
+    gripper_state: "open"
+    
+  # 状态2: 抓住杯把
+  - name: "grasp_handle"
+    primitive: "grasp_object"
+    params:
+      object_name: "coffeecup_white"
+      grasp_type: "pinch"
+      force: 0.4
+    gripper_state: "close"
+    delay: 0.25
+
+  # 状态3: 提起杯子
+  - name: "lift_cup"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.15]  # 提升15cm
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态4: 移动到盘子上方
+  - name: "move_cup_to_plate_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "plate_white"
+      offset: [0.06, 0, 0.13]  # 盘子上方，稍微偏移
+    gripper_state: "close"
+    
+  # 状态5: 调整到盘子上方合适位置
+  - name: "position_cup_above_plate"
+    primitive: "move_to_object"
+    params:
+      object_name: "plate_white"
+      offset: [0.06, 0, 0.08]  # 降低高度
+    gripper_state: "close"
+    
+  # 状态6: 放下杯子到盘子上
+  - name: "place_cup_on_plate"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, -0.02]  # 轻微下降
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态7: 释放杯子
+  - name: "release_cup"
+    primitive: "release_object"
+    params:
+      object_name: "coffeecup_white"
+    gripper_state: "open"
+    
+  # 状态8: 抬起手臂
+  - name: "lift_away_from_cup"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.08]  # 抬高8cm
+      keep_orientation: true
+    gripper_state: "open"
+    
+  # 第二阶段：处理杯盖
+  
+  # 状态9: 移动到杯盖上方
+  - name: "approach_lid_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "cup_lid"
+      offset: [0, 0, 0.1]  # 杯盖上方10cm
+    gripper_state: "open"
+    
+  # 状态10: 下降到杯盖
+  - name: "move_to_lid"
+    primitive: "move_to_object"
+    params:
+      object_name: "cup_lid"
+      offset: [0, 0, 0.045]  # 接近杯盖
+    gripper_state: "open"
+    
+  # 状态11: 抓住杯盖
+  - name: "grasp_lid"
+    primitive: "grasp_object"
+    params:
+      object_name: "cup_lid"
+      grasp_type: "pinch"
+      force: 0.3
+    gripper_state: "close"
+    delay: 0.25
+    
+  # 状态12: 提起杯盖
+  - name: "lift_lid"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.08]  # 提升8cm
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态13: 移动到杯子上方
+  - name: "move_lid_to_cup_above"
+    primitive: "move_to_object"
+    params:
+      object_name: "coffeecup_white"
+      offset: [0, 0, 0.16]  # 杯子上方16cm
+    gripper_state: "close"
+    
+  # 状态14: 下降盖住杯子
+  - name: "cover_cup_with_lid"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, -0.02]  # 轻微下降
+      keep_orientation: true
+    gripper_state: "close"
+    
+  # 状态15: 释放杯盖
+  - name: "release_lid"
+    primitive: "release_object"
+    params:
+      object_name: "cup_lid"
+    gripper_state: "open"
+    
+  # 状态16: 抬起手臂完成任务
+  - name: "lift_away_final"
+    primitive: "move_relative"
+    params:
+      offset: [0, 0, 0.05]  # 抬高5cm
+      keep_orientation: true
+    gripper_state: "open"
+

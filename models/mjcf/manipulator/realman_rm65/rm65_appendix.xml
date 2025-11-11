@@ -1,0 +1,43 @@
+<mujocoinclude>
+
+  <contact>
+    <exclude body1="base_link" body2="link1" />
+    <exclude body1="link1" body2="link2" />
+    <exclude body1="link2" body2="link3" />
+    <exclude body1="link3" body2="link4" />
+    <exclude body1="link4" body2="link5" />
+    <exclude body1="link5" body2="link6" />
+    <exclude body1="camera_base_link" body2="gripper_base_link" />
+    <exclude body1="gripper_base_link" body2="link7" />
+    <exclude body1="link7" body2="link11" />
+    <exclude body1="gripper_base_link" body2="link8" />
+    <exclude body1="gripper_base_link" body2="link9" />
+    <exclude body1="gripper_base_link" body2="link10" />
+    <exclude body1="link8" body2="link11" />
+    <exclude body1="link9" body2="link12" />
+    <exclude body1="link10" body2="link12" />
+    <exclude body1="link6" body2="camera_base_link" />
+    <exclude body1="camera_base_link" body2="camera_link" />
+  </contact>
+
+  <equality>
+    <joint joint1="gripper_joint1" joint2="gripper_joint5" polycoef="0.0  1.0 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+    <joint joint1="gripper_joint1" joint2="gripper_joint2" polycoef="0.0  1.0 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+    <joint joint1="gripper_joint1" joint2="gripper_joint4" polycoef="0.0 -1.0 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+    <joint joint1="gripper_joint4" joint2="gripper_joint3" polycoef="0.0  1.0 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+    <joint joint1="gripper_joint4" joint2="gripper_joint6" polycoef="0.0 -1.0 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+
+    <joint joint1="gripper_left_joint" joint2="gripper_joint1"  polycoef="0.0  0.04 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+    <joint joint1="gripper_right_joint" joint2="gripper_joint4" polycoef="0.0 -0.04 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+
+    <joint joint1="gripper_left_joint" joint2="gripper_right_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1" />
+  </equality>
+
+  <tendon>
+    <fixed name='gripper_gear'>
+      <joint joint='gripper_left_joint' coef='0.5'/>
+      <joint joint='gripper_right_joint' coef='0.5'/>
+    </fixed>
+  </tendon>
+
+</mujocoinclude>

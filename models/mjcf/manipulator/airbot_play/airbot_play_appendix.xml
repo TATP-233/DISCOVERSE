@@ -1,0 +1,18 @@
+<mujocoinclude>
+
+  <contact>
+    <exclude body1='arm_base' body2='link2'/>
+  </contact>
+
+  <tendon>
+    <fixed name='gripper_gear'>
+      <joint joint='endleft'  coef='-0.5'/>
+      <joint joint='endright' coef='0.5'/>
+    </fixed>
+  </tendon>
+
+  <equality>
+    <joint joint1='endleft' joint2='endright' polycoef='0 -1 0 0 0 '/>
+  </equality>
+
+</mujocoinclude>

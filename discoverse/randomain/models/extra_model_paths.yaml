@@ -1,4 +1,0 @@
-comfyui:
-  checkpoints: path_to_models/checkpoints
-  controlnet: path_to_models/controlnet
-  vae: path_to_models//vae

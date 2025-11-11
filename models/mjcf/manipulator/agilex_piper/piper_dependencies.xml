@@ -1,0 +1,77 @@
+<mujocoinclude>
+
+  <default>
+    <default class="piper">
+      <default class="visual">
+        <geom material="visualgeom" contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom material="collision_material" condim="3" contype="0" conaffinity="1" priority="1" group="3" solref="0.005 1" friction="1 0.01 0.01" />
+        <equality solimp="0.99 0.999 1e-05" solref="0.005 1" />
+      </default>
+      <site size="0.001" group="3"/>
+    </default>
+  </default>
+
+  <asset>
+    <material name="camera_link_black_medium_gloss_plastic" rgba="0.101961 0.101961 0.101961 1.000000" />
+    <material name="black" rgba="0.2 0.2 0.2 1" />
+    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <material name="collision_material" rgba="1.0 0.28 0.1 0.9" />
+    <material name="link2_material_0" rgba="0.976471 0.976471 0.976471 1.0" />
+    <material name="link2_material_1" rgba="0.086275 0.086275 0.086275 1.0" />
+    <material name="link2_material_2" rgba="0.811765 0.149020 0.149020 1.0" />
+    <material name="link2_material_3" rgba="0.501961 0.501961 0.501961 1.0" />
+    <material name="link2_material_4" rgba="0.137255 0.137255 0.137255 1.0" />
+    <material name="link2_material_5" rgba="0.584314 0.584314 0.584314 1.0" />
+  </asset>
+
+  <asset>
+    <mesh name="base_link.STL" file="piper/collisions/base_link.STL" />
+    <mesh name="base_link.obj" file="piper/visual/base_link.obj" />
+    <mesh name="link1.STL" file="piper/collisions/link1.STL" />
+    <mesh name="link1.obj" file="piper/visual/link1.obj" />
+    <mesh name="link2.STL" file="piper/collisions/link2.STL" />
+    <mesh name="link3.STL" file="piper/collisions/link3.STL" />
+    <mesh name="link4.STL" file="piper/collisions/link4.STL" />
+    <mesh name="link5.STL" file="piper/collisions/link5.STL" />
+    <mesh name="link6.STL" file="piper/collisions/link6.STL" />
+    <mesh name="link6.obj" file="piper/visual/link6.obj" />
+    <mesh name="camera_link.obj" file="piper/visual/camera_link.obj" />
+    <mesh name="camera.obj" file="piper/visual/camera.obj" />
+    <mesh name="link7.STL" file="piper/collisions/link7.STL" />
+    <mesh name="link7.obj" file="piper/visual/link7.obj" />
+    <mesh name="link8.STL" file="piper/collisions/link8.STL" />
+    <mesh name="link8.obj" file="piper/visual/link8.obj" />
+    <mesh name="link2_0" file="piper/visual/link2/link2_0.obj" />
+    <mesh name="link2_1" file="piper/visual/link2/link2_1.obj" />
+    <mesh name="link2_2" file="piper/visual/link2/link2_2.obj" />
+    <mesh name="link2_3" file="piper/visual/link2/link2_3.obj" />
+    <mesh name="link2_4" file="piper/visual/link2/link2_4.obj" />
+    <mesh name="link2_5" file="piper/visual/link2/link2_5.obj" />
+    <mesh name="link3_0" file="piper/visual/link3/link3_0.obj" />
+    <mesh name="link3_1" file="piper/visual/link3/link3_1.obj" />
+    <mesh name="link3_2" file="piper/visual/link3/link3_2.obj" />
+    <mesh name="link4_0" file="piper/visual/link4/link4_0.obj" />
+    <mesh name="link4_1" file="piper/visual/link4/link4_1.obj" />
+    <mesh name="link5_0" file="piper/visual/link5/link5_0.obj" />
+    <mesh name="link5_1" file="piper/visual/link5/link5_1.obj" />
+    <mesh name="link5_2" file="piper/visual/link5/link5_2.obj" />
+  </asset>
+
+  <equality>
+    <joint joint1="finger_joint1" joint2="finger_joint2" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+  </equality>
+
+  <contact>
+    <exclude body1="base_link" body2="link1" />
+    <exclude body1="link1" body2="link2" />
+    <exclude body1="link2" body2="link3" />
+    <exclude body1="link3" body2="link4" />
+    <exclude body1="link4" body2="link5" />
+    <exclude body1="link5" body2="link6" />
+    <exclude body1="link6" body2="link7" />
+    <exclude body1="link6" body2="link8" />
+  </contact>
+
+</mujocoinclude>

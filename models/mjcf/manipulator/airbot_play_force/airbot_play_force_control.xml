@@ -1,0 +1,9 @@
+<mujocoinclude>
+  <motor name="joint1" joint="joint1" ctrllimited="true" ctrlrange="-10 10"/>
+  <motor name="joint2" joint="joint2" ctrllimited="true" ctrlrange="-10 10"/>
+  <motor name="joint3" joint="joint3" ctrllimited="true" ctrlrange="-10 10"/>
+  <motor name="joint4" joint="joint4" ctrllimited="true" ctrlrange="-5 5"/>
+  <motor name="joint5" joint="joint5" ctrllimited="true" ctrlrange="-5 5"/>
+  <motor name="joint6" joint="joint6" ctrllimited="true" ctrlrange="-5 5"/>
+  <!-- <position name='gripper' tendon='gripper_gear' ctrllimited="true" ctrlrange="0. 1." kp="3" user="1" forcelimited="true" forcerange="-1 1"/> -->
+</mujocoinclude>

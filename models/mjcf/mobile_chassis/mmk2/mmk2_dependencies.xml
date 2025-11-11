@@ -1,0 +1,69 @@
+<mujocoinclude>
+
+  <include file="../airbot_play/airbot_play_dependencies.xml"/>
+
+  <default>
+    <default class='slide_joint'>
+      <joint range='-0.04 0.87' type='slide' axis='0 0 -1' frictionloss="1000" damping="100" actuatorfrcrange="-1600 1000"/>
+      <position ctrlrange='-0.04 0.87' kp='50000'/>
+    </default>
+    <default class='head_yaw_joint'>
+      <joint axis='0 0 1' range='-0.5 0.5'/>
+      <position ctrlrange='-0.5 0.5' kp='1' kv='.1'/>
+    </default>
+    <default class='head_pitch_joint'>
+      <joint axis='0 0 -1' range="-1.18 0.16"/>
+      <position ctrlrange='-1.18 0.16' kp='100' kv='10'/>
+    </default>
+    <default class='wheel'>
+      <joint axis='0 0 -1' damping='0.5' frictionloss='0.1'/>
+      <motor ctrlrange='-35 35' forcerange='-35 35'/>
+    </default>
+  </default>
+
+  <asset>
+    <!-- mmk2 color -->
+    <material name="Paint_Metallic_Cool_Grey__1" specular="0.5" shininess="0.5" rgba="0.928523183 0.928523183 0.928523123 1.0"/>
+    <material name="Paint_Matte_Black__1" specular="0.5" shininess="0.5" rgba="0.00111266039 0.00111266039 0.00111266039 1.0"/>
+    <material name="Clear_Shiny_Plastic_Black__1" specular="0.5" shininess="0.5" rgba="0 0 0 1.0"/>
+    <material name="Copper_Textured__1_1" specular="0.5" shininess="0.5" rgba="0.539052486 0.539052486 0.539052486 1.0"/>
+
+    <!-- chassis -->
+    <mesh name="lft_wheel_link" file="mmk2/lft_wheel_link.STL"/>
+    <mesh name="rgt_wheel_link" file="mmk2/rgt_wheel_link.STL"/>
+    <mesh name="rgt_behind_wheel_link" file="mmk2/rgt_behind_wheel_link.obj"/>
+    <mesh name="lft_behind_wheel_link" file="mmk2/lft_behind_wheel_link.obj"/>
+    <mesh name="rgt_front_wheel_link" file="mmk2/rgt_front_wheel_link.obj"/>
+    <mesh name="lft_front_wheel_link" file="mmk2/lft_front_wheel_link.obj"/>
+
+    <!-- neck -->
+    <mesh file="mmk2/head_yaw_link.STL"/>
+
+    <!-- agv -->
+    <mesh file="mmk2/mmk2_agv_0.obj"/>
+    <mesh file="mmk2/mmk2_agv_1.obj"/>
+    <mesh file="mmk2/mmk2_agv_2.obj"/>
+    <mesh file="mmk2/mmk2_agv_3.obj"/>
+    <mesh file="mmk2/mmk2_agv_4.obj"/>
+
+    <!-- assembly_board -->
+    <mesh file="mmk2/slide_link_white.obj"/>
+    <mesh file="mmk2/slide_link_black.obj"/>
+
+    <!-- lift -->
+    <mesh file="mmk2/mmk2_lift_link_0.obj"/>
+    <mesh file="mmk2/mmk2_lift_link_1.STL"/>
+    <mesh file="mmk2/mmk2_lift_link_2.obj"/>
+
+    <!-- head -->
+    <mesh file="mmk2/mmk2_head_0.obj"/>
+    <mesh file="mmk2/mmk2_head_1.obj"/>
+    <mesh file="mmk2/mmk2_head_2.obj"/>
+
+    <mesh file="mmk2/head_white.obj"/>
+    <mesh file="mmk2/head_black.obj"/>
+    <mesh file="mmk2/head_green.obj"/>
+
+  </asset>
+
+</mujocoinclude>

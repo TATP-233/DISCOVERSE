@@ -1,7 +1,7 @@
 <mujocoinclude>
 
   <inertial pos="0 0 0" mass="0.001" diaginertia="0.00002 0.00002 0.00002" />
-  <geom material="coffeecup_texture" mesh="coffeecup" class="obj_visual"/>
+  <geom material="coffeecup_texture" mesh="coffeecup" type="mesh" contype="0" conaffinity="0"/>
 
   <geom type="mesh" rgba="0.5 0.5 0.5 1" friction = "1.05 0.005 0.0001" mesh="coffeecup_part_0" class="obj_collision"/>
   <geom type="mesh" rgba="0.5 0.5 0.5 1" friction = "1.05 0.005 0.0001" mesh="coffeecup_part_1" class="obj_collision"/>
