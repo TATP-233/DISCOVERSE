@@ -39,15 +39,13 @@ if __name__ == "__main__":
     rays_theta, rays_phi = create_lidar_single_line(360, np.pi*2.)
     rospy.loginfo("rays_phi, rays_theta: {}, {}".format(rays_phi.shape, rays_theta.shape))
 
-    # 定义激光雷达的坐标系ID，用于TF发布
-    lidar_frame_id = "mmk2_lidar_s2"
-
     # 创建MuJoCo激光雷达传感器对象，关联到当前渲染场景
-    lidar_s2 = MjLidarWrapper(exec_node.mj_model, exec_node.mj_data, site_name="laser")
+    lidar_s2 = MjLidarWrapper(exec_node.mj_model, site_name="laser", backend="cpu")
 
     # Warm Start
     # 使用Taichi库进行光线投射计算，获取激光雷达点云数据
-    lidar_s2.get_lidar_points(rays_phi, rays_theta, exec_node.mj_data)
+    lidar_s2.trace_rays(exec_node.mj_data, rays_theta, rays_phi)
+    lidar_s2.get_hit_points()
 
     # 创建ROS发布者，用于将激光雷达数据发布为PointCloud2类型消息
     pub_lidar_s2 = rospy.Publisher('/mmk2/lidar_s2', PointCloud2, queue_size=1)
@@ -83,11 +81,15 @@ if __name__ == "__main__":
         if sim_step_cnt * exec_node.delta_t * lidar_pub_rate > lidar_pub_cnt:
             lidar_pub_cnt += 1
 
-            points = lidar_s2.get_lidar_points(rays_phi, rays_theta, exec_node.mj_data)
-            publish_point_cloud(pub_lidar_s2, points, lidar_frame_id)
+            lidar_s2.trace_rays(exec_node.mj_data, rays_theta, rays_phi)
+            points = lidar_s2.get_hit_points()
+            publish_point_cloud(pub_lidar_s2, points, "laser")
            
-            lidar_orientation = Rotation.from_matrix(lidar_s2.sensor_rotation).as_quat()
-            broadcast_tf(tf_broadcaster, "world", lidar_frame_id, lidar_s2.sensor_position, lidar_orientation)
+            # 获取激光雷达位置和方向
+            lidar_position = exec_node.mj_data.site("laser").xpos
+            lidar_rotation_mat = exec_node.mj_data.site("laser").xmat.reshape(3, 3)
+            lidar_orientation = Rotation.from_matrix(lidar_rotation_mat).as_quat()
+            broadcast_tf(tf_broadcaster, "world", "laser", lidar_position, lidar_orientation)
 
         sim_step_cnt += 1
 
