@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     tmat_handle[:3, 3] = tmat_handle[:3, 3] + 0.1 * tmat_handle[:3, 0]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_handle
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                     move_speed = 1.5
                 elif stm.state_idx == 1: # 伸到把手位置
                     tmat_handle = get_site_tmat(sim_node.mj_data, "drawer_2_handle")
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_handle
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 5: # 松开把手
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 6: # 离开抽屉
                     tmat_handle = get_site_tmat(sim_node.mj_data, "drawer_2_handle")
                     tmat_handle[:3, 3] = tmat_handle[:3, 3] + 0.025 * tmat_handle[:3, 0]

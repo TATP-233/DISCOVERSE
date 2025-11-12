@@ -153,7 +153,7 @@ if __name__ == "__main__":
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.1 * tmat_jujube[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 1: # 伸到枣
                     tmat_jujube = get_body_tmat(sim_node.mj_data, "jujube")
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.027 * tmat_jujube[:3, 2]
@@ -175,7 +175,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.01
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 7: # 松开枣
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 8: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
@@ -184,7 +184,7 @@ if __name__ == "__main__":
                     tmat_coffee[:3, 3] = tmat_coffee[:3, 3] + 0.1 * tmat_coffee[:3, 1] + 0.1 * tmat_coffee[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_coffee
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 10: # 伸到杯把
                     tmat_coffee = get_body_tmat(sim_node.mj_data, "coffeecup_white")
                     tmat_coffee[:3, 3] = tmat_coffee[:3, 3] + 0.06 * tmat_coffee[:3, 1] + 0.05 * tmat_coffee[:3, 2]
@@ -211,7 +211,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 17: # 松开杯把 放下杯子
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 18: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])

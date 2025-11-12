@@ -26,7 +26,7 @@ class SimNode(AirbotPlayTaskBase):
         self.object_pose("kiwi")[:2] += random_bias_xy[:2]
 
         # 随机 碟子位置
-        self.object_pose("plate_white")[:2] += random_bias_xy[:2]
+        # self.object_pose("plate_white")[:2] += random_bias_xy[:2]
 
         # 随机 碗位置
         self.object_pose("flower_bowl")[0] += 2.*(np.random.random() - 0.5) * 0.05
@@ -42,7 +42,6 @@ cfg.gs_model_dict["background"]  = "scene/lab3/point_cloud.ply"
 cfg.gs_model_dict["drawer_1"]    = "hinge/drawer_1.ply"
 cfg.gs_model_dict["drawer_2"]    = "hinge/drawer_2.ply"
 cfg.gs_model_dict["kiwi"]        = "object/kiwi.ply"
-cfg.gs_model_dict["plate_white"] = "object/plate_white.ply"
 cfg.gs_model_dict["flower_bowl"] = "object/flower_bowl.ply"
 cfg.init_qpos[:] = [-0.055, -0.547, 0.905, 1.599, -1.398, -1.599,  0.0]
 
@@ -52,7 +51,7 @@ cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
 env = make_env(robot_name, task_name)
 env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
 
-cfg.obj_list     = ["drawer_1", "drawer_2", "kiwi", "plate_white", "flower_bowl"]
+cfg.obj_list     = ["drawer_1", "drawer_2", "kiwi", "flower_bowl"]
 cfg.timestep     = 1/240
 cfg.decimation   = 4
 cfg.sync         = True
@@ -129,14 +128,14 @@ if __name__ == "__main__":
                     tmat_kiwi[:3, 3] = tmat_kiwi[:3, 3] + 0.1 * tmat_kiwi[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_kiwi
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 1: # 伸到猕猴桃
                     tmat_kiwi = get_body_tmat(sim_node.mj_data, "kiwi")
-                    tmat_kiwi[:3, 3] = tmat_kiwi[:3, 3] + 0.027 * tmat_kiwi[:3, 2]
+                    tmat_kiwi[:3, 3] = tmat_kiwi[:3, 3] + 0.04 * tmat_kiwi[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_kiwi
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 2: # 抓住猕猴桃
-                    sim_node.target_control[6] = 0.5
+                    sim_node.target_control[6] = 0.02
                 elif stm.state_idx == 3: # 抓稳猕猴桃
                     sim_node.delay_cnt = int(0.35/sim_node.delta_t)
                 elif stm.state_idx == 4: # 提起来猕猴桃
@@ -151,7 +150,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 7: # 松开猕猴桃
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 8: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])

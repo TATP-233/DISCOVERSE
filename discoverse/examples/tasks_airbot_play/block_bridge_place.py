@@ -181,7 +181,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 1:  # 伸到长方体上方
                     tmat_block1 = get_body_tmat(sim_node.mj_data, "block1_green")
                     tmat_block1[:3, 3] = tmat_block1[:3, 3] + np.array([0, 0, 0.12])
@@ -189,7 +189,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 3:  # 伸到长方体
                     tmat_block1 = get_body_tmat(sim_node.mj_data, "block1_green")
                     tmat_block1[:3, 3] = tmat_block1[:3, 3] + np.array([0, 0, 0.04])
@@ -221,7 +221,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 9:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 10:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.06
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -237,7 +237,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 12:  # 伸到长方体上方
                     tmat_block2 = get_body_tmat(sim_node.mj_data, "block2_green")
                     tmat_block2[:3, 3] = tmat_block2[:3, 3] + np.array([0, 0, 0.12])
@@ -245,7 +245,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 14:  # 伸到长方体
                     tmat_block2 = get_body_tmat(sim_node.mj_data, "block2_green")
                     tmat_block2[:3, 3] = tmat_block2[:3, 3] + np.array([0, 0, 0.04])
@@ -277,7 +277,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 20:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 21:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.06
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -295,7 +295,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 23:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple1")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -327,7 +327,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 29:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 30:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -342,7 +342,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 32:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple2")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -374,7 +374,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 38:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 39:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -389,7 +389,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 41:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple3")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -421,7 +421,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 50:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 51:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -436,7 +436,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 53:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple4")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -468,7 +468,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 59:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 60:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -483,7 +483,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 62:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple5")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -515,7 +515,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 68:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 69:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(
@@ -530,7 +530,7 @@ if __name__ == "__main__":
                     sim_node.target_control[:6] = arm_ik.properIK(
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 71:  # 伸到立方体
                     tmat_block = get_body_tmat(sim_node.mj_data, "block_purple6")
                     tmat_block[:3, 3] = tmat_block[:3, 3] + np.array([0, 0, 0.03])
@@ -562,7 +562,7 @@ if __name__ == "__main__":
                         tmat_tgt_local[:3, 3], trmat, sim_node.mj_data.qpos[:6]
                     )
                 elif stm.state_idx == 77:  # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 78:  # 抬升高度
                     tmat_tgt_local[2, 3] += 0.02
                     sim_node.target_control[:6] = arm_ik.properIK(

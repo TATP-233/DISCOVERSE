@@ -131,7 +131,7 @@ if __name__ == "__main__":
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.1 * tmat_jujube[:3, 2]
                     tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 1: # 伸到方块
                     tmat_jujube = get_body_tmat(sim_node.mj_data, "block_green")
                     tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.028 * tmat_jujube[:3, 2]
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                     tmat_tgt_local[2,3] -= 0.04
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
                 elif stm.state_idx == 7: # 松开方块
-                    sim_node.target_control[6] = 1
+                    sim_node.target_control[6] = 0.04
                 elif stm.state_idx == 8: # 抬升高度
                     tmat_tgt_local[2,3] += 0.05
                     sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
