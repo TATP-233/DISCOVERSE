@@ -1,7 +1,7 @@
 <mujoco model="mmk2">
 
-  <include file="mmk2/mmk2_options.xml"/>
-  <include file="mmk2/mmk2_dependencies.xml"/>
+  <include file="mobile_chassis/mmk2/mmk2_options.xml"/>
+  <include file="mobile_chassis/mmk2/mmk2_dependencies.xml"/>
 
   <visual>
     <global offwidth="1920" offheight="1080"/>
@@ -22,7 +22,7 @@
     <geom name='floor' type='plane' size='10 10 0.01' material='groundplane' pos='0 0 0'/>
     <body name='mmk2' pos="0 0 0">
       <joint type="free" frictionloss="0.0001" />
-      <include file="mmk2/mmk2.xml"/>
+      <include file="mobile_chassis/mmk2/mmk2.xml"/>
     </body>
 
     <geom type="plane" size="1 5 0.1" pos="4 1 1" euler="0 -1.5708 0" rgba="0.9 0.9 0.9 1"/>
@@ -59,11 +59,11 @@
   </worldbody>
 
   <actuator>
-    <include file="mmk2/mmk2_control.xml"/>
+    <include file="mobile_chassis/mmk2/mmk2_control.xml"/>
   </actuator>
 
   <sensor>
-    <include file="mmk2/mmk2_sensor.xml"/>
+    <include file="mobile_chassis/mmk2/mmk2_sensor.xml"/>
   </sensor>
 
   <keyframe>

@@ -1,4 +1,13 @@
 <mujocoinclude>
+  <default>
+    <default class="obj_visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="obj_collision">
+      <geom group="3" condim="3" solimp="0.99 0.995 0.01" solref="0.005 1" friction="1 0.005 0.0001" type="mesh"/>
+    </default>
+  </default>
+
   <asset>
     <texture name="grid" type="2d" builtin="checker" rgb1=".9 .8 .7" rgb2=".4 .4 .4" width="300" height="300" mark="edge" markrgb=".2 .3 .4"/>
     <material name="grid" texture="grid" texrepeat="2 2" texuniform="true" reflectance=".2"/>

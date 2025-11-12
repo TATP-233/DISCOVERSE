@@ -1,6 +1,6 @@
 <mujocoinclude>
 
-  <include file="../airbot_play/airbot_play_dependencies.xml"/>
+  <include file="../../manipulator/airbot_play/airbot_play_dependencies.xml"/>
 
   <default>
     <default class='slide_joint'>

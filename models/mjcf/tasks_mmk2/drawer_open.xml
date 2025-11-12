@@ -1,15 +1,15 @@
 <mujoco model="plate_coffecup_mmk2">
 
   <include file="../scene.xml"/>
-  <include file="../mmk2/mmk2_options.xml"/>
-  <include file="../mmk2/mmk2_dependencies.xml"/>
+  <include file="../mobile_chassis/mmk2/mmk2_options.xml"/>
+  <include file="../mobile_chassis/mmk2/mmk2_dependencies.xml"/>
 
   <compiler angle="radian" meshdir="../../meshes/" texturedir="../../meshes/"/>
 
   <worldbody>
     <body name='mmk2' pos="0 0 0">
       <joint type="free" frictionloss="0.0001" />
-      <include file="../mmk2/mmk2.xml"/>
+      <include file="../mobile_chassis/mmk2/mmk2.xml"/>
     </body>
 
     <body name="toy_cabinet" pos="0.8 0 0.78">
@@ -28,11 +28,11 @@
   </worldbody>
 
   <actuator>
-    <include file="../mmk2/mmk2_control.xml"/>
+    <include file="../mobile_chassis/mmk2/mmk2_control.xml"/>
   </actuator>
 
   <sensor>
-    <include file="../mmk2/mmk2_sensor.xml"/>
+    <include file="../mobile_chassis/mmk2/mmk2_sensor.xml"/>
   </sensor>
 
 </mujoco>
