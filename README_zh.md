@@ -139,9 +139,9 @@ sudo systemctl restart docker
     git clone https://github.com/TATP-233/DISCOVERSE.git
     cd DISCOVERSE
     python scripts/setup_submodules.py --module gaussian-rendering
-    docker build -f docker/Dockerfile -t discoverse:latest .
+    docker build -f discoverse/docker/Dockerfile -t discoverse:latest .
     ```
-    `Dockerfile.vnc`是支持 VNC 远程访问的配置版本。它在`docker/Dockerfile`的基础上添加了 VNC 服务器支持，允许你通过 VNC 客户端远程访问容器的图形界面。这对于远程开发或在没有本地显示服务器的环境中特别有用。如果需要，将`docker build -f docker/Dockerfile -t discoverse:latest .`改为`docker build -f docker/Dockerfile.vnc -t discoverse:latest .`
+    `Dockerfile.vnc`是支持 VNC 远程访问的配置版本。它在`discoverse/docker/Dockerfile`的基础上添加了 VNC 服务器支持，允许你通过 VNC 客户端远程访问容器的图形界面。这对于远程开发或在没有本地显示服务器的环境中特别有用。如果需要，将`docker build -f discoverse/docker/Dockerfile -t discoverse:latest .`改为`docker build -f discoverse/docker/Dockerfile.vnc -t discoverse:latest .`
 
 
 #### 3. 创建Docker容器
@@ -259,9 +259,9 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 DISCOVERSE提供数据收集、训练和推理的完整工作流：
 
-1. **数据收集**：[指南](./doc/imitation_learning/data.md)
-2. **模型训练**：[指南](./doc/imitation_learning/training.md) 
-3. **策略推理**：[指南](./doc/imitation_learning/inference.md)
+1. **数据收集**：[指南](./discoverse/doc/imitation_learning/data.md)
+2. **模型训练**：[指南](./discoverse/doc/imitation_learning/training.md) 
+3. **策略推理**：[指南](./discoverse/doc/imitation_learning/inference.md)
 
 ### 支持的算法
 - **ACT**
@@ -279,7 +279,7 @@ DISCOVERSE提供数据收集、训练和推理的完整工作流：
 
 ## ❔ 故障排除
 
-有关安装和运行时问题，请参考我们详细的**[故障排除指南](doc/troubleshooting.md)**。
+有关安装和运行时问题，请参考我们详细的**[故障排除指南](discoverse/doc/troubleshooting.md)**。
 
 ## ⚖️ 许可证
 

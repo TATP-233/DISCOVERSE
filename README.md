@@ -141,9 +141,9 @@ sudo systemctl restart docker
     git clone https://github.com/TATP-233/DISCOVERSE.git
     cd DISCOVERSE
     python scripts/setup_submodules.py --module gaussian-rendering
-    docker build -f docker/Dockerfile -t discoverse:latest .
+    docker build -f discoverse/docker/Dockerfile -t discoverse:latest .
     ```
-    `Dockerfile.vnc` is a configuration version that supports VNC remote access. It adds VNC server support on top of `docker/Dockerfile`, allowing you to remotely access the container's graphical interface through a VNC client. This is particularly useful for remote development or environments without a local display server. If needed, change `docker build -f docker/Dockerfile -t discoverse:latest .` to `docker build -f docker/Dockerfile.vnc -t discoverse:latest .`
+    `Dockerfile.vnc` is a configuration version that supports VNC remote access. It adds VNC server support on top of `discoverse/docker/Dockerfile`, allowing you to remotely access the container's graphical interface through a VNC client. This is particularly useful for remote development or environments without a local display server. If needed, change `docker build -f discoverse/docker/Dockerfile -t discoverse:latest .` to `docker build -f discoverse/docker/Dockerfile.vnc -t discoverse:latest .`
 
 ### 3. Create Docker Container
 
@@ -260,9 +260,9 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 DISCOVERSE provides complete workflows for data collection, training, and inference:
 
-1. **Data Collection**: [Guide](./doc/imitation_learning/data.md)
-2. **Model Training**: [Guide](./doc/imitation_learning/training.md) 
-3. **Policy Inference**: [Guide](./doc/imitation_learning/inference.md)
+1. **Data Collection**: [Guide](./discoverse/doc/imitation_learning/data.md)
+2. **Model Training**: [Guide](./discoverse/doc/imitation_learning/training.md) 
+3. **Policy Inference**: [Guide](./discoverse/doc/imitation_learning/inference.md)
 
 ### Supported Algorithms
 - **ACT**
@@ -280,7 +280,7 @@ DISCOVERSE provides complete workflows for data collection, training, and infere
 
 ## ❔ Troubleshooting
 
-For installation and runtime issues, please refer to our comprehensive **[Troubleshooting Guide](doc/troubleshooting.md)**.
+For installation and runtime issues, please refer to our comprehensive **[Troubleshooting Guide](discoverse/doc/troubleshooting.md)**.
 
 ## ⚖️ License
 
