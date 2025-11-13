@@ -98,7 +98,13 @@ class SimulatorBase:
 
             self.config.use_gaussian_renderer = self.config.use_gaussian_renderer and DISCOVERSE_GAUSSIAN_RENDERER
             if self.config.use_gaussian_renderer:
-                self.gs_renderer = GSRenderer(self.config.gs_model_dict, self.config.render_set["width"], self.config.render_set["height"])
+                self.gs_renderer = GSRenderer(
+                    self.config.gs_model_dict, 
+                    self.config.render_set["width"], 
+                    self.config.render_set["height"],
+                    hf_repo_id=getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models'),
+                    local_dir=getattr(self.config, 'hf_local_dir', None)
+                )
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
                 if self.cam_id == -1:

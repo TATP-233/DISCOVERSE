@@ -10,9 +10,21 @@ from discoverse.gaussian_renderer.renderer_cuda import CUDARenderer
 from discoverse import DISCOVERSE_ASSETS_DIR
 
 class GSRenderer:
-    def __init__(self, models_dict:dict, render_width=1920, render_height=1080):
+    def __init__(self, models_dict:dict, render_width=1920, render_height=1080, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+        """
+        初始化高斯飞溅渲染器
+        
+        Args:
+            models_dict: 模型字典，键为模型名称，值为模型路径
+            render_width: 渲染宽度
+            render_height: 渲染高度
+            hf_repo_id: Hugging Face仓库ID，用于下载模型
+            local_dir: 下载目标目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
+        """
         self.width = render_width
         self.height = render_height
+        self.hf_repo_id = hf_repo_id
+        self.local_dir = local_dir
 
         self.camera = util_gau.Camera(self.height, self.width)
 
@@ -33,10 +45,14 @@ class GSRenderer:
 
         bg_key = "background"
         data_path = Path(os.path.join(gs_model_dir, models_dict[bg_key]))
-        gs = util_gau.load_ply(data_path)
+        gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
         if "background_env" in models_dict.keys():
             bgenv_key = "background_env"
-            bgenv_gs = util_gau.load_ply(Path(os.path.join(gs_model_dir, models_dict[bgenv_key])))
+            bgenv_gs = util_gau.load_ply(
+                Path(os.path.join(gs_model_dir, models_dict[bgenv_key])),
+                hf_repo_id=self.hf_repo_id,
+                local_dir=self.local_dir
+            )
             gs.xyz = np.concatenate([gs.xyz, bgenv_gs.xyz], axis=0)
             gs.rot = np.concatenate([gs.rot, bgenv_gs.rot], axis=0)
             gs.scale = np.concatenate([gs.scale, bgenv_gs.scale], axis=0)
@@ -51,7 +67,7 @@ class GSRenderer:
         for i, (k, v) in enumerate(models_dict.items()):
             if k != "background" and k != "background_env":
                 data_path = Path(os.path.join(gs_model_dir, v))
-                gs = util_gau.load_ply(data_path)
+                gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
                 self.gaussians_all[k] = gs
                 self.gaussians_idx[k] = idx_sum
                 self.gaussians_size[k] = gs.xyz.shape[0]

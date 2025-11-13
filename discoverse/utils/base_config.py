@@ -18,3 +18,6 @@ class BaseConfig:
     use_gaussian_renderer = False
     enable_render = True
     max_render_depth = 5.0
+    # Hugging Face 配置
+    hf_repo_id = "tatp/DISCOVERSE-models"  # 默认HF仓库ID
+    hf_local_dir = None  # 下载目标目录，None表示使用默认目录(DISCOVERSE_ASSETS_DIR/3dgs)

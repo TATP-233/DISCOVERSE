@@ -2,6 +2,8 @@ import numpy as np
 from plyfile import PlyData
 import torch
 import glm
+import os
+from pathlib import Path
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
 
@@ -117,7 +119,131 @@ def gamma_shs(shs, gamma):
     new_shs = ((np.clip(shs * C0 + 0.5, 0.0, 1.0) ** gamma) - 0.5) / C0
     return new_shs
 
-def load_ply(path, gamma=1):
+def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+    """
+    从Hugging Face下载3DGS模型文件到本地models目录
+    
+    Args:
+        model_path: 模型的相对路径（例如: "scene/lab3/point_cloud.ply"）
+        hf_repo_id: Hugging Face仓库ID
+        local_dir: 本地目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
+    
+    Returns:
+        str: 下载后的文件本地路径
+    """
+    try:
+        from huggingface_hub import hf_hub_download
+        from discoverse import DISCOVERSE_ASSETS_DIR
+        
+        print(f"正在从Hugging Face下载模型: {model_path}")
+        
+        # 确定本地目录
+        if local_dir is None:
+            local_dir = os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs")
+        
+        # 确保本地目录存在
+        os.makedirs(local_dir, exist_ok=True)
+        
+        # 构建完整的HF文件路径（3dgs/相对路径）
+        hf_file_path = f"3dgs/{model_path}"
+        
+        # 构建本地文件的完整路径
+        local_file_path = os.path.join(local_dir, model_path)
+        local_file_dir = os.path.dirname(local_file_path)
+        
+        # 确保本地文件的目录存在
+        os.makedirs(local_file_dir, exist_ok=True)
+        
+        # 下载文件（直接下载到目标位置，不使用HF缓存）
+        downloaded_path = hf_hub_download(
+            repo_id=hf_repo_id,
+            filename=hf_file_path,
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,  # 不使用符号链接，直接复制文件
+            repo_type="model"
+        )
+        
+        # 由于hf_hub_download会在local_dir下创建完整的仓库结构
+        # 我们需要将文件移动到正确的位置
+        if downloaded_path != local_file_path and os.path.exists(downloaded_path):
+            # 检查下载的文件是否在预期位置
+            expected_hf_path = os.path.join(local_dir, hf_file_path)
+            if os.path.exists(expected_hf_path) and expected_hf_path != local_file_path:
+                # 移动文件到正确位置
+                import shutil
+                shutil.move(expected_hf_path, local_file_path)
+                print(f"文件已移动到: {local_file_path}")
+                
+                # 清理可能创建的3dgs目录
+                hf_3dgs_dir = os.path.join(local_dir, "3dgs")
+                if os.path.exists(hf_3dgs_dir) and os.path.isdir(hf_3dgs_dir):
+                    try:
+                        # 只有当目录为空或只包含我们刚移动的文件时才删除
+                        if not os.listdir(hf_3dgs_dir) or all(
+                            not os.path.exists(os.path.join(hf_3dgs_dir, f)) 
+                            for f in os.listdir(hf_3dgs_dir)
+                        ):
+                            shutil.rmtree(hf_3dgs_dir)
+                    except:
+                        pass
+            else:
+                local_file_path = downloaded_path
+        
+        print(f"模型下载成功: {local_file_path}")
+        return local_file_path
+        
+    except ImportError:
+        print("错误: 需要安装 huggingface_hub 库")
+        print("请运行: pip install huggingface_hub")
+        raise
+    except Exception as e:
+        print(f"从Hugging Face下载模型失败: {e}")
+        raise
+
+def load_ply(path, gamma=1, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+    """
+    加载PLY格式的3DGS模型，支持从本地或Hugging Face下载
+    
+    Args:
+        path: 模型文件路径（本地路径或相对路径）
+        gamma: gamma校正值
+        hf_repo_id: Hugging Face仓库ID，当本地文件不存在时使用
+        local_dir: 下载目标目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
+    
+    Returns:
+        GaussianData: 加载的高斯数据
+    """
+    # 转换为Path对象
+    path = Path(path)
+    
+    # 检查本地文件是否存在
+    if not path.exists():
+        print(f"本地未找到模型文件: {path}")
+        
+        # 尝试从Hugging Face下载
+        # 获取相对路径（假设路径格式为: .../3dgs/model_name/scene.ply）
+        try:
+            # 尝试提取相对路径
+            path_parts = path.parts
+            if "3dgs" in path_parts:
+                idx = path_parts.index("3dgs")
+                relative_path = "/".join(path_parts[idx+1:])
+            else:
+                # 如果路径中没有3dgs，使用文件名
+                relative_path = path.name
+            
+            print(f"尝试使用相对路径从HF下载: {relative_path}")
+            downloaded_path = download_from_huggingface(
+                relative_path, 
+                hf_repo_id=hf_repo_id,
+                local_dir=local_dir
+            )
+            path = Path(downloaded_path)
+            
+        except Exception as e:
+            print(f"从Hugging Face下载失败: {e}")
+            raise FileNotFoundError(f"本地和远程都未找到模型文件: {path}")
+    
     max_sh_degree = 0
     plydata = PlyData.read(path)
 
