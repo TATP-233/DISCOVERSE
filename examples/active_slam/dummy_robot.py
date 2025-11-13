@@ -158,18 +158,7 @@ if __name__ == "__main__":
     cfg.mjcf_file_path = "mjcf/dummy_robot.xml"
 
     cfg.use_gaussian_renderer = True
-    # cfg.gs_model_dict["background"] = "scene/Air11F/air_11f.ply"
-    # cfg.gs_model_dict["background"] = "scene/kitti/nnn_clip_trans.ply"
-    # cfg.gs_model_dict["background"] = "scene/kitti/kitti_clip.ply"
-
-    # cfg.gs_model_dict["background"] = "scene/kitti/qz_table_2dg.ply"
-    # cfg.gs_model_dict["background"] = "scene/kitti/qz_only_table_2dgs.ply"
-    # cfg.gs_model_dict["background"] = "scene/kitti/qz_table_2dg_full.ply"
-
-    # cfg.gs_model_dict["background"] = "scene/kitti/room_2dgs_sparse.ply"
-    # cfg.gs_model_dict["background"] = "scene/kitti/room_3dgs_sparse.ply"
-
-    # cfg.gs_model_dict["background"] = "scene/kitti/room_3dgs_dense.ply"
+    cfg.gs_model_dict["background"] = "scene/Air11F/air_11f.ply"
 
     robot = DummyRobot(cfg)
     robot.cam_id = dummy_robot_cam_id

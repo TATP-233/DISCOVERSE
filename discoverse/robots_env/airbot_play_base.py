@@ -22,15 +22,15 @@ class AirbotPlayCfg(BaseConfig):
     obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict = {
-        "arm_base"  : "airbot_play/arm_base.ply",
-        "link1"     : "airbot_play/link1.ply",
-        "link2"     : "airbot_play/link2.ply",
-        "link3"     : "airbot_play/link3.ply",
-        "link4"     : "airbot_play/link4.ply",
-        "link5"     : "airbot_play/link5.ply",
-        "link6"     : "airbot_play/link6.ply",
-        "left"      : "airbot_play/left.ply",
-        "right"     : "airbot_play/right.ply",
+        "arm_base"  : "manipulator/airbot_play/arm_base.ply",
+        "link1"     : "manipulator/airbot_play/link1.ply",
+        "link2"     : "manipulator/airbot_play/link2.ply",
+        "link3"     : "manipulator/airbot_play/link3.ply",
+        "link4"     : "manipulator/airbot_play/link4.ply",
+        "link5"     : "manipulator/airbot_play/link5.ply",
+        "link6"     : "manipulator/airbot_play/link6.ply",
+        "left"      : "manipulator/airbot_play/left.ply",
+        "right"     : "manipulator/airbot_play/right.ply",
     }
 
 class AirbotPlayBase(SimulatorBase):

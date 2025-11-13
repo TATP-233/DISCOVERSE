@@ -40,30 +40,30 @@ class MMK2Cfg(BaseConfig):
     obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict  = {
-        "agv_link"              :   "mmk2/agv_link.ply",
-        "slide_link"            :   "mmk2/slide_link.ply",
-        "head_pitch_link"       :   "mmk2/head_pitch_link.ply",
-        "head_yaw_link"         :   "mmk2/head_yaw_link.ply",
+        "agv_link"              :   "mobile_chassis/mmk2/agv_link.ply",
+        "slide_link"            :   "mobile_chassis/mmk2/slide_link.ply",
+        "head_pitch_link"       :   "mobile_chassis/mmk2/head_pitch_link.ply",
+        "head_yaw_link"         :   "mobile_chassis/mmk2/head_yaw_link.ply",
 
-        "lft_arm_base"          :   "airbot_play/arm_base.ply",
-        "lft_arm_link1"         :   "airbot_play/link1.ply",
-        "lft_arm_link2"         :   "airbot_play/link2.ply",
-        "lft_arm_link3"         :   "airbot_play/link3.ply",
-        "lft_arm_link4"         :   "airbot_play/link4.ply",
-        "lft_arm_link5"         :   "airbot_play/link5.ply",
-        "lft_arm_link6"         :   "airbot_play/link6.ply",
-        "lft_finger_left_link"  :   "airbot_play/left.ply",
-        "lft_finger_right_link" :   "airbot_play/right.ply",
+        "lft_arm_base"          :   "manipulator/airbot_play/arm_base.ply",
+        "lft_arm_link1"         :   "manipulator/airbot_play/link1.ply",
+        "lft_arm_link2"         :   "manipulator/airbot_play/link2.ply",
+        "lft_arm_link3"         :   "manipulator/airbot_play/link3.ply",
+        "lft_arm_link4"         :   "manipulator/airbot_play/link4.ply",
+        "lft_arm_link5"         :   "manipulator/airbot_play/link5.ply",
+        "lft_arm_link6"         :   "manipulator/airbot_play/link6.ply",
+        "lft_finger_left_link"  :   "manipulator/airbot_play/left.ply",
+        "lft_finger_right_link" :   "manipulator/airbot_play/right.ply",
 
-        "rgt_arm_base"          :   "airbot_play/arm_base.ply",
-        "rgt_arm_link1"         :   "airbot_play/link1.ply",
-        "rgt_arm_link2"         :   "airbot_play/link2.ply",
-        "rgt_arm_link3"         :   "airbot_play/link3.ply",
-        "rgt_arm_link4"         :   "airbot_play/link4.ply",
-        "rgt_arm_link5"         :   "airbot_play/link5.ply",
-        "rgt_arm_link6"         :   "airbot_play/link6.ply",
-        "rgt_finger_left_link"  :   "airbot_play/left.ply",
-        "rgt_finger_right_link" :   "airbot_play/right.ply"
+        "rgt_arm_base"          :   "manipulator/airbot_play/arm_base.ply",
+        "rgt_arm_link1"         :   "manipulator/airbot_play/link1.ply",
+        "rgt_arm_link2"         :   "manipulator/airbot_play/link2.ply",
+        "rgt_arm_link3"         :   "manipulator/airbot_play/link3.ply",
+        "rgt_arm_link4"         :   "manipulator/airbot_play/link4.ply",
+        "rgt_arm_link5"         :   "manipulator/airbot_play/link5.ply",
+        "rgt_arm_link6"         :   "manipulator/airbot_play/link6.ply",
+        "rgt_finger_left_link"  :   "manipulator/airbot_play/left.ply",
+        "rgt_finger_right_link" :   "manipulator/airbot_play/right.ply"
     }
     
 class MMK2Base(SimulatorBase):

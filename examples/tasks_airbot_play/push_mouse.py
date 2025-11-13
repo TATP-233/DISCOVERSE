@@ -5,25 +5,29 @@ from scipy.spatial.transform import Rotation
 import os
 import argparse
 import multiprocessing as mp
+import traceback
 
 import discoverse
 from discoverse.envs import make_env
 from discoverse.robots import AirbotPlayIK
 from discoverse import DISCOVERSE_ROOT_DIR, DISCOVERSE_ASSETS_DIR
 from discoverse.robots_env.airbot_play_base import AirbotPlayCfg
-from discoverse.utils import get_body_tmat, get_site_tmat, step_func, SimpleStateMachine
+from discoverse.utils import get_body_tmat, step_func, SimpleStateMachine
 from discoverse.task_base import AirbotPlayTaskBase, recoder_airbot_play, batch_encode_videos, copypy2
 from discoverse.task_base.airbot_task_base import PyavImageEncoder
-
 
 class SimNode(AirbotPlayTaskBase):
     def __init__(self, config: AirbotPlayCfg):
         super().__init__(config)
+        self.mouse_pad_ori_pos = self.mj_model.body("mouse_pad").pos.copy()
         self.camera_0_pose = (self.mj_model.camera("eye_side").pos.copy(), self.mj_model.camera("eye_side").quat.copy())
 
     def domain_randomization(self):
-        # 随机 枣位置
-        self.object_pose("jujube")[:2] += 2.*(np.random.random(2) - 0.5) * np.array([0.1, 0.05])
+        # 随机 鼠标垫位置
+        self.mj_model.body("mouse_pad").pos[:2] = self.mouse_pad_ori_pos[:2] + 2.*(np.random.random(2) - 0.5) * np.array([0.05, 0.025])
+
+        # 随机 鼠标位置
+        self.object_pose("mouse")[:2] += 2.*(np.random.random(2) - 0.5) * np.array([0.03, 0.02])
 
         # 随机 eye side 视角
         # camera = self.mj_model.camera("eye_side")
@@ -32,24 +36,26 @@ class SimNode(AirbotPlayTaskBase):
         # camera.quat[:] = Rotation.from_euler("xyz", euler, degrees=False).as_quat()[[3,0,1,2]]
 
     def check_success(self):
-        tmat_jujube = get_body_tmat(self.mj_data, "jujube")
-        tmat_gripper = get_site_tmat(self.mj_data, "endpoint")
-        return (np.linalg.norm(tmat_jujube[:3, 3] - tmat_gripper[:3, 3]) < 0.03)
+        tmat_mouse = get_body_tmat(self.mj_data, "mouse")
+        tmat_mouse_pad = get_body_tmat(self.mj_data, "mouse_pad")
+        dist = tmat_mouse[:3,3] - tmat_mouse_pad[:3,3]
+        return (np.hypot(dist[0], dist[1]) < 0.04)
 
 cfg = AirbotPlayCfg()
-cfg.gs_model_dict["background"] = "scene/lab3/point_cloud.ply"
+cfg.gs_model_dict["background"] = "scene/lab3/point_cloud_down.ply" # "scene/lab3/point_cloud_down.ply"基础上向下移动0.01m
 cfg.gs_model_dict["drawer_1"]   = "hinge/drawer_1.ply"
 cfg.gs_model_dict["drawer_2"]   = "hinge/drawer_2.ply"
-cfg.gs_model_dict["jujube"]     = "object/jujube.ply"
+cfg.gs_model_dict["mouse"]      = "object/mouse.ply"
+cfg.gs_model_dict["mouse_pad"]      = "object/mouse_pad.ply"
 cfg.init_qpos[:] = [-0.055, -0.547, 0.905, 1.599, -1.398, -1.599,  0.0]
 
-task_name = "pick_jujube"
 robot_name = "airbot_play"
+task_name = "push_mouse"
 cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
 env = make_env(robot_name, task_name)
 env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
 
-cfg.obj_list     = ["drawer_1", "drawer_2", "jujube"]
+cfg.obj_list     = ["drawer_1", "drawer_2", "mouse", "mouse_pad"]
 cfg.timestep     = 1/240
 cfg.decimation   = 4
 cfg.sync         = True
@@ -63,7 +69,7 @@ cfg.obs_rgb_cam_id = [0, 1]
 cfg.save_mjb_and_task_config = True
 
 if __name__ == "__main__":
-    print(f"Welcome to discoverse {discoverse.__version__} !")
+
     print(discoverse.__logo__)
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 
@@ -88,19 +94,18 @@ if __name__ == "__main__":
     if hasattr(cfg, "save_mjb_and_task_config") and cfg.save_mjb_and_task_config and data_idx == 0:
         mujoco.mj_saveModel(sim_node.mj_model, os.path.join(save_dir, os.path.basename(cfg.mjcf_file_path).replace(".xml", ".mjb")))
         copypy2(os.path.abspath(__file__), os.path.join(save_dir, os.path.basename(__file__)))
-        
+
     arm_ik = AirbotPlayIK()
 
-    trmat = Rotation.from_euler("xyz", [0., np.pi/2, 0.], degrees=False).as_matrix()
+    trmat_05 = Rotation.from_euler("xyz", [0., 1.4, 0.], degrees=False).as_matrix()
+    trmat_5 = Rotation.from_euler("xyz", [0., 1.3, 0.], degrees=False).as_matrix()
     tmat_armbase_2_world = np.linalg.inv(get_body_tmat(sim_node.mj_data, "arm_base"))
 
     stm = SimpleStateMachine()
-    stm.max_state_cnt = 5
-    max_time = 10.0 #s
+    stm.max_state_cnt = 8
+    max_time = 15.0 #s
 
     action = np.zeros(7)
-    act_lst, obs_lst = [], []
-
     move_speed = 0.75
     sim_node.reset()
     while sim_node.running:
@@ -114,24 +119,35 @@ if __name__ == "__main__":
             encoders = {cam_id: PyavImageEncoder(cfg.render_set["width"], cfg.render_set["height"], save_path, cam_id) for cam_id in cfg.obs_rgb_cam_id}
         try:
             if stm.trigger():
-                if stm.state_idx == 0: # 伸到枣上方
-                    tmat_jujube = get_body_tmat(sim_node.mj_data, "jujube")
-                    tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.1 * tmat_jujube[:3, 2]
-                    tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
-                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                    sim_node.target_control[6] = 0.04
-                elif stm.state_idx == 1: # 伸到枣
-                    tmat_jujube = get_body_tmat(sim_node.mj_data, "jujube")
-                    tmat_jujube[:3, 3] = tmat_jujube[:3, 3] + 0.027 * tmat_jujube[:3, 2]
-                    tmat_tgt_local = tmat_armbase_2_world @ tmat_jujube
-                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
-                elif stm.state_idx == 2: # 抓住枣
-                    sim_node.target_control[6] = 0.
-                elif stm.state_idx == 3: # 抓稳枣
-                    sim_node.delay_cnt = int(0.35/sim_node.delta_t)
-                elif stm.state_idx == 4: # 提起来枣
-                    tmat_tgt_local[2,3] += 0.07
-                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat, sim_node.mj_data.qpos[:6])
+                if stm.state_idx == 0: # 伸到鼠标后上方
+                    tmat_mouse = get_body_tmat(sim_node.mj_data, "mouse")
+                    tmat_tgt_local = tmat_armbase_2_world @ tmat_mouse
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([-0.065, 0.0, 0.07])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                    sim_node.target_control[6] = 0.5
+                elif stm.state_idx == 1: # 靠近鼠标
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.02, 0.0, -0.035])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 2: # 往前推鼠标
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.03, 0.0, 0.0])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 3: # 往前推鼠标
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.03, 0.0, 0.0])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 4: # 往前推鼠标
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.03, 0.0, 0.0])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 5: # 往前推鼠标
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.03, 0.0, 0.0])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_05, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 6: # 往前推鼠标
+                    tmat_mouse_pad = get_body_tmat(sim_node.mj_data, "mouse_pad")
+                    tmat_tgt_local = tmat_armbase_2_world @ tmat_mouse_pad
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([-0.03, 0.0, 0.035])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_5, sim_node.mj_data.qpos[:6])
+                elif stm.state_idx == 7: # 抬起夹爪
+                    tmat_tgt_local[:3, 3] = tmat_tgt_local[:3, 3] + np.array([0.0, 0.0, 0.05])
+                    sim_node.target_control[:6] = arm_ik.properIK(tmat_tgt_local[:3,3], trmat_5, sim_node.mj_data.qpos[:6])
 
                 dif = np.abs(action - sim_node.target_control)
                 sim_node.joint_move_ratio = dif / (np.max(dif) + 1e-6)
@@ -146,8 +162,9 @@ if __name__ == "__main__":
                 stm.next()
 
         except ValueError as ve:
-            # traceback.print_exc()
+            traceback.print_exc()
             sim_node.reset()
+            act_lst, obs_lst = [], []
 
         for i in range(sim_node.nj-1):
             action[i] = step_func(action[i], sim_node.target_control[i], move_speed * sim_node.joint_move_ratio[i] * sim_node.delta_t)
@@ -155,11 +172,11 @@ if __name__ == "__main__":
 
         obs, _, _, _, _ = sim_node.step(action)
         if len(obs_lst) < sim_node.mj_data.time * cfg.render_set["fps"]:
-            imgs = obs.pop('img')
-            act_lst.append(action.tolist().copy())
-            obs_lst.append(obs)
+            imgs = obs.pop("img")
             for cam_id, img in imgs.items():
                 encoders[cam_id].encode(img, obs["time"])
+            act_lst.append(action.tolist().copy())
+            obs_lst.append(obs)
 
         if stm.state_idx >= stm.max_state_cnt:
             for encoder in encoders.values():

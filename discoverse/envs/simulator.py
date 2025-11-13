@@ -621,9 +621,8 @@ class SimulatorBase:
                 quat = Rotation.from_matrix(self.mj_data.geom(name).xmat.reshape((3,3))).as_quat()[[3,0,1,2]]
                 return position, quat
             except KeyError:
-                print("Invalid object name: {}".format(name))
-                return None, None
-    
+                raise KeyError("Invalid object name: {}".format(name))
+
     def getCameraPose(self, cam_id):
         if cam_id == -1:
             rotation_matrix = self.camera_rmat @ Rotation.from_euler('xyz', [self.free_camera.elevation * np.pi / 180.0, self.free_camera.azimuth * np.pi / 180.0, 0.0]).as_matrix()

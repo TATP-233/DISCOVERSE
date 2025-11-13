@@ -68,7 +68,7 @@ cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
 env = make_env(robot_name, task_name)
 env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
 
-cfg.obj_list     = ["drawer_1", "drawer_2", "coffeecup_white", "plate_white", "wood", "cup_lid"]
+cfg.obj_list     = ["drawer_1", "drawer_2", "coffeecup_white", "plate_white", "cup_lid"]
 cfg.timestep     = 1/240
 cfg.decimation   = 4
 cfg.sync         = True
@@ -82,7 +82,7 @@ cfg.obs_rgb_cam_id   = [0, 1]
 cfg.save_mjb_and_task_config = True
 
 if __name__ == "__main__":
-    print(f"Welcome to discoverse {discoverse.__version__} !")
+
     print(discoverse.__logo__)
 
     np.set_printoptions(precision=3, suppress=True, linewidth=500)

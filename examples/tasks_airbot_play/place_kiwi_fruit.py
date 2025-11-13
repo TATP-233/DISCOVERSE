@@ -65,7 +65,7 @@ cfg.obs_rgb_cam_id = [0, 1]
 cfg.save_mjb_and_task_config = True
 
 if __name__ == "__main__":
-    print(f"Welcome to discoverse {discoverse.__version__} !")
+
     print(discoverse.__logo__)
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 

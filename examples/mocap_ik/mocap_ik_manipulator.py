@@ -618,7 +618,7 @@ if __name__ == "__main__":
     该程序创建一个机械臂模型的MuJoCo仿真环境，添加运动捕捉(mocap)目标，
     并使用逆运动学(IK)控制机器人的单臂跟踪目标位置和姿态。
     """
-    print(f"Welcome to discoverse {discoverse.__version__} !")
+
     print(discoverse.__logo__)
     args = parse_args()
 
