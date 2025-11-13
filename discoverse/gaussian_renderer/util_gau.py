@@ -1,8 +1,9 @@
 import numpy as np
-from plyfile import PlyData
+from plyfile import PlyData, PlyElement
 from dataclasses import dataclass
 import torch
 import glm
+from .supersplat_utils import decompress_supersplat, is_supersplat_format
 
 def multiple_quaternion_vector3d(qwxyz, vxyz):
     qw = qwxyz[..., 0]
@@ -141,61 +142,76 @@ def gamma_shs(shs, gamma):
 def load_ply(path, gamma=1):
     max_sh_degree = 0
     plydata = PlyData.read(path)
-    xyz = np.stack((np.asarray(plydata.elements[0]["x"]),
-                    np.asarray(plydata.elements[0]["y"]),
-                    np.asarray(plydata.elements[0]["z"])),  axis=1)
-    opacities = np.asarray(plydata.elements[0]["opacity"])[..., np.newaxis]
 
-    features_dc = np.zeros((xyz.shape[0], 3, 1))
-    features_dc[:, 0, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
-    features_dc[:, 1, 0] = np.asarray(plydata.elements[0]["f_dc_1"])
-    features_dc[:, 2, 0] = np.asarray(plydata.elements[0]["f_dc_2"])
+    # 检查是否为SuperSplat格式
+    if is_supersplat_format(plydata):
+        # 使用supersplat_utils进行解压
+        data = decompress_supersplat(plydata)
+        # data 包含 shs（DC + rest），并且 colors 仍为 DC 的球谐系数
+        return GaussianData(
+            data['positions'],
+            data['rotations'],
+            data['scales'],
+            data['opacities'],
+            data.get('shs', data['colors'])
+        )
 
-    extra_f_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("f_rest_")]
-    extra_f_names = sorted(extra_f_names, key = lambda x: int(x.split('_')[-1]))
+    else:
+        xyz = np.stack((np.asarray(plydata.elements[0]["x"]),
+                        np.asarray(plydata.elements[0]["y"]),
+                        np.asarray(plydata.elements[0]["z"])),  axis=1)
+        opacities = np.asarray(plydata.elements[0]["opacity"])[..., np.newaxis]
 
-    # assert len(extra_f_names)==3 * (max_sh_degree + 1) ** 2 - 3
-    features_extra = np.zeros((xyz.shape[0], len(extra_f_names)))
-    for idx, attr_name in enumerate(extra_f_names):
-        features_extra[:, idx] = np.asarray(plydata.elements[0][attr_name])
+        features_dc = np.zeros((xyz.shape[0], 3, 1))
+        features_dc[:, 0, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
+        features_dc[:, 1, 0] = np.asarray(plydata.elements[0]["f_dc_1"])
+        features_dc[:, 2, 0] = np.asarray(plydata.elements[0]["f_dc_2"])
 
-    # features_extra = features_extra.reshape((features_extra.shape[0], 3, (max_sh_degree + 1) ** 2 - 1))
-    features_extra = features_extra.reshape((features_extra.shape[0], 3, len(extra_f_names)//3))
-    features_extra = features_extra[:, :, :(max_sh_degree + 1) ** 2 - 1]
-    features_extra = np.transpose(features_extra, [0, 2, 1])
+        extra_f_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("f_rest_")]
+        extra_f_names = sorted(extra_f_names, key = lambda x: int(x.split('_')[-1]))
 
-    scale_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("scale_")]
-    scale_names = sorted(scale_names, key = lambda x: int(x.split('_')[-1]))
-    scales = np.zeros((xyz.shape[0], len(scale_names)))
-    for idx, attr_name in enumerate(scale_names):
-        scales[:, idx] = np.asarray(plydata.elements[0][attr_name])
+        # assert len(extra_f_names)==3 * (max_sh_degree + 1) ** 2 - 3
+        features_extra = np.zeros((xyz.shape[0], len(extra_f_names)))
+        for idx, attr_name in enumerate(extra_f_names):
+            features_extra[:, idx] = np.asarray(plydata.elements[0][attr_name])
 
-    rot_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("rot")]
-    rot_names = sorted(rot_names, key = lambda x: int(x.split('_')[-1]))
-    rots = np.zeros((xyz.shape[0], len(rot_names)))
-    for idx, attr_name in enumerate(rot_names):
-        rots[:, idx] = np.asarray(plydata.elements[0][attr_name])
+        # features_extra = features_extra.reshape((features_extra.shape[0], 3, (max_sh_degree + 1) ** 2 - 1))
+        features_extra = features_extra.reshape((features_extra.shape[0], 3, len(extra_f_names)//3))
+        features_extra = features_extra[:, :, :(max_sh_degree + 1) ** 2 - 1]
+        features_extra = np.transpose(features_extra, [0, 2, 1])
 
-    xyz = xyz.astype(np.float32)
-    rots = rots / np.linalg.norm(rots, axis=-1, keepdims=True)
-    rots = rots.astype(np.float32)
-    scales = np.exp(scales)
+        scale_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("scale_")]
+        scale_names = sorted(scale_names, key = lambda x: int(x.split('_')[-1]))
+        scales = np.zeros((xyz.shape[0], len(scale_names)))
+        for idx, attr_name in enumerate(scale_names):
+            scales[:, idx] = np.asarray(plydata.elements[0][attr_name])
 
-    # if 2dgs
-    if len(scale_names) == 2:
-        print(f"len(scale_names) = {len(scale_names)} (2dgs ply model)")
-        scales = np.hstack([scales, 1e-9 * np.ones_like(scales[:, :1])])
+        rot_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("rot")]
+        rot_names = sorted(rot_names, key = lambda x: int(x.split('_')[-1]))
+        rots = np.zeros((xyz.shape[0], len(rot_names)))
+        for idx, attr_name in enumerate(rot_names):
+            rots[:, idx] = np.asarray(plydata.elements[0][attr_name])
 
-    scales = scales.astype(np.float32)
-    opacities = 1/(1 + np.exp(-opacities))
-    opacities = opacities.astype(np.float32)
+        xyz = xyz.astype(np.float32)
+        rots = rots / np.linalg.norm(rots, axis=-1, keepdims=True)
+        rots = rots.astype(np.float32)
+        scales = np.exp(scales)
 
-    if abs(gamma - 1.0) > 1e-3:
-        features_dc = gamma_shs(features_dc, gamma)
-        features_extra[...,:] = 0.0
-        opacities *= 0.8
+        # if 2dgs
+        if len(scale_names) == 2:
+            print(f"len(scale_names) = {len(scale_names)} (2dgs ply model)")
+            scales = np.hstack([scales, 1e-9 * np.ones_like(scales[:, :1])])
 
-    shs = np.concatenate([features_dc.reshape(-1, 3), 
-                        features_extra.reshape(len(features_dc), -1)], axis=-1).astype(np.float32)
-    shs = shs.astype(np.float32)
-    return GaussianData(xyz, rots, scales, opacities, shs)
+        scales = scales.astype(np.float32)
+        opacities = 1/(1 + np.exp(-opacities))
+        opacities = opacities.astype(np.float32)
+
+        if abs(gamma - 1.0) > 1e-3:
+            features_dc = gamma_shs(features_dc, gamma)
+            features_extra[...,:] = 0.0
+            opacities *= 0.8
+
+        shs = np.concatenate([features_dc.reshape(-1, 3), 
+                            features_extra.reshape(len(features_dc), -1)], axis=-1).astype(np.float32)
+        shs = shs.astype(np.float32)
+        return GaussianData(xyz, rots, scales, opacities, shs)

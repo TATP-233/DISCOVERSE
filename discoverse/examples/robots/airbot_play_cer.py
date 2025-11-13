@@ -6,12 +6,12 @@ from discoverse.robots import AirbotPlayIK
 from discoverse.robots_env.airbot_play_base import AirbotPlayBase, AirbotPlayCfg
 
 if __name__ == "__main__":
-    import rospy
-    from sensor_msgs.msg import JointState
+    # import rospy
+    # from sensor_msgs.msg import JointState
 
-    rospy.init_node("airbot_play", anonymous=True)
-    joint_puber = rospy.Publisher("/airbot_play/joint_state", JointState, queue_size=10)
-    joint_msg = JointState()
+    # rospy.init_node("airbot_play", anonymous=True)
+    # joint_puber = rospy.Publisher("/airbot_play/joint_state", JointState, queue_size=10)
+    # joint_msg = JointState()
 
     cfg = AirbotPlayCfg()
 
@@ -32,15 +32,15 @@ if __name__ == "__main__":
         "gripper" :  0.5
     }
 
-    cfg.mjcf_file_path = "mjcf/airbot_play_floor.xml"
+    cfg.mjcf_file_path = "mjcf/manipulator/robot_airbot_play.xml"
     cfg.use_gaussian_renderer = True
     cfg.gs_model_dict["background"] = "scene/qz11/qz_table.ply"
 
     exec_node = AirbotPlayBase(cfg)
 
     obs = exec_node.reset()
-    joint_msg.name = [f"joint_{i}" for i in range(exec_node.nj)]
-    joint_msg.effort = np.zeros_like(obs["jq"]).tolist()
+    # joint_msg.name = [f"joint_{i}" for i in range(exec_node.nj)]
+    # joint_msg.effort = np.zeros_like(obs["jq"]).tolist()
 
     action = exec_node.init_joint_pose[:exec_node.nj]
 
@@ -76,8 +76,8 @@ if __name__ == "__main__":
         action[:6] = arm_ik.properIK(trans, rot, action[:6])
 
         obs, pri_obs, rew, ter, info = exec_node.step(action)
-        joint_msg.header.stamp = rospy.Time.now()
-        joint_msg.position = obs["jq"]
-        joint_msg.velocity = obs["jv"]
+        # joint_msg.header.stamp = rospy.Time.now()
+        # joint_msg.position = obs["jq"]
+        # joint_msg.velocity = obs["jv"]
 
-        joint_puber.publish(joint_msg)
+        # joint_puber.publish(joint_msg)

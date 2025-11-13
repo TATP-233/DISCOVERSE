@@ -247,9 +247,18 @@ Optional Feature Modules
 
 The fastest way to get started with DISCOVERSE:
 
-```bash
-# Download pre-built Docker image
-# Baidu Netdisk: https://pan.baidu.com/s/1mLC3Hz-m78Y6qFhurwb8VQ?pwd=xmp9
+    ```bash
+    docker load < discoverse_tag.tar
+    ```
+
+- Or build from `Dockerfile`
+    ```bash
+    git clone https://github.com/TATP-233/DISCOVERSE.git
+    cd DISCOVERSE
+    python scripts/setup_submodules.py --module gaussian-rendering
+    docker build -f discoverse/docker/Dockerfile -t discoverse:latest .
+    ```
+    `Dockerfile.vnc` is a configuration version that supports VNC remote access. It adds VNC server support on top of `discoverse/docker/Dockerfile`, allowing you to remotely access the container's graphical interface through a VNC client. This is particularly useful for remote development or environments without a local display server. If needed, change `docker build -f discoverse/docker/Dockerfile -t discoverse:latest .` to `docker build -f discoverse/docker/Dockerfile.vnc -t discoverse:latest .`
 
 # Or build from source (recommended)
 git clone https://github.com/TATP-233/DISCOVERSE.git

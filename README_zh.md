@@ -242,11 +242,29 @@ DISCOVERSE 核心模块
 # 下载预构建Docker镜像
 # 百度网盘：https://pan.baidu.com/s/1mLC3Hz-m78Y6qFhurwb8VQ?pwd=xmp9
 
-# 或从源码构建（推荐）
-git clone https://github.com/TATP-233/DISCOVERSE.git
-cd DISCOVERSE
-python setup_submodules.py --all  # Docker镜像需要所有submodules
-docker build -t discoverse:latest .
+- 下载预构建Docker镜像
+  
+    百度网盘：https://pan.baidu.com/s/1mLC3Hz-m78Y6qFhurwb8VQ?pwd=xmp9
+    
+    目前更新至v1.8.6，下载.tar文件之后，使用docker load指令加载docker image
+    
+    将下面的`discoverse_tag.tar`替换为实际下载的镜像tar文件名。
+
+    ```bash
+    docker load < discoverse_tag.tar
+    ```
+
+- 或者 从`docker file`构建
+    ```bash
+    git clone https://github.com/TATP-233/DISCOVERSE.git
+    cd DISCOVERSE
+    python scripts/setup_submodules.py --module gaussian-rendering
+    docker build -f discoverse/docker/Dockerfile -t discoverse:latest .
+    ```
+    `Dockerfile.vnc`是支持 VNC 远程访问的配置版本。它在`discoverse/docker/Dockerfile`的基础上添加了 VNC 服务器支持，允许你通过 VNC 客户端远程访问容器的图形界面。这对于远程开发或在没有本地显示服务器的环境中特别有用。如果需要，将`docker build -f discoverse/docker/Dockerfile -t discoverse:latest .`改为`docker build -f discoverse/docker/Dockerfile.vnc -t discoverse:latest .`
+
+
+#### 3. 创建Docker容器
 
 # 使用GPU支持运行
 docker run -it --rm --gpus all \
