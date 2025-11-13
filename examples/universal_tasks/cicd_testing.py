@@ -79,7 +79,7 @@ class UniversalTaskCICD:
         # 构建命令
         script_path = os.path.join(
             DISCOVERSE_ROOT_DIR, 
-            "discoverse/examples/universal_tasks/universal_task_runtime.py"
+            "examples/universal_tasks/universal_task_runtime.py"
         )
         
         cmd = [

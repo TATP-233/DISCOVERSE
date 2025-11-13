@@ -1,6 +1,6 @@
 ## 数据生成
 
-我们准备了若干个单臂、双臂的操作任务，分别位于`discoverse/examples/tasks_airbot_play`和`discoverse/examples/tasks_mmk2`中，要自动收集数据，请运行
+我们准备了若干个单臂、双臂的操作任务，分别位于`examples/tasks_airbot_play`和`examples/tasks_mmk2`中，要自动收集数据，请运行
 
 ```python
 cd scripts

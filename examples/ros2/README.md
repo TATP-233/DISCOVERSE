@@ -34,7 +34,7 @@ ros2 run joy joy_node
 
 ```bash
 cd /DISCOVERSE
-python3 discoverse/examples/ros2/mmk2_joy_ros2.py
+python3 examples/ros2/mmk2_joy_ros2.py
 ```
 
 ## 控制说明

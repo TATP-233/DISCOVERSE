@@ -1,5 +1,5 @@
 # env
-# task_path: discoverse/examples/tasks_airbot_play/kiwi_place.py
+# task_path: examples/tasks_airbot_play/kiwi_place.py
 task_path: data/kiwi_place/kiwi_place.py
 task_name: kiwi_place
 abs_action: false

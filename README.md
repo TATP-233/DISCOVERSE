@@ -163,7 +163,7 @@ xhost +local:docker
 docker exec -it discoverse bash
 
 # Test run
-python3 discoverse/examples/active_slam/camera_view.py
+python3 examples/active_slam/camera_view.py
 ```
 
 ## 📷 High-Fidelity Rendering Setup
@@ -230,15 +230,15 @@ python discoverse/robots_env/airbot_play_base.py
 python discoverse/robots_env/mmk2_base.py
 
 # Run manipulation tasks (automated data generation)
-python discoverse/examples/tasks_airbot_play/place_coffeecup.py
-python discoverse/examples/tasks_mmk2/kiwi_pick.py
+python examples/tasks_airbot_play/place_coffeecup.py
+python examples/tasks_mmk2/kiwi_pick.py
 
 # Tactile hand leaphand
-python discoverse/examples/robots/leap_hand_env.py
+python examples/robots/leap_hand_env.py
 
 # Inverse kinematics
-python discoverse/examples/mocap_ik/mocap_ik_airbot_play.py # optional [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
-python discoverse/examples/mocap_ik/mocap_ik_mmk2.py # optional [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
+python examples/mocap_ik/mocap_ik_airbot_play.py # optional [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
+python examples/mocap_ik/mocap_ik_mmk2.py # optional [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
 https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81

@@ -9,8 +9,8 @@ import time
 import numpy as np
 
 # Add paths for imports
-sys.path.append('/home/lue/qiuzhi/DISCOVERSE/discoverse/examples/force_control_data_collect_using_joy/joy')
-sys.path.append('/home/lue/qiuzhi/DISCOVERSE/discoverse/examples/mocap_ik')
+sys.path.append('/home/lue/qiuzhi/DISCOVERSE/examples/force_control_data_collect_using_joy/joy')
+sys.path.append('/home/lue/qiuzhi/DISCOVERSE/examples/mocap_ik')
 
 from joy_controller import JoyController
 from mink_arm_ik import Mink_IK

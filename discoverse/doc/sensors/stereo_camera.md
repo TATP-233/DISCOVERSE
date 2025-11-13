@@ -37,7 +37,7 @@ In many applications, we might only have a few key camera viewpoints (poses, i.e
 
 ## 2. Overview of Core Tool Features
 
-`discoverse/examples/active_slam/camera_view.py` is a powerful simulation tool built on the following technologies:
+`examples/active_slam/camera_view.py` is a powerful simulation tool built on the following technologies:
 
 *   **MuJoCo (Multi-Joint dynamics with Contact)**: An advanced physics engine for accurately simulating rigid body dynamics and contact. In this tool, it provides the underlying 3D environment and simulation of camera physical behavior.
 *   **Gaussian Splatting**: A novel scene representation and rendering technique. Instead of traditional triangular meshes, it uses a large number of tiny Gaussian functions with color and transparency information (imagine tiny, blurry colored dots) to represent the 3D scene. This allows it to render realistic, detail-rich scenes very efficiently.
@@ -102,11 +102,11 @@ If you started the program with the `--show-gui` parameter, a separate window ti
 
 ## 4. Command-Line Parameter Details: Customizing Your Simulation Experience
 
-You can precisely control the program's behavior, loaded resources, and running mode by appending different command-line parameters when launching the `discoverse/examples/active_slam/camera_view.py` script.
+You can precisely control the program's behavior, loaded resources, and running mode by appending different command-line parameters when launching the `examples/active_slam/camera_view.py` script.
 
 Basic command format:
 ```bash
-python discoverse/examples/active_slam/camera_view.py --gsply <path_to_gs_ply> [other_optional_parameters]
+python examples/active_slam/camera_view.py --gsply <path_to_gs_ply> [other_optional_parameters]
 ```
 
 **Core Required Parameter:**
@@ -145,7 +145,7 @@ python discoverse/examples/active_slam/camera_view.py --gsply <path_to_gs_ply> [
 *   `--show-gui`
     *   **Purpose**: A switch parameter. Specifying this parameter means you want to display the "Viewpoint Management GUI" window mentioned earlier.
     *   **Default Behavior**: If not specified, the GUI is not displayed.
-    *   **Example**: `python discoverse/examples/active_slam/camera_view.py --gsply ... --show-gui`
+    *   **Example**: `python examples/active_slam/camera_view.py --gsply ... --show-gui`
 
 *   `-cp, --camera-pose-path <path_to_json_file>`
     *   **Purpose**: Specifies the path to a JSON file containing a pre-defined sequence of camera poses. This JSON file is typically the `camera_list.json` exported by this tool in a previous session by pressing the `I` key.
@@ -172,13 +172,13 @@ In this stage, your goal is to interactively find and record a series of importa
 1.  **Start the Program in Interactive Mode**:
     Open your terminal or command-line interface and run the following command. Make sure to replace `/path/to/your/point_cloud.ply` with the actual path to your Gaussian Splatting model file.
     ```bash
-    python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --show-gui
+    python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --show-gui
     ```
     *   `--gsply`: Loads your main scene model.
     *   `--show-gui`: Highly recommended to enable the GUI when setting viewpoints, so you can see the list of saved viewpoints in real-time and manage them easily.
     *   (Optional) If you have a `.obj` geometry model for the scene, you can load it as well:
         ```bash
-        python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --mesh /path/to/your/scene.obj --show-gui
+        python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --mesh /path/to/your/scene.obj --show-gui
         ```
 
 2.  **Navigation and Viewpoint Selection**:
@@ -207,7 +207,7 @@ In this stage, we will use the `camera_list.json` file saved in the previous ste
 1.  **Start the Program in Interpolation Mode**:
     Open your terminal or command-line interface again and run the following command. Please ensure you replace all placeholder paths and parameters.
     ```bash
-    python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --camera-pose-path /path/to/your/camera_list.json --num-interpolate 100
+    python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --camera-pose-path /path/to/your/camera_list.json --num-interpolate 100
     ```
     *   `--gsply`: You still need to specify your Gaussian Splatting model.
     *   `--camera-pose-path`: **Crucial parameter!** Point this to the actual path of the `camera_list.json` file you exported in Stage One, Step 5. If the file is in the same directory as the `--gsply` file, you might only need the filename, e.g., `--camera-pose-path camera_list.json` (if the script is run from that directory, otherwise it's best to use the full path).

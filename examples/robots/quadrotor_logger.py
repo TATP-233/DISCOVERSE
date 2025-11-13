@@ -106,7 +106,7 @@ class QuadrotorLogger:
 
         """ Save plots """
         now = datetime.now()
-        timestamp = now.strftime("discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
+        timestamp = now.strftime("examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
         filename = f"{timestamp}_states.png"
         plt.savefig(filename)
 
@@ -128,6 +128,6 @@ class QuadrotorLogger:
 
         # Save plot
         now = datetime.now()
-        timestamp = now.strftime("discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
+        timestamp = now.strftime("examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
         filename = f"{timestamp}_3d_position.png"
         plt.savefig(filename)

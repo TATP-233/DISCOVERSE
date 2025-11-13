@@ -37,7 +37,7 @@
 
 ## 2. 工具核心功能概览
 
-`discoverse/examples/active_slam/camera_view.py` 是一个功能强大的模拟工具，它构建于以下技术之上：
+`examples/active_slam/camera_view.py` 是一个功能强大的模拟工具，它构建于以下技术之上：
 
 *   **MuJoCo (Multi-Joint dynamics with Contact)**：一个先进的物理引擎，用于精确模拟刚体动力学和接触。在本工具中，它提供了底层的3D环境和相机物理行为的模拟。
 *   **高斯溅射 (Gaussian Splatting)**：一种新颖的场景表示和渲染技术。它不使用传统的三角形网格，而是使用大量微小的、带有颜色和透明度信息的高斯函数（可以想象成微小的、模糊的彩色点）来表示3D场景。这使得它可以非常高效地渲染出逼真的、细节丰富的场景。
@@ -172,13 +172,13 @@ python camera_view.py --gsply <path_to_gs_ply> [其他可选参数]
 1.  **启动程序进入交互模式**：
     打开您的终端或命令行界面，运行以下命令。确保将 `/path/to/your/point_cloud.ply` 替换为您实际的高斯溅射模型文件路径。
     ```bash
-    python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --show-gui
+    python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --show-gui
     ```
     *   `--gsply`：加载您的主要场景模型。
     *   `--show-gui`：强烈建议在设定视角时开启GUI，这样您可以实时看到已保存的视角列表，并方便管理。
     *   （可选）如果您有场景的 `.obj` 几何模型，也可以一同加载：
         ```bash
-        python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --mesh /path/to/your/scene.obj --show-gui
+        python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --mesh /path/to/your/scene.obj --show-gui
         ```
 
 2.  **导航与视角选择**：
@@ -207,7 +207,7 @@ python camera_view.py --gsply <path_to_gs_ply> [其他可选参数]
 1.  **启动程序进入插值模式**：
     再次打开终端或命令行界面，运行以下命令。请确保替换所有占位符路径和参数。
     ```bash
-    python discoverse/examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --camera-pose-path /path/to/your/camera_list.json --num-interpolate 100
+    python examples/active_slam/camera_view.py --gsply /path/to/your/point_cloud.ply --camera-pose-path /path/to/your/camera_list.json --num-interpolate 100
     ```
     *   `--gsply`：同样需要指定您的高斯溅射模型。
     *   `--camera-pose-path`：**关键参数**！将其指向您在阶段一第5步中导出的 `camera_list.json` 文件的实际路径。如果该文件与 `--gsply` 文件在同一目录，您可以只写文件名，例如 `--camera-pose-path camera_list.json` (如果脚本是从该目录运行的，否则最好用完整路径)。

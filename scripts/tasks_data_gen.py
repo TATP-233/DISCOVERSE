@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Run tasks with specified parameters. \ne.g. python3 os_run.py --robot_name airbot_play --task_name kiwi_place --track_num 100 --nw 8 --use_gs True')
     parser.add_argument('--robot_name', type=str, required=True, choices=["airbot_play", "mmk2","hand_arm"], help='Name of the robot')
-    parser.add_argument('--task_name', type=str, required=True, help='Name of the task, see discoverse/examples/tasks_{robot_name}')
+    parser.add_argument('--task_name', type=str, required=True, help='Name of the task, see examples/tasks_{robot_name}')
     parser.add_argument('--track_num', type=int, default=100, help='Number of tracks')
     parser.add_argument('--nw', type=int, required=True, default=8, help='Number of workers')
     parser.add_argument('--use_gs', action='store_true', help='Use gaussian splatting renderer')

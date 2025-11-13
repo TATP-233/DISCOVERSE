@@ -262,12 +262,12 @@ if __name__ == "__main__":
     # Save to JSON
     from datetime import datetime
     now = datetime.now()
-    timestamp = now.strftime("discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
+    timestamp = now.strftime("examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S")
     filename = f"{timestamp}.json"
     with open(filename, 'w') as json_file:
         json.dump(json_data, json_file, indent=4)
 
     import mediapy
-    mediapy.write_video(f"discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_third_view.mp4", img_lst_third_view, fps=30)
-    mediapy.write_video(f"discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_front_view.mp4", img_lst_first_person_front, fps=30)
-    mediapy.write_video(f"discoverse/examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_down_view.mp4", img_lst_first_person_down, fps=30)
+    mediapy.write_video(f"examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_third_view.mp4", img_lst_third_view, fps=30)
+    mediapy.write_video(f"examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_front_view.mp4", img_lst_first_person_front, fps=30)
+    mediapy.write_video(f"examples/skyrover_on_rm2car/log/%Y-%m-%d %H:%M:%S_down_view.mp4", img_lst_first_person_down, fps=30)

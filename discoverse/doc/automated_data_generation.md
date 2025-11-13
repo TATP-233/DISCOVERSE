@@ -9,7 +9,7 @@
 
 ## 记录操作策略
 
-1.   在`discoverse/examples/ros1/mmk2_joy_ros1.py`中设置操作任务的场景`cfg.mjcf_file_path`
+1.   在`examples/ros1/mmk2_joy_ros1.py`中设置操作任务的场景`cfg.mjcf_file_path`
 
 2.   启动
 
@@ -19,7 +19,7 @@
      (terminal 2)
      rosrun joy joy_node
      (terminal 3)
-     python3 discoverse/examples/ros1/mmk2_joy_ros1.py
+     python3 examples/ros1/mmk2_joy_ros1.py
      ```
 
 3.   右键标题栏，将显示窗口设置为置顶
@@ -63,14 +63,14 @@
      4.   终端提示选择使用的手臂，a 两个手 / l左手 / r右手，选择后按下回车
      5.   设置delay时间，单位秒，直接回车默认不delay
      6.   重复步骤1-5，完成任务并记录所有关键点后，退出仿真器。
-     7.   `discoverse/examples/ros1`路径下会生成`scheme_'task_name'.json`
+     7.   `examples/ros1`路径下会生成`scheme_'task_name'.json`
 
 7.   测试策略`scheme_'task_name'.json`
 
      ```bash
-     python discoverse/examples/tasks_mmk2/gendata_from_json.py --task_name task_name --scheme_json /path/to/your/scheme_{task_name}.json --vis
+     python examples/tasks_mmk2/gendata_from_json.py --task_name task_name --scheme_json /path/to/your/scheme_{task_name}.json --vis
      e.g.
-     python discoverse/examples/tasks_mmk2/gendata_from_json.py --task_name plate_coffeecup --scheme_json /path/to/your/scheme_plate_coffeecup.json --vis
+     python examples/tasks_mmk2/gendata_from_json.py --task_name plate_coffeecup --scheme_json /path/to/your/scheme_plate_coffeecup.json --vis
      ```
 
      

@@ -1,5 +1,5 @@
 # env
-task_path: discoverse/examples/tasks_airbot_play/block_place.py
+task_path: examples/tasks_airbot_play/block_place.py
 task_name: block_place
 abs_action: false
 dataset_path: data/zarr/block_place.zarr

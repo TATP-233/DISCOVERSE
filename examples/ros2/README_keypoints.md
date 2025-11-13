@@ -11,7 +11,7 @@
 使用以下命令启动程序，其中`{任务名称}`是可选参数，用于指定生成的方案文件名称：
 
 ```bash
-sudo DISCOVERSE/discoverse/examples/ros2/start_mmk2_joy.sh {任务名称}
+sudo DISCOVERSE/examples/ros2/start_mmk2_joy.sh {任务名称}
 ```
 
 如果不指定任务名称，将使用默认名称"task"。
@@ -32,7 +32,7 @@ sudo DISCOVERSE/discoverse/examples/ros2/start_mmk2_joy.sh {任务名称}
 
 ### 生成的方案文件
 
-程序会在`discoverse/examples/ros2`路径下生成`scheme_{任务名称}.json`文件，包含所有记录的关键点信息。
+程序会在`examples/ros2`路径下生成`scheme_{任务名称}.json`文件，包含所有记录的关键点信息。
 
 ## 注意事项
 
