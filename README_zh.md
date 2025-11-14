@@ -190,29 +190,31 @@ cd ../..
 pip install submodules/diff-gaussian-rasterization
 ```
 
-### 3. 下载3dgs模型
+### 3. 下载3DGS模型
 
-- [百度网盘](https://pan.baidu.com/s/1y4NdHDU7alCEmjC1ebtR8Q?pwd=bkca) 
-- [清华云盘](https://cloud.tsinghua.edu.cn/d/0b92cdaeb58e414d85cc/)
+当您首次运行需要 PLY 模型的仿真时，模型将自动从 [Hugging Face](https://huggingface.co/tatp/DISCOVERSE-models) 下载。使用 `hf auth login` 登录 Hugging Face。
 
-.ply模型文件较大，选择自己需要的模型即可。
-
-放在`models/3dgs`目录，如下：
+模型存储在 `models/3dgs` 目录：
 ```
 models/
 ├── meshes/          # 网格几何
 ├── textures/        # 材质纹理  
-├── 3dgs/           # 高斯散射模型
-│   ├── airbot_play/
-│   ├── mmk2/
-│   ├── objects/
-│   ├── scenes/
-│   └── ......
+├── 3dgs/           # 高斯散射模型（自动下载）
+│   ├── hinge/       # 铰链模型
+│   ├── manipulator/ # 机械臂模型
+│   ├── mobile_chassis/ # 移动底盘
+│   ├── objaverse/   # Objaverse对象
+│   ├── object/      # 其他对象
+│   ├── rm2_car/     # RM2小车
+│   ├── scene/       # 场景模型
+│   └── skyrover/    # Skyrover模型
 ├── mjcf/           # MuJoCo场景描述
 └── urdf/           # 机器人描述
 ```
 
-### 3. 模型可视化
+国内用户自动使用 [HF-Mirror 镜像](https://hf-mirror.com/)加速下载。
+
+### 4. 模型可视化
 使用[SuperSplat](https://playcanvas.com/supersplat/editor)在线查看和编辑3DGS模型 - 只需拖放`.ply`文件。
 
 ## 🔨 Real2Sim管道

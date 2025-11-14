@@ -192,27 +192,29 @@ pip install submodules/diff-gaussian-rasterization
 
 ### 3. Download 3DGS Models
 
-- [Baidu Netdisk](https://pan.baidu.com/s/1y4NdHDU7alCEmjC1ebtR8Q?pwd=bkca) 
-- [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/d/0b92cdaeb58e414d85cc/)
+PLY models will be automatically downloaded from [Hugging Face](https://huggingface.co/tatp/DISCOVERSE-models) when you first run a simulation that requires them. Login to Hugging Face with: `hf auth login`
 
-.ply model files are large, choose only the models you need.
-
-Place in the `models/3dgs` directory as follows:
+Models are stored in the `models/3dgs` directory:
 ```
 models/
 ├── meshes/          # Mesh geometries
 ├── textures/        # Material textures  
-├── 3dgs/           # Gaussian Splatting models
-│   ├── airbot_play/
-│   ├── mmk2/
-│   ├── objects/
-│   ├── scenes/
-│   └── ......
+├── 3dgs/           # Gaussian Splatting models (auto-downloaded)
+│   ├── hinge/
+│   ├── manipulator/
+│   ├── mobile_chassis/
+│   ├── objaverse/
+│   ├── object/
+│   ├── rm2_car/
+│   ├── scene/
+│   └── skyrover/
 ├── mjcf/           # MuJoCo scene descriptions
 └── urdf/           # Robot descriptions
 ```
 
-### 3. Model Visualization
+For users in China, the automatic download uses [HF-Mirror](https://hf-mirror.com/) for faster speeds.
+
+### 4. Model Visualization
 View and edit 3DGS models online using [SuperSplat](https://playcanvas.com/supersplat/editor) - simply drag and drop `.ply` files.
 
 ## 🔨 Real2Sim Pipeline
