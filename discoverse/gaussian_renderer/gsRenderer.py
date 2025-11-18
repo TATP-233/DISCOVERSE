@@ -10,21 +10,23 @@ from discoverse.gaussian_renderer.renderer_cuda import CUDARenderer
 from discoverse import DISCOVERSE_ASSETS_DIR
 
 class GSRenderer:
-    def __init__(self, models_dict:dict, render_width=1920, render_height=1080, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+    def __init__(self, models_dict:dict, render_width=1920, render_height=1080, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None, backend="gsplat"):
         """
         初始化高斯飞溅渲染器
         
         Args:
-            models_dict: 模型字典，键为模型名称，值为模型路径
+            models_dict: 模型字典,键为模型名称,值为模型路径
             render_width: 渲染宽度
             render_height: 渲染高度
-            hf_repo_id: Hugging Face仓库ID，用于下载模型
-            local_dir: 下载目标目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
+            hf_repo_id: Hugging Face仓库ID,用于下载模型
+            local_dir: 下载目标目录,默认为None(使用DISCOVERSE_ASSETS_DIR/3dgs)
+            backend: 渲染后端,"gsplat"或"diff_gaussian",默认为"gsplat"
         """
         self.width = render_width
         self.height = render_height
         self.hf_repo_id = hf_repo_id
         self.local_dir = local_dir
+        self.backend = backend
 
         self.camera = util_gau.Camera(self.height, self.width)
 
@@ -32,7 +34,7 @@ class GSRenderer:
 
         self.scale_modifier = 1.
 
-        self.renderer = CUDARenderer(self.camera.w, self.camera.h)
+        self.renderer = CUDARenderer(self.camera.w, self.camera.h, backend=backend)
         self.camera_tran = np.zeros(3)
         self.camera_quat = np.zeros(4)
 

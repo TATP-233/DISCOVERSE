@@ -6,7 +6,21 @@ from discoverse.gaussian_renderer import util_gau
 import numpy as np
 import torch
 from dataclasses import dataclass
-from diff_gaussian_rasterization import GaussianRasterizer as GausssianRasterizer_3d
+
+# Try to import both rendering backends
+try:
+    from diff_gaussian_rasterization import GaussianRasterizer as GausssianRasterizer_3d
+    DIFF_GAUSSIAN_AVAILABLE = True
+except ImportError:
+    DIFF_GAUSSIAN_AVAILABLE = False
+    print("Warning: diff_gaussian_rasterization not available")
+
+try:
+    from gsplat.rendering import rasterization
+    GSPLAT_AVAILABLE = True
+except ImportError:
+    GSPLAT_AVAILABLE = False
+    print("Warning: gsplat not available")
 
 @dataclass
 class GaussianDataCUDA:
@@ -50,8 +64,31 @@ def gaus_cuda_from_cpu(gau: util_gau) -> GaussianDataCUDA:
     return gaus
 
 class CUDARenderer:
-    def __init__(self, w, h):
+    def __init__(self, w, h, backend="gsplat"):
+        """
+        Initialize CUDA Renderer with specified backend
+        
+        Args:
+            w: Width of the rendering resolution
+            h: Height of the rendering resolution
+            backend: Rendering backend to use, either "gsplat" or "diff_gaussian"
+        """
         super().__init__()
+        
+        # Validate backend
+        if backend == "gsplat":
+            if not GSPLAT_AVAILABLE:
+                raise RuntimeError("gsplat backend requested but not available. Please install gsplat.")
+            self.backend = "gsplat"
+        elif backend == "diff_gaussian":
+            if not DIFF_GAUSSIAN_AVAILABLE:
+                raise RuntimeError("diff_gaussian backend requested but not available. Please install diff_gaussian_rasterization.")
+            self.backend = "diff_gaussian"
+        else:
+            raise ValueError(f"Unknown backend: {backend}. Must be 'gsplat' or 'diff_gaussian'")
+        
+        print(f"Using rendering backend: {self.backend}")
+        
         raster_settings = {
             "image_height": int(h),
             "image_width": int(w),
@@ -163,22 +200,105 @@ class CUDARenderer:
 
         self.need_rerender = False
 
-        rasterizer = GausssianRasterizer_3d(raster_settings=self.raster_settings)
+        if self.backend == "gsplat":
+            # Use gsplat backend
+            with torch.no_grad():
+               
+                # Prepare camera matrices
+                width = self.raster_settings.image_width
+                height = self.raster_settings.image_height
+                focal_x = width / (2.0 * self.raster_settings.tanfovx)
+                focal_y = height / (2.0 * self.raster_settings.tanfovy)
+                
+                # For gsplat, we use batch_dims to organize the data
+                # According to render_one.py, when batch_dims=(1,):
+                # - Gaussians: [1, N, 3], [1, N, 4], [1, N, 3], [1, N], [1, N, K, 3]
+                # - Cameras: [1, C, 4, 4], [1, C, 3, 3]
+                # Output will be [1, C, H, W, X]
+                
+                # Create K matrix - shape [1, 1, 3, 3] for batch_dims=(1,) with 1 camera
+                K = torch.tensor([
+                    [focal_x, 0.0, width / 2.0],
+                    [0.0, focal_y, height / 2.0],
+                    [0.0, 0.0, 1.0]
+                ], dtype=torch.float32, device='cuda').unsqueeze(0).unsqueeze(0)  # [1, 1, 3, 3]
+                
+                # Get viewmat (transpose back since we stored transposed) - shape [1, 1, 4, 4]
+                viewmat = self.raster_settings.viewmatrix.T.unsqueeze(0).unsqueeze(0)  # [1, 1, 4, 4]
+                
+                # Prepare colors based on sh_degree
+                # self.gaussians.sh shape: [N, K, 3] where K is total number of SH coefficients
+                # When sh_degree is set, we pass all SH coefficients and let gsplat use sh_degree to control
+                # When sh_degree is None, we only pass the DC component (first SH coefficient)
+                if self.raster_settings.sh_degree is None:
+                    # No SH, use DC component only as RGB colors
+                    # SH DC component needs to be converted to RGB
+                    C0 = 0.28209479177387814  # SH basis function for l=0, m=0
+                    colors = self.gaussians.sh[:, 0, :] * C0 + 0.5  # [N, 3]
+                    colors = torch.clamp(colors, 0.0, 1.0)
+                    colors = colors.unsqueeze(0)  # [1, N, 3]
+                    sh_degree_to_use = None
+                else:
+                    # Use SH coefficients, shape [N, K, 3] -> [1, N, K, 3]
+                    colors = self.gaussians.sh.unsqueeze(0)  # [1, N, K, 3]
+                    sh_degree_to_use = self.raster_settings.sh_degree
+                
+                # Call gsplat rasterization
+                # With batch_dims=(1,):
+                # means=[1,N,3], quats=[1,N,4], scales=[1,N,3], opacities=[1,N], 
+                # colors=[1,N,3] or [1,N,K,3], viewmats=[1,C,4,4], Ks=[1,C,3,3]
+                # Output: renders=[1,C,H,W,X], alphas=[1,C,H,W,1]
+                renders, alphas, meta = rasterization(
+                    means=self.gaussians.xyz.unsqueeze(0),  # [1, N, 3]
+                    quats=self.gaussians.rot.unsqueeze(0),  # [1, N, 4]
+                    scales=self.gaussians.scale.unsqueeze(0),  # [1, N, 3]
+                    opacities=self.gaussians.opacity.unsqueeze(0),  # [1, N]
+                    colors=colors,  # [1, N, 3] or [1, N, K, 3]
+                    viewmats=viewmat,  # [1, 1, 4, 4]
+                    Ks=K,  # [1, 1, 3, 3]
+                    width=width,
+                    height=height,
+                    sh_degree=sh_degree_to_use,
+                    render_mode="RGB+D" if render_depth else "RGB",
+                    packed=False,
+                )
+                
+                # renders shape: [B, C, height, width, X] (often [1,1,H,W,X])
+                # Flip vertically along the height dimension before squeezing batch/camera dims.
+                # Use -3 so it works for arbitrary leading batch/camera dimensions.
+                renders = torch.flip(renders, dims=[-3])
 
-        with torch.no_grad():
-            color_img, radii, depth_img, _alpha = rasterizer(
-                means3D = self.gaussians.xyz,
-                means2D = None,
-                shs = self.gaussians.sh,
-                colors_precomp = None,
-                opacities = self.gaussians.opacity,
-                scales = self.gaussians.scale,
-                rotations = self.gaussians.rot,
-                cov3D_precomp = None
-            )
+                # Remove batch and camera dimensions since we usually have 1 batch and 1 camera
+                renders = renders.squeeze(0).squeeze(0)  # [height, width, X]
+                
+                if render_depth:
+                    # RGB+D mode: last channel is depth
+                    color_img = renders[..., :3]  # [height, width, 3]
+                    depth_img = renders[..., 3:4]  # [height, width, 1]
+                    self.render_depth_img = depth_img.contiguous().cpu().numpy()
+                    self.render_rgb_img = (255. * torch.clamp(color_img, 0.0, 1.0)).to(torch.uint8).contiguous().cpu().numpy()
+                else:
+                    # RGB mode only
+                    color_img = renders  # [height, width, 3]
+                    self.render_rgb_img = (255. * torch.clamp(color_img, 0.0, 1.0)).to(torch.uint8).contiguous().cpu().numpy()
+                    
+        else:  # diff_gaussian backend
+            rasterizer = GausssianRasterizer_3d(raster_settings=self.raster_settings)
 
-            self.render_depth_img = depth_img.permute(1, 2, 0).contiguous().cpu().numpy()
-            self.render_rgb_img = (255. * torch.clamp(color_img, 0.0, 1.0)).to(torch.uint8).permute(1, 2, 0).contiguous().cpu().numpy()
+            with torch.no_grad():
+                color_img, radii, depth_img, _alpha = rasterizer(
+                    means3D = self.gaussians.xyz,
+                    means2D = None,
+                    shs = self.gaussians.sh,
+                    colors_precomp = None,
+                    opacities = self.gaussians.opacity,
+                    scales = self.gaussians.scale,
+                    rotations = self.gaussians.rot,
+                    cov3D_precomp = None
+                )
+
+                self.render_depth_img = depth_img.permute(1, 2, 0).contiguous().cpu().numpy()
+                self.render_rgb_img = (255. * torch.clamp(color_img, 0.0, 1.0)).to(torch.uint8).permute(1, 2, 0).contiguous().cpu().numpy()
 
         if render_depth:
             return self.render_depth_img

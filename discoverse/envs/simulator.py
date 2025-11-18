@@ -103,7 +103,8 @@ class SimulatorBase:
                     self.config.render_set["width"], 
                     self.config.render_set["height"],
                     hf_repo_id=getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models'),
-                    local_dir=getattr(self.config, 'hf_local_dir', None)
+                    local_dir=getattr(self.config, 'hf_local_dir', None),
+                    backend="diff_gaussian"
                 )
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
