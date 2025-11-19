@@ -246,8 +246,26 @@ python examples/mocap_ik/mocap_ik_mmk2.py # 可选 [--mjcf mjcf/tasks_mmk2/pan_p
 https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 
-### 支持多种机械臂及任务场景
+### 多种机器人模型及任务场景
 
+<img src="./assets/multi_robot.png" alt="多种机器人模型及任务场景"/>
+
+- **'-m MJCF, --mjcf MJCF'** - 输入MJCF文件的路径（可选）。如未指定，则使用默认的robot_airbot_play.xml
+- **'-r {robot}， --robot {robot}'** - 输入机器人模型名称, 可选{airbot_play,airbot_play_force,arx_l5,arx_x5,iiwa14,panda,piper,rm65,ur5e,xarm7}
+- **'-t {task}， --task {task}'** - 输入任务名称, 可选{block_bridge_place,close_laptop,cover_cup,open_drawer,peg_in_hole,pick_jujube,place_block,place_coffeecup,place_jujube,place_jujube_coffeecup,place_kiwi_fruit,push_mouse,stack_block}
+- **'-y'** - 在macOS上跳过mjpython提示，直接尝试启动查看器
+- **'--mouse-3d'** - 启用3D鼠标进行机械臂控制（需要3D鼠标硬件支持）
+- **'--hide-mocap'** - 隐藏运动捕捉目标
+- **'--record'** - 启用记录功能
+- **'--record-frequency RECORD_FREQUENCY'** - 设置记录频率（单位：Hz）
+- **'--camera-names [CAMERA_NAMES ...]'** - 指定需要渲染的相机名称列表（可选）
+- **'--inference'** - 启用推理模式
+- **'--infer-hz INFER_HZ'** - 推理频率
+- **'--plot'** - 开启画图
+```bash
+# 机器人模型为arx_l5，任务场景为block_bridge_place
+python3 examples/mocap_ik/mocap_ik_manipulator.py -r arx_l5 -t block_bridge_place
+```
 
 
 ### 交互式控制
