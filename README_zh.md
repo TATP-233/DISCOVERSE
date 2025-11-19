@@ -252,7 +252,7 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 - **'-h, --help'** - 打印帮助信息
 - **'-m MJCF, --mjcf MJCF'** - 输入MJCF文件的路径（可选）。如未指定，则使用默认的robot_airbot_play.xml
-- **'-r ROBOT, --robot ROBOT'** - 输入机器人模型名称, 可选{airbot_play,airbot_play_force,arx_l5,arx_x5,iiwa14,panda,piper,rm65,ur5e,xarm7}
+- **'-r ROBOT, --robot ROBOT'** - 输入机器人模型名称, 可选{airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
 - **'-t TASK, --task TASK'** - 输入任务名称, 可选{block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
 - **'-y'** - 在macOS上跳过mjpython提示，直接尝试启动查看器
 - **'--mouse-3d'** - 启用3D鼠标进行机械臂控制（需要3D鼠标硬件支持）
