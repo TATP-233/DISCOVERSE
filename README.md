@@ -251,8 +251,8 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 - **'-h, --help'** - Print the help messages
 - **'-m MJCF, --mjcf MJCF'** - Path to the MJCF file. Defaults to 'robot_airbot_play.xml' if not provided.
-- **'-r ROBOT， --robot ROBOT'** - Select a ROBOT. Available Robots: {airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
-- **'-t TASK， --task TASK'** - Select a TASK. Available Tasks: {block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
+- **'-r ROBOT, --robot ROBOT'** - Select a ROBOT. Available Robots: {airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
+- **'-t TASK, --task TASK'** - Select a TASK. Available Tasks: {block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
 - **'-y'** - For macOS: Bypass mjpython prompt and launch viewer directly
 - **'--mouse-3d'** - Enable 3D Mouse for arm control (requires 3D mouse hardware)
 - **'--hide-mocap'** - Hide mocap target
