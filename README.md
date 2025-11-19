@@ -239,7 +239,7 @@ python examples/tasks_mmk2/kiwi_pick.py
 python examples/robots/leap_hand_env.py
 
 # Inverse kinematics
-python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
+python examples/mocap_ik/mocap_ik_manipulator.py # optional [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # optional [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
