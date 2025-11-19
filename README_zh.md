@@ -239,7 +239,7 @@ python examples/tasks_mmk2/kiwi_pick.py
 python examples/robots/leap_hand_env.py
 
 # 逆向运动学
-python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
+python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # 可选 [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
