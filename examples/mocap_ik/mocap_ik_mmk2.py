@@ -8,7 +8,7 @@ import mujoco.viewer
 import numpy as np
 
 import discoverse
-from discoverse.examples.mocap_ik.mocap_ik_utils import \
+from mocap_ik_utils import \
     mj_quat2mat, \
     add_mocup_body_to_mjcf, \
     move_mocap_to_frame, \

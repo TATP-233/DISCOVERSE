@@ -1,5 +1,5 @@
 <mujoco>
-  <include file="leaphand_sensor_env/leaphand_sensor.xml"/>
+  <include file="dex_hand/leaphand_sensor_env/leaphand_sensor.xml"/>
   <compiler autolimits="true"/>
 
   <option solver="Newton" tolerance="1e-6" timestep=".001" integrator="RK4"/>
