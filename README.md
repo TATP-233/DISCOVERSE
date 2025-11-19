@@ -249,6 +249,7 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 
 <img src="./assets/multi_robot.png" alt="Multiple Robot Models and Task Scenarios"/>
 
+- **'-h, --help'** - Print the help messages
 - **'-m MJCF, --mjcf MJCF'** - Path to the MJCF file. Defaults to 'robot_airbot_play.xml' if not provided.
 - **'-r {robot}， --robot {robot}'** - Select a Robot. Available Robots: {airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
 - **'-t {task}， --task {task}'** - Select a Task. Available Tasks: {block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
@@ -257,7 +258,7 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 - **'--hide-mocap'** - Hide mocap target
 - **'--record'** - Enable Recording 
 - **'--record-frequency RECORD_FREQUENCY'** - Record requency (Hz)
-- **'--camera-names [CAMERA_NAMES ...]'** - Specify the list of camera names to render (optional)
+- **'--camera-names [CAMERA_NAMES]'** - Specify the list of camera names to render (optional)
 - **'--inference'** - Enable inference mode
 - **'--infer-hz INFER_HZ'** - Set inference frequency
 - **'--plot'** - Enable plot
