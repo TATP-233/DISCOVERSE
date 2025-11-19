@@ -239,11 +239,16 @@ python examples/tasks_mmk2/kiwi_pick.py
 python examples/robots/leap_hand_env.py
 
 # 逆向运动学
-python examples/mocap_ik/mocap_ik_airbot_play.py # 可选 [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
+python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # 可选 [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
 https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
+
+
+### 支持多种机械臂及任务场景
+
+
 
 ### 交互式控制
 - **'h'** - 显示帮助菜单
