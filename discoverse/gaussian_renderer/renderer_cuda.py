@@ -44,7 +44,6 @@ class GaussianRasterizationSettingsStorage:
     tanfovx : float
     tanfovy : float
     bg : torch.Tensor
-    scale_modifier : float
     viewmatrix : torch.Tensor
     projmatrix : torch.Tensor
     sh_degree : int
@@ -95,7 +94,6 @@ class CUDARenderer:
             "tanfovx": 1,
             "tanfovy": 1,
             "bg": torch.Tensor([0., 0., 0]).float().cuda(),
-            "scale_modifier": 1.,
             "viewmatrix": None,
             "projmatrix": None,
             "sh_degree": 3,
@@ -146,9 +144,32 @@ class CUDARenderer:
         self.gau_xyz_all_cu = torch.zeros(num_points, 3).cuda().requires_grad_(False)
         self.gau_rot_all_cu = torch.zeros(num_points, 4).cuda().requires_grad_(False)
 
-    def set_scale_modifier(self, modifier):
+    def update_gaussian_data_fast(self, start_idx, end_idx, pos_expanded, quat_expanded):
+        """
+        快速更新高斯数据，直接写入显存
+        
+        Args:
+            start_idx: 起始索引
+            end_idx: 结束索引
+            pos_expanded: 扩展后的位置数据 (N, 3)
+            quat_expanded: 扩展后的旋转数据 (N, 4)
+        """
         self.need_rerender = True
-        self.raster_settings.scale_modifier = float(modifier)
+        self.gau_xyz_all_cu[start_idx:end_idx] = pos_expanded
+        self.gau_rot_all_cu[start_idx:end_idx] = quat_expanded
+
+    def update_gaussian_data_fast_indices(self, indices, pos_expanded, quat_expanded):
+        """
+        快速更新高斯数据，使用索引直接写入显存
+        
+        Args:
+            indices: 索引张量 (N,)
+            pos_expanded: 扩展后的位置数据 (N, 3)
+            quat_expanded: 扩展后的旋转数据 (N, 4)
+        """
+        self.need_rerender = True
+        self.gau_xyz_all_cu[indices] = pos_expanded
+        self.gau_rot_all_cu[indices] = quat_expanded
 
     def set_render_reso(self, w, h):
         self.need_rerender = True
@@ -211,62 +232,41 @@ class CUDARenderer:
                 focal_y = height / (2.0 * self.raster_settings.tanfovy)
                 
                 # For gsplat, we use batch_dims to organize the data
-                # According to render_one.py, when batch_dims=(1,):
-                # - Gaussians: [1, N, 3], [1, N, 4], [1, N, 3], [1, N], [1, N, K, 3]
-                # - Cameras: [1, C, 4, 4], [1, C, 3, 3]
-                # Output will be [1, C, H, W, X]
+                # - Gaussians: [G, 3], [G, 4], [G, 3], [G], [G, K, 3]
+                # - Cameras: [C, 4, 4], [C, 3, 3]
+                # Output will be [C, H, W, X]
                 
-                # Create K matrix - shape [1, 1, 3, 3] for batch_dims=(1,) with 1 camera
+                # Create K matrix - shape [C, 3, 3] with C cameras
                 K = torch.tensor([
                     [focal_x, 0.0, width / 2.0],
                     [0.0, focal_y, height / 2.0],
                     [0.0, 0.0, 1.0]
-                ], dtype=torch.float32, device='cuda').unsqueeze(0).unsqueeze(0)  # [1, 1, 3, 3]
+                ], dtype=torch.float32, device='cuda').unsqueeze(0) # [C, 3, 3]
                 
-                # Get viewmat (transpose back since we stored transposed) - shape [1, 1, 4, 4]
-                viewmat = self.raster_settings.viewmatrix.T.unsqueeze(0).unsqueeze(0)  # [1, 1, 4, 4]
-                
-                # Prepare colors based on sh_degree
-                # self.gaussians.sh shape: [N, K, 3] where K is total number of SH coefficients
-                # When sh_degree is set, we pass all SH coefficients and let gsplat use sh_degree to control
-                # When sh_degree is None, we only pass the DC component (first SH coefficient)
-                if self.raster_settings.sh_degree is None:
-                    # No SH, use DC component only as RGB colors
-                    # SH DC component needs to be converted to RGB
-                    C0 = 0.28209479177387814  # SH basis function for l=0, m=0
-                    colors = self.gaussians.sh[:, 0, :] * C0 + 0.5  # [N, 3]
-                    colors = torch.clamp(colors, 0.0, 1.0)
-                    colors = colors.unsqueeze(0)  # [1, N, 3]
-                    sh_degree_to_use = None
-                else:
-                    # Use SH coefficients, shape [N, K, 3] -> [1, N, K, 3]
-                    colors = self.gaussians.sh.unsqueeze(0)  # [1, N, K, 3]
-                    sh_degree_to_use = self.raster_settings.sh_degree
-                
+                # Get viewmat (transpose back since we stored transposed) - shape [C, 4, 4]
+                viewmat = self.raster_settings.viewmatrix.T.unsqueeze(0)  # [C, 4, 4]
+                                
                 # Call gsplat rasterization
-                # With batch_dims=(1,):
-                # means=[1,N,3], quats=[1,N,4], scales=[1,N,3], opacities=[1,N], 
-                # colors=[1,N,3] or [1,N,K,3], viewmats=[1,C,4,4], Ks=[1,C,3,3]
-                # Output: renders=[1,C,H,W,X], alphas=[1,C,H,W,1]
+                # means=[G,3], quats=[G,4], scales=[G,3], opacities=[G], colors=[G,K,3], viewmats=[C,4,4], Ks=[C,3,3]
+                # Output: renders=[C,H,W,X], alphas=[C,H,W,1]
                 renders, alphas, meta = rasterization(
-                    means=self.gaussians.xyz.unsqueeze(0),  # [1, N, 3]
-                    quats=self.gaussians.rot.unsqueeze(0),  # [1, N, 4]
-                    scales=self.gaussians.scale.unsqueeze(0),  # [1, N, 3]
-                    opacities=self.gaussians.opacity.unsqueeze(0),  # [1, N]
-                    colors=colors,  # [1, N, 3] or [1, N, K, 3]
-                    viewmats=viewmat,  # [1, 1, 4, 4]
-                    Ks=K,  # [1, 1, 3, 3]
+                    means=self.gaussians.xyz,  # [G, 3]
+                    quats=self.gaussians.rot,  # [G, 4]
+                    scales=self.gaussians.scale,  # [G, 3]
+                    opacities=self.gaussians.opacity,  # [G]
+                    colors=self.gaussians.sh,  # [G, K, 3]
+                    viewmats=viewmat,  # [C, 4, 4]
+                    Ks=K,  # [C, 3, 3]
                     width=width,
                     height=height,
-                    sh_degree=sh_degree_to_use,
+                    sh_degree=self.raster_settings.sh_degree,
                     render_mode="RGB+D" if render_depth else "RGB",
                     packed=False,
                 )
-                
-                # renders shape: [B, C, height, width, X] (often [1,1,H,W,X])
+                # renders shape: [C, height, width, X]
                 # Flip vertically along the height dimension before squeezing batch/camera dims.
                 # Use -3 so it works for arbitrary leading batch/camera dimensions.
-                renders = torch.flip(renders, dims=[-3])
+                renders = torch.flip(renders, dims=[-3,-2])
 
                 # Remove batch and camera dimensions since we usually have 1 batch and 1 camera
                 renders = renders.squeeze(0).squeeze(0)  # [height, width, X]

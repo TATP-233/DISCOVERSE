@@ -607,9 +607,94 @@ class SimulatorBase:
         self.camera_pose_changed = True
 
     def update_gs_scene(self):
-        for name in self.config.obj_list + self.config.rb_link_list:
-            trans, quat_wxyz = self.getObjPose(name)
-            self.gs_renderer.set_obj_pose(name, trans, quat_wxyz)
+        if not hasattr(self, 'gs_fast_updater'):
+            # 首次运行时初始化快速更新器
+            try:
+                import torch
+                
+                # 1. 获取所有需要更新的物体名称
+                obj_names = self.config.obj_list + self.config.rb_link_list
+                # 过滤掉不在 GS 渲染器中的物体
+                obj_names = [name for name in obj_names if name in self.gs_renderer.gaussians_idx]
+                
+                # 2. 按照在 GS buffer 中的顺序对物体进行排序
+                gs_indices = {name: self.gs_renderer.gaussians_idx[name] for name in obj_names}
+                sorted_names = sorted(obj_names, key=lambda x: gs_indices[x])
+                
+                # 3. 获取 Body IDs
+                body_ids = [self.mj_model.body(name).id for name in sorted_names]
+                
+                # 4. 获取 GS 的索引和数量
+                gs_starts = [gs_indices[name] for name in sorted_names]
+                gs_counts = [self.gs_renderer.gaussians_size[name] for name in sorted_names]
+                
+                # 5. 检查内存连续性
+                is_contiguous = True
+                for i in range(len(gs_starts) - 1):
+                    if gs_starts[i] + gs_counts[i] != gs_starts[i+1]:
+                        is_contiguous = False
+                        break
+                
+                updater = {
+                    'body_ids': body_ids,
+                    'gs_counts_torch': torch.tensor(gs_counts, device='cuda', dtype=torch.long),
+                    'is_contiguous': is_contiguous
+                }
+
+                if is_contiguous:
+                    updater['start_idx'] = gs_starts[0]
+                    updater['end_idx'] = gs_starts[-1] + gs_counts[-1]
+                else:
+                    # 如果不连续，构建索引张量
+                    indices_list = []
+                    for s, c in zip(gs_starts, gs_counts):
+                        indices_list.append(torch.arange(s, s+c, device='cuda'))
+                    updater['indices'] = torch.cat(indices_list)
+
+                self.gs_fast_updater = updater
+                    
+            except Exception as e:
+                print(f"Failed to initialize fast GS updater: {e}")
+                self.gs_fast_updater = None
+
+        if hasattr(self, 'gs_fast_updater') and self.gs_fast_updater is not None:
+            # 使用快速更新路径
+            try:
+                import torch
+                updater = self.gs_fast_updater
+                
+                # 批量获取数据 (CPU)
+                pos = self.mj_data.xpos[updater['body_ids']]
+                quat = self.mj_data.xquat[updater['body_ids']]
+                
+                # 传输到 GPU
+                pos_cu = torch.from_numpy(pos).cuda().float()
+                quat_cu = torch.from_numpy(quat).cuda().float()
+                
+                # 扩展数据
+                pos_expanded = torch.repeat_interleave(pos_cu, updater['gs_counts_torch'], dim=0)
+                quat_expanded = torch.repeat_interleave(quat_cu, updater['gs_counts_torch'], dim=0)
+                
+                # 更新渲染器
+                if updater['is_contiguous']:
+                    self.gs_renderer.renderer.update_gaussian_data_fast(
+                        updater['start_idx'], 
+                        updater['end_idx'], 
+                        pos_expanded, 
+                        quat_expanded
+                    )
+                else:
+                    self.gs_renderer.renderer.update_gaussian_data_fast_indices(
+                        updater['indices'],
+                        pos_expanded,
+                        quat_expanded
+                    )
+                self.gs_renderer.update_gauss_data = True
+                
+            except Exception as e:
+                print(f"Fast GS update failed: {e}")
+                # 出错时不再回退，避免性能问题，只打印错误
+                raise Exception("GS update failed")
 
         if self.gs_renderer.update_gauss_data:
             self.gs_renderer.update_gauss_data = False

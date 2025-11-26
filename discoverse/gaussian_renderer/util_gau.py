@@ -137,18 +137,20 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
         
         print(f"正在从Hugging Face下载模型: {model_path}")
         
+        # 构建完整的HF文件路径（3dgs/相对路径）
+        hf_file_path = f"3dgs/{model_path}"
+
         # 确定本地目录
         if local_dir is None:
-            local_dir = os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs")
+            # 如果未指定目录，使用 assets 根目录
+            # hf_hub_download 会自动保持 3dgs 目录结构，所以不需要额外指定 3dgs 子目录
+            local_dir = DISCOVERSE_ASSETS_DIR
+            local_file_path = os.path.join(local_dir, hf_file_path)
+        else:
+            local_file_path = os.path.join(local_dir, model_path)
         
         # 确保本地目录存在
         os.makedirs(local_dir, exist_ok=True)
-        
-        # 构建完整的HF文件路径（3dgs/相对路径）
-        hf_file_path = f"3dgs/{model_path}"
-        
-        # 构建本地文件的完整路径
-        local_file_path = os.path.join(local_dir, model_path)
         local_file_dir = os.path.dirname(local_file_path)
         
         # 确保本地文件的目录存在
@@ -174,18 +176,22 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
                 shutil.move(expected_hf_path, local_file_path)
                 print(f"文件已移动到: {local_file_path}")
                 
-                # 清理可能创建的3dgs目录
+                # 清理可能创建的空目录
+                cleanup_dir = os.path.dirname(expected_hf_path)
                 hf_3dgs_dir = os.path.join(local_dir, "3dgs")
-                if os.path.exists(hf_3dgs_dir) and os.path.isdir(hf_3dgs_dir):
+                
+                # 循环向上删除空目录，直到 3dgs 目录
+                while cleanup_dir.startswith(hf_3dgs_dir):
                     try:
-                        # 只有当目录为空或只包含我们刚移动的文件时才删除
-                        if not os.listdir(hf_3dgs_dir) or all(
-                            not os.path.exists(os.path.join(hf_3dgs_dir, f)) 
-                            for f in os.listdir(hf_3dgs_dir)
-                        ):
-                            shutil.rmtree(hf_3dgs_dir)
-                    except:
-                        pass
+                        os.rmdir(cleanup_dir)
+                    except OSError:
+                        # 目录非空或无法删除，停止清理
+                        break
+                    
+                    if cleanup_dir == hf_3dgs_dir:
+                        break
+                        
+                    cleanup_dir = os.path.dirname(cleanup_dir)
             else:
                 local_file_path = downloaded_path
         

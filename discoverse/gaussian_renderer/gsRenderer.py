@@ -32,8 +32,6 @@ class GSRenderer:
 
         self.update_gauss_data = False
 
-        self.scale_modifier = 1.
-
         self.renderer = CUDARenderer(self.camera.w, self.camera.h, backend=backend)
         self.camera_tran = np.zeros(3)
         self.camera_quat = np.zeros(4)
@@ -91,7 +89,6 @@ class GSRenderer:
 
     def update_activated_renderer_state(self, gaus: util_gau.GaussianData):
         self.renderer.update_gaussian_data(gaus)
-        self.renderer.set_scale_modifier(self.scale_modifier)
         self.renderer.update_camera_pose(self.camera)
         self.renderer.update_camera_intrin(self.camera)
         self.renderer.set_render_reso(self.camera.w, self.camera.h)
