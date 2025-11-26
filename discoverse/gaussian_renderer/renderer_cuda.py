@@ -146,6 +146,10 @@ class CUDARenderer:
         self.gau_xyz_all_cu = torch.zeros(num_points, 3).cuda().requires_grad_(False)
         self.gau_rot_all_cu = torch.zeros(num_points, 4).cuda().requires_grad_(False)
 
+    def set_scale_modifier(self, modifier):
+        self.need_rerender = True
+        self.raster_settings.scale_modifier = float(modifier)
+
     def update_gaussian_data_fast(self, start_idx, end_idx, pos_expanded, quat_expanded):
         """
         快速更新高斯数据，直接写入显存
