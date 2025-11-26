@@ -73,7 +73,10 @@ class GSRenderer:
                 self.gaussians_size[k] = gs.xyz.shape[0]
                 idx_sum += self.gaussians_size[k]
 
-        self.update_activated_renderer_state(self.gaussians_all)
+        self.renderer.update_gaussian_data(self.gaussians_all)
+        self.renderer.update_camera_pose(self.camera)
+        self.renderer.update_camera_intrin(self.camera)
+        self.renderer.set_render_reso(self.camera.w, self.camera.h)
 
         for name in self.gaussians_all.keys():
             # :TODO: 找到哪里被改成torch了
@@ -86,20 +89,6 @@ class GSRenderer:
         if self.camera.is_intrin_dirty:
             self.renderer.update_camera_intrin(self.camera)
             self.camera.is_intrin_dirty = False
-
-    def update_activated_renderer_state(self, gaus: util_gau.GaussianData):
-        self.renderer.update_gaussian_data(gaus)
-        self.renderer.update_camera_pose(self.camera)
-        self.renderer.update_camera_intrin(self.camera)
-        self.renderer.set_render_reso(self.camera.w, self.camera.h)
-
-    def set_obj_pose(self, obj_name, trans, quat_wzyx):
-        if not ((self.gaussians_all[obj_name].origin_rot == quat_wzyx).all() and (self.gaussians_all[obj_name].origin_xyz == trans).all()):
-            self.update_gauss_data = True
-            self.gaussians_all[obj_name].origin_rot = quat_wzyx.copy()
-            self.gaussians_all[obj_name].origin_xyz = trans.copy()
-            self.renderer.gau_xyz_all_cu[self.gaussians_idx[obj_name]:self.gaussians_idx[obj_name]+self.gaussians_size[obj_name],:] = torch.from_numpy(trans).cuda().requires_grad_(False)
-            self.renderer.gau_rot_all_cu[self.gaussians_idx[obj_name]:self.gaussians_idx[obj_name]+self.gaussians_size[obj_name],:] = torch.from_numpy(quat_wzyx).cuda().requires_grad_(False)
 
     def set_camera_pose(self, trans, quat_xyzw):
         if not ((self.camera_tran == trans).all() and (self.camera_quat == quat_xyzw).all()):

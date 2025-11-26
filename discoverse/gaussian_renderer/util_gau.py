@@ -78,9 +78,13 @@ class Camera:
         x = np.cross(self.up, z)
         return np.stack([x, self.up, z], axis=-1)
 
-    def get_view_matrix(self):
-        # return np.array(glm.lookAt(self.position, self.target, self.up))
-        return np.array(glm.lookAt(glm.vec3(self.position), glm.vec3(self.target), glm.vec3(self.up)))
+    def get_view_matrix(self, backend="glm"):
+        view_matrix = np.array(glm.lookAt(glm.vec3(self.position), glm.vec3(self.target), glm.vec3(self.up)))
+        if backend == "gsplat":
+            view_matrix[[1,2], :] *= -1
+        elif backend == "diff_gaussian":
+            view_matrix[[0,2], :] *= -1
+        return view_matrix
 
     def get_project_matrix(self):
         project_mat = glm.perspective(
