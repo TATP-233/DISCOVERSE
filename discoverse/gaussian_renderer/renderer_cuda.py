@@ -44,6 +44,7 @@ class GaussianRasterizationSettingsStorage:
     tanfovx : float
     tanfovy : float
     bg : torch.Tensor
+    scale_modifier : float
     viewmatrix : torch.Tensor
     projmatrix : torch.Tensor
     sh_degree : int
@@ -94,6 +95,7 @@ class CUDARenderer:
             "tanfovx": 1,
             "tanfovy": 1,
             "bg": torch.Tensor([0., 0., 0]).float().cuda(),
+            "scale_modifier": 1.,
             "viewmatrix": None,
             "projmatrix": None,
             "sh_degree": 3,
@@ -178,8 +180,7 @@ class CUDARenderer:
 
     def update_camera_pose(self, camera: util_gau.Camera):
         self.need_rerender = True
-        view_matrix = camera.get_view_matrix()
-        view_matrix[[0,2], :] *= -1
+        view_matrix = camera.get_view_matrix(self.backend)
         
         proj = camera.get_project_matrix() @ view_matrix
         self.raster_settings.viewmatrix = torch.tensor(view_matrix.T).float().cuda()
@@ -196,16 +197,16 @@ class CUDARenderer:
         Tmat[:3,:3] = rmat
         Tmat[:3,3] = trans
         Tmat[0:3, [1,2]] *= -1
-        transpose = np.array([[-1.0,  0.0,  0.0,  0.0],
-                              [ 0.0, -1.0,  0.0,  0.0],
-                              [ 0.0,  0.0,  1.0,  0.0],
-                              [ 0.0,  0.0,  0.0,  1.0]])
-        view_matrix = transpose @ np.linalg.inv(Tmat)
+        
+        view_matrix = np.linalg.inv(Tmat)
+
+        if self.backend == "diff_gaussian":
+            view_matrix[[0,1], :] *= -1
 
         proj = camera.get_project_matrix() @ view_matrix
-        self.raster_settings.projmatrix = torch.tensor(proj.T).float().cuda()
         self.raster_settings.viewmatrix = torch.tensor(view_matrix.T).float().cuda()
         self.raster_settings.campos = torch.tensor(camera.position).float().cuda()
+        self.raster_settings.projmatrix = torch.tensor(proj.T).float().cuda()
 
     def update_camera_intrin(self, camera: util_gau.Camera):
         hfovx, hfovy, focal = camera.get_htanfovxy_focal()
@@ -264,10 +265,6 @@ class CUDARenderer:
                     packed=False,
                 )
                 # renders shape: [C, height, width, X]
-                # Flip vertically along the height dimension before squeezing batch/camera dims.
-                # Use -3 so it works for arbitrary leading batch/camera dimensions.
-                renders = torch.flip(renders, dims=[-3,-2])
-
                 # Remove batch and camera dimensions since we usually have 1 batch and 1 camera
                 renders = renders.squeeze(0).squeeze(0)  # [height, width, X]
                 

@@ -32,6 +32,8 @@ class GSRenderer:
 
         self.update_gauss_data = False
 
+        self.scale_modifier = 1.
+
         self.renderer = CUDARenderer(self.camera.w, self.camera.h, backend=backend)
         self.camera_tran = np.zeros(3)
         self.camera_quat = np.zeros(4)
@@ -44,25 +46,26 @@ class GSRenderer:
         gs_model_dir = Path(os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs"))
 
         bg_key = "background"
-        data_path = Path(os.path.join(gs_model_dir, models_dict[bg_key]))
-        gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
-        if "background_env" in models_dict.keys():
-            bgenv_key = "background_env"
-            bgenv_gs = util_gau.load_ply(
-                Path(os.path.join(gs_model_dir, models_dict[bgenv_key])),
-                hf_repo_id=self.hf_repo_id,
-                local_dir=self.local_dir
-            )
-            gs.xyz = np.concatenate([gs.xyz, bgenv_gs.xyz], axis=0)
-            gs.rot = np.concatenate([gs.rot, bgenv_gs.rot], axis=0)
-            gs.scale = np.concatenate([gs.scale, bgenv_gs.scale], axis=0)
-            gs.opacity = np.concatenate([gs.opacity, bgenv_gs.opacity], axis=0)
-            gs.sh = np.concatenate([gs.sh, bgenv_gs.sh], axis=0)
+        if bg_key in models_dict:
+            data_path = Path(os.path.join(gs_model_dir, models_dict[bg_key]))
+            gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
+            if "background_env" in models_dict.keys():
+                bgenv_key = "background_env"
+                bgenv_gs = util_gau.load_ply(
+                    Path(os.path.join(gs_model_dir, models_dict[bgenv_key])),
+                    hf_repo_id=self.hf_repo_id,
+                    local_dir=self.local_dir
+                )
+                gs.xyz = np.concatenate([gs.xyz, bgenv_gs.xyz], axis=0)
+                gs.rot = np.concatenate([gs.rot, bgenv_gs.rot], axis=0)
+                gs.scale = np.concatenate([gs.scale, bgenv_gs.scale], axis=0)
+                gs.opacity = np.concatenate([gs.opacity, bgenv_gs.opacity], axis=0)
+                gs.sh = np.concatenate([gs.sh, bgenv_gs.sh], axis=0)
 
-        self.gaussians_all[bg_key] = gs
-        self.gaussians_idx[bg_key] = idx_sum
-        self.gaussians_size[bg_key] = gs.xyz.shape[0]
-        idx_sum = self.gaussians_size[bg_key]
+            self.gaussians_all[bg_key] = gs
+            self.gaussians_idx[bg_key] = idx_sum
+            self.gaussians_size[bg_key] = gs.xyz.shape[0]
+            idx_sum = self.gaussians_size[bg_key]
 
         for i, (k, v) in enumerate(models_dict.items()):
             if k != "background" and k != "background_env":
@@ -74,6 +77,7 @@ class GSRenderer:
                 idx_sum += self.gaussians_size[k]
 
         self.renderer.update_gaussian_data(self.gaussians_all)
+        self.renderer.set_scale_modifier(self.scale_modifier)
         self.renderer.update_camera_pose(self.camera)
         self.renderer.update_camera_intrin(self.camera)
         self.renderer.set_render_reso(self.camera.w, self.camera.h)
