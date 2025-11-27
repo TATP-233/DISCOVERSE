@@ -20,7 +20,6 @@ from pathlib import Path
 
 # Mapping of feature modules to required submodules
 MODULE_SUBMODULES = {
-    'gaussian-rendering': ['submodules/diff-gaussian-rasterization'],
     'randomain': ['submodules/ComfyUI'],
     'act': ['policies/act'],
     'lidar': ['submodules/MuJoCo-LiDAR'],
@@ -32,7 +31,6 @@ MODULE_SUBMODULES = {
 
 # All available submodules
 ALL_SUBMODULES = [
-    'submodules/diff-gaussian-rasterization',
     'submodules/ComfyUI', 
     'policies/act',
     'submodules/MuJoCo-LiDAR',
@@ -94,7 +92,7 @@ def detect_installed_modules():
             
         # Alternative: try importing specific modules to detect installation
         test_imports = {
-            'gaussian-rendering': ['torch', 'diff_gaussian_rasterization'],
+            'gaussian-rendering': ['torch', 'gsplat'],
             'lidar': ['taichi'],
             'xml-editor': ['PyQt5'],
             'act': ['einops', 'transformers'],

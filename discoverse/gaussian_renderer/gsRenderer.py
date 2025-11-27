@@ -2,41 +2,24 @@ import os
 import torch
 import numpy as np
 from pathlib import Path
-from scipy.spatial.transform import Rotation
-
 from discoverse.gaussian_renderer import util_gau
 from discoverse.gaussian_renderer.renderer_cuda import CUDARenderer
-
 from discoverse import DISCOVERSE_ASSETS_DIR
 
 class GSRenderer:
-    def __init__(self, models_dict:dict, render_width=1920, render_height=1080, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None, backend="gsplat"):
+    def __init__(self, models_dict:dict, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
         """
         初始化高斯飞溅渲染器
         
         Args:
             models_dict: 模型字典,键为模型名称,值为模型路径
-            render_width: 渲染宽度
-            render_height: 渲染高度
             hf_repo_id: Hugging Face仓库ID,用于下载模型
             local_dir: 下载目标目录,默认为None(使用DISCOVERSE_ASSETS_DIR/3dgs)
-            backend: 渲染后端,"gsplat"或"diff_gaussian",默认为"gsplat"
         """
-        self.width = render_width
-        self.height = render_height
         self.hf_repo_id = hf_repo_id
         self.local_dir = local_dir
-        self.backend = backend
 
-        self.camera = util_gau.Camera(self.height, self.width)
-
-        self.update_gauss_data = False
-
-        self.scale_modifier = 1.
-
-        self.renderer = CUDARenderer(self.camera.w, self.camera.h, backend=backend)
-        self.camera_tran = np.zeros(3)
-        self.camera_quat = np.zeros(4)
+        self.renderer = CUDARenderer()
 
         self.gaussians_all:dict[util_gau.GaussianData] = {}
         self.gaussians_idx = {}
@@ -77,10 +60,10 @@ class GSRenderer:
                 idx_sum += self.gaussians_size[k]
 
         self.renderer.update_gaussian_data(self.gaussians_all)
-        self.renderer.set_scale_modifier(self.scale_modifier)
-        self.renderer.update_camera_pose(self.camera)
-        self.renderer.update_camera_intrin(self.camera)
-        self.renderer.set_render_reso(self.camera.w, self.camera.h)
+        
+        self.renderer.gaussian_start_indices = self.gaussians_idx
+        self.renderer.gaussian_end_indices = {k: v + self.gaussians_size[k] for k, v in self.gaussians_idx.items()}
+        self.renderer.gaussian_model_names = list(self.gaussians_all.keys())
 
         for name in self.gaussians_all.keys():
             # :TODO: 找到哪里被改成torch了
@@ -88,28 +71,3 @@ class GSRenderer:
                 self.gaussians_all[name].R = self.gaussians_all[name].R.numpy()
             except:
                 pass
-
-    def update_camera_intrin_lazy(self):
-        if self.camera.is_intrin_dirty:
-            self.renderer.update_camera_intrin(self.camera)
-            self.camera.is_intrin_dirty = False
-
-    def set_camera_pose(self, trans, quat_xyzw):
-        if not ((self.camera_tran == trans).all() and (self.camera_quat == quat_xyzw).all()):
-            self.camera_tran[:] = trans[:]
-            self.camera_quat[:] = quat_xyzw[:]
-            rmat = Rotation.from_quat(quat_xyzw).as_matrix()
-            self.renderer.update_camera_pose_from_topic(self.camera, rmat, trans)
-
-    def set_camera_fovy(self, fovy):
-        if not fovy == self.camera.fovy:
-            self.camera.update_fovy(fovy)
-    
-    def set_camera_resolution(self, height, width):
-        if not (height == self.camera.h and width == self.camera.w):
-            self.camera.update_resolution(height, width)
-            self.renderer.set_render_reso(width, height)
-
-    def render(self, render_depth=False):
-        self.update_camera_intrin_lazy()
-        return self.renderer.draw(render_depth)
