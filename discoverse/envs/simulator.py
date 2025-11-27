@@ -104,7 +104,7 @@ class SimulatorBase:
                     self.config.render_set["height"],
                     hf_repo_id=getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models'),
                     local_dir=getattr(self.config, 'hf_local_dir', None),
-                    backend="diff_gaussian"
+                    backend="gsplat"
                 )
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
@@ -701,19 +701,6 @@ class SimulatorBase:
             self.gs_renderer.renderer.need_rerender = True
             self.gs_renderer.renderer.gaussians.xyz[self.gs_renderer.renderer.gau_env_idx:] = multiple_quaternion_vector3d(self.gs_renderer.renderer.gau_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:], self.gs_renderer.renderer.gau_ori_xyz_all_cu[self.gs_renderer.renderer.gau_env_idx:]) + self.gs_renderer.renderer.gau_xyz_all_cu[self.gs_renderer.renderer.gau_env_idx:]
             self.gs_renderer.renderer.gaussians.rot[self.gs_renderer.renderer.gau_env_idx:] = multiple_quaternions(self.gs_renderer.renderer.gau_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:], self.gs_renderer.renderer.gau_ori_rot_all_cu[self.gs_renderer.renderer.gau_env_idx:])
-
-    def getObjPose(self, name):
-        try:
-            position = self.mj_data.body(name).xpos
-            quat = self.mj_data.body(name).xquat
-            return position, quat
-        except KeyError:
-            try:
-                position = self.mj_data.geom(name).xpos
-                quat = Rotation.from_matrix(self.mj_data.geom(name).xmat.reshape((3,3))).as_quat()[[3,0,1,2]]
-                return position, quat
-            except KeyError:
-                raise KeyError("Invalid object name: {}".format(name))
 
     def getCameraPose(self, cam_id):
         if cam_id == -1:
