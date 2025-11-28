@@ -42,11 +42,11 @@ cd DISCOVERSE
 
 2. 选择安装方式
 ```bash
-conda create -n discoverse python=3.10 # >=3.8即可
+conda create -n discoverse discoverse python=3.10 # >=3.8即可
 conda activate discoverse
 pip install -e .
 
-## 自动检测并下载所需的子模块
+## 自动检测并下载需要 submodules
 python scripts/setup_submodules.py
 
 ## 验证安装
@@ -77,7 +77,7 @@ pip install -e ".[act_full]"
 - **包含**: ACT算法、数据收集工具、可视化
 - **功能**: 模仿学习、机器人技能训练、策略优化
 - **依赖**: `torch`, `einops`, `h5py`, `transformers`, `wandb`
-- **算法**：其他算法可选 [diffusion-policy] 和 [rdt]
+- **算法**：其他算法可选[diffusion-policy]和[rdt]"
 
 #### 场景4: 高保真视觉仿真
 ```bash
@@ -134,7 +134,7 @@ sudo systemctl restart docker
     docker load < discoverse_tag.tar
     ```
 
-- 或者从 `Dockerfile` 构建
+- 或者 从`docker file`构建
     ```bash
     git clone https://github.com/TATP-233/DISCOVERSE.git
     cd DISCOVERSE
@@ -168,7 +168,7 @@ python3 examples/active_slam/camera_view.py
 
 ## 📷 高保真渲染设置
 
-用于高保真 3DGS 渲染功能。若无高保真渲染需求或已通过 Docker 安装，可跳过本节。
+用于高保真3DGS渲染功能，若无高保真渲染需求或者通过docker安装的用户，可跳过这一章节。
 
 ### 1. CUDA安装
 从[NVIDIA官网](https://developer.nvidia.com/cuda-toolkit-archive)安装CUDA 11.8+，根据自己的显卡驱动选择对应的cuda版本。
@@ -235,15 +235,39 @@ python discoverse/robots_env/mmk2_base.py
 python examples/tasks_airbot_play/place_coffeecup.py
 python examples/tasks_mmk2/kiwi_pick.py
 
-# 触觉手 Leap Hand
+# 触觉手 leaphand
 python examples/robots/leap_hand_env.py
 
-# 逆运动学
-python examples/mocap_ik/mocap_ik_airbot_play.py # 可选 [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
+# 逆向运动学
+python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # 可选 [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
 https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
+
+
+### 多种机器人模型及任务场景
+
+<img src="./assets/multi_robot.png" alt="多种机器人模型及任务场景"/>
+
+- **'-h, --help'** - 打印帮助信息
+- **'-m MJCF, --mjcf MJCF'** - 输入MJCF文件的路径（可选）。如未指定，则使用默认的robot_airbot_play.xml
+- **'-r ROBOT, --robot ROBOT'** - 输入机器人模型名称, 可选{airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
+- **'-t TASK, --task TASK'** - 输入任务名称, 可选{block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
+- **'-y'** - 在macOS上跳过mjpython提示，直接尝试启动查看器
+- **'--mouse-3d'** - 启用3D鼠标进行机械臂控制（需要3D鼠标硬件支持）
+- **'--hide-mocap'** - 隐藏运动捕捉目标
+- **'--record'** - 启用记录功能
+- **'--record-frequency RECORD_FREQUENCY'** - 设置记录频率（单位：Hz）
+- **'--camera-names [CAMERA_NAMES]'** - 指定需要渲染的相机名称列表（可选）
+- **'--inference'** - 启用推理模式
+- **'--infer-hz INFER_HZ'** - 推理频率
+- **'--plot'** - 开启画图
+```bash
+# 机器人模型为arx_l5，任务场景为block_bridge_place
+python3 examples/mocap_ik/mocap_ik_manipulator.py -r arx_l5 -t block_bridge_place
+```
+
 
 ### 交互式控制
 - **'h'** - 显示帮助菜单
@@ -252,7 +276,7 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 - **'['/'']'** - 切换相机视角
 - **'Esc'** - 切换自由相机模式
 - **'p'** - 打印机器人状态信息
-- **'Ctrl+g'** - 切换高斯渲染（需安装 gaussian-splatting 并设置 cfg.use_gaussian_renderer = True）
+- **'Ctrl+g'** - 切换高斯渲染（需安装gaussian-splatting并制定cfg.use_gaussian_renderer = False）
 - **'Ctrl+d'** - 切换深度可视化
 
 ## 🎓 学习与训练
