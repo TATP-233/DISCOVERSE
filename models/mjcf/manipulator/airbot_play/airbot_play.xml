@@ -50,14 +50,14 @@
                   <joint name="endright" class='finger2'/>
                   <geom type="mesh" mesh="right" material="Paint_Matte_Black" class="visual"/>
                   <geom type="box" size=".00525 .002 .02" pos="0 0.002 0.005" rgba="1 0 0 1" class="collision"/>
-                  <geom type="box" size=".015 .002 .018" pos="0 0.002 -0.035" rgba="0 0 1 1" class="collision"/>
+                  <geom type="box" size=".015 .002 .018" pos="0 0.002 -0.035" rgba="1 0 0 1" class="collision"/>
                 </body>
                 <body name="left" pos="0 0 0">
                   <inertial pos="-0.049039 -0.0096764 0.00038868" quat="0.650491 0.0296695 0.0398251 0.757889" mass="0.061803" diaginertia="2.74809e-05 1.88104e-05 1.19127e-05"/>
                   <joint name="endleft" class='finger1'/>
                   <geom type="mesh" mesh="left" material="Paint_Matte_Black" class="visual"/>
                   <geom type="box" size=".00525 .002 .02" pos="0 -0.002 0.005" rgba="1 0 0 1" class="collision"/>
-                  <geom type="box" size=".015 .002 .018" pos="0 -0.002 -0.035" rgba="0 0 1 1" class="collision"/>
+                  <geom type="box" size=".015 .002 .018" pos="0 -0.002 -0.035" rgba="1 0 0 1" class="collision"/>
                 </body>
               </body>
             </body>
