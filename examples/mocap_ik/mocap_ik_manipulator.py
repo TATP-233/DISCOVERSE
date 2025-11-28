@@ -16,10 +16,14 @@ np.set_printoptions(precision=5, suppress=True, linewidth=500)
 import mink
 import discoverse
 from discoverse.envs import make_env
-from discoverse.examples.mocap_ik.mocap_ik_utils import \
+from mocap_ik_utils import \
     add_mocup_body_to_mjcf, \
     generate_mocap_xml
-from discoverse.examples.force_control.impedance_control import ImpedanceController
+
+force_control_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'force_control')
+sys.path.insert(0, force_control_path)
+from impedance_control import ImpedanceController
+
 from discoverse.utils import (
     get_mocap_tmat, 
     get_site_tmat, 
