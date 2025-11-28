@@ -79,7 +79,7 @@ pip install -e ".[act_full]"
 - **Includes**: ACT algorithm, data collection tools, visualization
 - **Function**: Imitation learning, robot skill training, policy optimization
 - **Dependencies**: `torch`, `einops`, `h5py`, `transformers`, `wandb`
-- **Algorithms**: Additional algorithms available: [diffusion-policy] and [rdt]
+- **Algorithms**: Other algorithms available with [diffusion-policy] and [rdt]
 
 #### Scenario 4: High-Fidelity Visual Simulation
 ```bash
@@ -105,7 +105,7 @@ pip install -e ".[gaussian-rendering]"
 
 ### Docker Quick Start
 
-We provide a Docker installation method.
+We provide Docker installation method.
 
 #### 1. Install NVIDIA Container Toolkit:
 ```bash
@@ -143,7 +143,7 @@ sudo systemctl restart docker
     python scripts/setup_submodules.py --module gaussian-rendering
     docker build -f discoverse/docker/Dockerfile -t discoverse:latest .
     ```
-    `Dockerfile.vnc` is a configuration that supports VNC remote access. It adds VNC server support to `discoverse/docker/Dockerfile`, allowing remote access to the container's GUI via a VNC client. This is useful for remote development or headless environments. To use it, replace `docker build -f discoverse/docker/Dockerfile ...` with `docker build -f discoverse/docker/Dockerfile.vnc ...`.
+    `Dockerfile.vnc` is a configuration version that supports VNC remote access. It adds VNC server support on top of `discoverse/docker/Dockerfile`, allowing you to remotely access the container's graphical interface through a VNC client. This is particularly useful for remote development or environments without a local display server. If needed, change `docker build -f discoverse/docker/Dockerfile -t discoverse:latest .` to `docker build -f discoverse/docker/Dockerfile.vnc -t discoverse:latest .`
 
 ### 3. Create Docker Container
 
@@ -168,7 +168,7 @@ python3 examples/active_slam/camera_view.py
 
 ## 📷 High-Fidelity Rendering Setup
 
-This section covers the setup for high-fidelity 3DGS rendering. If you do not require this feature or are using Docker, you can skip this section.
+For high-fidelity 3DGS rendering functionality, if you don't need high-fidelity rendering or are using docker installation, you can skip this section.
 
 ### 1. CUDA Installation
 Install CUDA 11.8+ from [NVIDIA's official site](https://developer.nvidia.com/cuda-toolkit-archive), choose the corresponding CUDA version based on your graphics card driver.
@@ -235,15 +235,37 @@ python discoverse/robots_env/mmk2_base.py
 python examples/tasks_airbot_play/place_coffeecup.py
 python examples/tasks_mmk2/kiwi_pick.py
 
-# Tactile hand Leap Hand
+# Tactile hand leaphand
 python examples/robots/leap_hand_env.py
 
-# Inverse Kinematics
-python examples/mocap_ik/mocap_ik_airbot_play.py # optional [--mjcf mjcf/tasks_airbot_play/stack_block.xml]
+# Inverse kinematics
+python examples/mocap_ik/mocap_ik_manipulator.py # optional [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # optional [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
 
 https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
+
+### Multiple Robot Models and Task Scenarios
+
+<img src="./assets/multi_robot.png" alt="Multiple Robot Models and Task Scenarios"/>
+
+- **'-h, --help'** - Print the help messages
+- **'-m MJCF, --mjcf MJCF'** - Path to the MJCF file. Defaults to 'robot_airbot_play.xml' if not provided.
+- **'-r ROBOT, --robot ROBOT'** - Select a ROBOT. Available Robots: {airbot_play, airbot_play_force, arx_l5, arx_x5, iiwa14, panda, piper, rm65, ur5e, xarm7}
+- **'-t TASK, --task TASK'** - Select a TASK. Available Tasks: {block_bridge_place, close_laptop, cover_cup, open_drawer, peg_in_hole, pick_jujube, place_block, place_coffeecup, place_jujube, place_jujube_coffeecup, place_kiwi_fruit, push_mouse, stack_block}
+- **'-y'** - For macOS: Bypass mjpython prompt and launch viewer directly
+- **'--mouse-3d'** - Enable 3D Mouse for arm control (requires 3D mouse hardware)
+- **'--hide-mocap'** - Hide mocap target
+- **'--record'** - Enable Recording 
+- **'--record-frequency RECORD_FREQUENCY'** - Record requency (Hz)
+- **'--camera-names [CAMERA_NAMES]'** - Specify the list of camera names to render (optional)
+- **'--inference'** - Enable inference mode
+- **'--infer-hz INFER_HZ'** - Set inference frequency
+- **'--plot'** - Enable plot
+```bash
+# Robot model: arx_l5, task: block_bridge_place
+python3 examples/mocap_ik/mocap_ik_manipulator.py -r arx_l5 -t block_bridge_place
+```
 
 ### Interactive Controls
 - **'h'** - Show help menu
@@ -252,7 +274,7 @@ https://github.com/user-attachments/assets/6d80119a-31e1-4ddf-9af5-ee28e949ea81
 - **'['/'']'** - Switch camera views
 - **'Esc'** - Toggle free camera mode
 - **'p'** - Print robot state information
-- **'Ctrl+g'** - Toggle Gaussian rendering (requires `gaussian-splatting` installation and `cfg.use_gaussian_renderer = True`)
+- **'Ctrl+g'** - Toggle Gaussian rendering (requires gaussian-splatting installation and set cfg.use_gaussian_renderer = False)
 - **'Ctrl+d'** - Toggle depth visualization
 
 
