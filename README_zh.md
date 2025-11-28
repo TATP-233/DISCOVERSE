@@ -42,11 +42,11 @@ cd DISCOVERSE
 
 2. 选择安装方式
 ```bash
-conda create -n discoverse discoverse python=3.10 # >=3.8即可
+conda create -n discoverse python=3.10 # >=3.8即可
 conda activate discoverse
 pip install -e .
 
-## 自动检测并下载需要 submodules
+## 自动检测并下载所需的子模块
 python scripts/setup_submodules.py
 
 ## 验证安装
@@ -77,7 +77,7 @@ pip install -e ".[act_full]"
 - **包含**: ACT算法、数据收集工具、可视化
 - **功能**: 模仿学习、机器人技能训练、策略优化
 - **依赖**: `torch`, `einops`, `h5py`, `transformers`, `wandb`
-- **算法**：其他算法可选[diffusion-policy]和[rdt]"
+- **算法**：其他算法可选 [diffusion-policy] 和 [rdt]
 
 #### 场景4: 高保真视觉仿真
 ```bash
@@ -134,7 +134,7 @@ sudo systemctl restart docker
     docker load < discoverse_tag.tar
     ```
 
-- 或者 从`docker file`构建
+- 或者从 `Dockerfile` 构建
     ```bash
     git clone https://github.com/TATP-233/DISCOVERSE.git
     cd DISCOVERSE
@@ -168,7 +168,7 @@ python3 examples/active_slam/camera_view.py
 
 ## 📷 高保真渲染设置
 
-用于高保真3DGS渲染功能，若无高保真渲染需求或者通过docker安装的用户，可跳过这一章节。
+用于高保真 3DGS 渲染功能。若无高保真渲染需求或已通过 Docker 安装，可跳过本节。
 
 ### 1. CUDA安装
 从[NVIDIA官网](https://developer.nvidia.com/cuda-toolkit-archive)安装CUDA 11.8+，根据自己的显卡驱动选择对应的cuda版本。
@@ -235,10 +235,10 @@ python discoverse/robots_env/mmk2_base.py
 python examples/tasks_airbot_play/place_coffeecup.py
 python examples/tasks_mmk2/kiwi_pick.py
 
-# 触觉手 leaphand
+# 触觉手 Leap Hand
 python examples/robots/leap_hand_env.py
 
-# 逆向运动学
+# 逆运动学
 python examples/mocap_ik/mocap_ik_manipulator.py # 可选 [--robot airbot_play --mjcf mjcf/task_environments/stack_block.xml]
 python examples/mocap_ik/mocap_ik_mmk2.py # 可选 [--mjcf mjcf/tasks_mmk2/pan_pick.xml]
 ```
@@ -276,7 +276,7 @@ python3 examples/mocap_ik/mocap_ik_manipulator.py -r arx_l5 -t block_bridge_plac
 - **'['/'']'** - 切换相机视角
 - **'Esc'** - 切换自由相机模式
 - **'p'** - 打印机器人状态信息
-- **'Ctrl+g'** - 切换高斯渲染（需安装gaussian-splatting并制定cfg.use_gaussian_renderer = False）
+- **'Ctrl+g'** - 切换高斯渲染（需安装 gaussian-splatting 并设置 cfg.use_gaussian_renderer = True）
 - **'Ctrl+d'** - 切换深度可视化
 
 ## 🎓 学习与训练
