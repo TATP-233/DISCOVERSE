@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
+import sys
 
 def multiple_quaternion_vector3d(qwxyz, vxyz):
     qw = qwxyz[..., 0]
@@ -206,6 +207,37 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
         print("错误: 需要安装 huggingface_hub 库")
         print("请运行: pip install huggingface_hub")
         raise
+
+def check_hf_login_or_exit(verbose=True):
+    """
+    检查当前是否已登录 Hugging Face（huggingface_hub）。
+    如果未安装 huggingface_hub，会提示安装并退出；如果未登录，会提示用户登录并安全退出。
+
+    返回:
+        True 如果已登录；否则不会返回（调用 sys.exit(1) 退出）。
+    """
+    try:
+        from huggingface_hub import HfApi
+    except ImportError:
+        if verbose:
+            print("错误: 未安装 huggingface_hub。请运行: pip install huggingface_hub")
+        sys.exit(1)
+
+    api = HfApi()
+    try:
+        info = api.whoami()
+        # whoami 返回字典，包含 'name' 或 'email' 等字段
+        name = None
+        if isinstance(info, dict):
+            name = info.get('name') or info.get('email') or info.get('user')
+        if verbose:
+            print(f"已使用 Hugging Face 登录: {name}")
+        return True
+    except Exception as e:
+        if verbose:
+            print("检测到未登录 Hugging Face。请执行 `huggingface-cli login` 或 设置 环境变量 `HUGGINGFACE_HUB_TOKEN` 后重试。")
+            print(f"(详细错误: {e})")
+        sys.exit(1)
     except Exception as e:
         print(f"从Hugging Face下载模型失败: {e}")
         raise
