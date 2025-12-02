@@ -283,24 +283,21 @@ def main():
         print("💡 要安装缺失的功能，请使用以下命令：")
         
         missing_modules = [cat for cat, avail in module_status.items() if not avail]
+    
+        install_map = {
+            "激光雷达仿真": "lidar",
+            "3D高斯散射渲染": "gaussian-rendering", 
+            "XML场景编辑器": "xml-editor",
+            "策略学习": "ml",
+            "RealSense支持": "realsense",
+            "ROS支持": "ros",
+            "数据增强": "randomain",
+            "可视化": "visualization",
+        }
         
-        if len(missing_modules) == len(module_status):
-            print("   pip install -e \".[full]\"  # 安装所有功能")
-        else:
-            install_map = {
-                "激光雷达仿真": "lidar",
-                "3D高斯散射渲染": "gaussian-rendering", 
-                "XML场景编辑器": "xml-editor",
-                "策略学习": "ml",
-                "RealSense支持": "realsense",
-                "ROS支持": "ros",
-                "数据增强": "randomain",
-                "可视化": "visualization",
-            }
-            
-            for module in missing_modules:
-                if module in install_map:
-                    print(f"   pip install -e \".[{install_map[module]}]\"  # {module}")
+        for module in missing_modules:
+            if module in install_map:
+                print(f"   pip install -e \".[{install_map[module]}]\"  # {module}")
     
     print(f"\n📖 详细安装指南请参考: README_zh.md")
     print(f"🐛 遇到问题请访问: https://github.com/TATP-233/DISCOVERSE/issues")
