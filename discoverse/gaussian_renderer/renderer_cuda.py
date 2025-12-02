@@ -2,10 +2,10 @@
 Part of the code (CUDA and OpenGL memory transfer) is derived from https://github.com/jbaron34/torchwindow/tree/master
 '''
 
-from discoverse.gaussian_renderer import util_gau
+from discoverse.gaussian_renderer import util_gau, GaussianData
+
 import numpy as np
 import torch
-from dataclasses import dataclass
 
 try:
     from gsplat.rendering import rasterization
@@ -14,23 +14,8 @@ except ImportError:
     GSPLAT_AVAILABLE = False
     print("Warning: gsplat not available")
 
-@dataclass
-class GaussianDataCUDA:
-    xyz: torch.Tensor
-    rot: torch.Tensor
-    scale: torch.Tensor
-    opacity: torch.Tensor
-    sh: torch.Tensor
-    
-    def __len__(self):
-        return len(self.xyz)
-    
-    @property 
-    def sh_dim(self):
-        return self.sh.shape[-2]
-
-def gaus_cuda_from_cpu(gau: util_gau) -> GaussianDataCUDA:
-    gaus =  GaussianDataCUDA(
+def gaus_cuda_from_cpu(gau: util_gau) -> GaussianData:
+    gaus =  GaussianData(
         xyz = torch.tensor(gau.xyz).float().cuda().requires_grad_(False),
         rot = torch.tensor(gau.rot).float().cuda().requires_grad_(False),
         scale = torch.tensor(gau.scale).float().cuda().requires_grad_(False),

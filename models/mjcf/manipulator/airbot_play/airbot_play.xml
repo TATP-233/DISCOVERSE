@@ -26,12 +26,12 @@
           <body name="link4" pos="0.29015 0 0" quat="-2.59734e-06 0.707105 2.59735e-06 0.707108">
             <inertial pos="5.2436e-06 0.00040412 -0.03228" quat="0.999969 -0.000174762 -0.00792041 -6.98144e-05" mass="0.34876" diaginertia="0.000423574 0.000412 0.000126826"/>
             <joint name="joint4" class="joint4"/>
-            <geom type="cylinder" pos="0 0 0" size="0.03 0.03" euler="1.5708 0 0" rgba="1 0 0 1" class="collision"/>
+            <!-- <geom type="cylinder" pos="0 0 0" size="0.03 0.03" euler="1.5708 0 0" rgba="1 0 0 1" class="collision"/> -->
             <geom type="mesh" material="Paint_Matte_Black" mesh="link4" class="visual"/>
             <body name="link5" quat="0.707105 0.707108 0 0">
               <inertial pos="8.3328e-06 0.026148 0.002525" quat="0.531568 0.4663 0.4663 0.531568" mass="0.36132" diaginertia="0.0004677 0.000432922 0.000178178"/>
               <joint name="joint5" class="joint5"/>
-              <geom type="cylinder" pos="0 0.06 0" size="0.03 0.03" euler="1.5708 0 0" rgba="1 0 0 1" class="collision"/>
+              <!-- <geom type="cylinder" pos="0 0.06 0" size="0.03 0.03" euler="1.5708 0 0" rgba="1 0 0 1" class="collision"/> -->
               <geom mesh="link5_0" material="Paint_Matte_Black" class="visual"/>
               <geom mesh="link5_1" material="Paint_Metallic_White" class="visual"/>
               <body name="link6" pos="0 0.23645 0" quat="0.499998 -0.5 0.5 0.500002">
@@ -40,7 +40,7 @@
                 </body>
                 <inertial pos="-0.0047053 7.3857e-05 -0.12293" mass="0.53855" diaginertia="5e-05 5e-05 3.85e-05"/>
                 <joint name="joint6" class="joint6"/>
-                <geom type="cylinder" pos="0 0 -0.11" size="0.03 0.03" euler="0 0 0" rgba="1 0 0 1" class="collision"/>
+                <!-- <geom type="cylinder" pos="0 0 -0.11" size="0.03 0.03" euler="0 0 0" rgba="1 0 0 1" class="collision"/> -->
                 <geom type="box" pos="0 0 -0.07" size="0.025 0.08 0.015" rgba="1 0 0 1" class="collision"/>
                 <geom type="mesh" material="Paint_Matte_Black" mesh="link6" class="visual"/>
                 <geom type="mesh" material="Paint_Matte_Black" mesh="camera_stand" class="visual"/>
