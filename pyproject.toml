@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "discoverse"
-version = "1.8.6"
+dynamic = ["version"]
 description = "DISCOVERSE: 一个基于3DGS的高效机器人仿真框架，用于复杂高保真环境中的机器人学习"
 readme = "README_zh.md"
 requires-python = ">=3.8"
@@ -58,6 +58,8 @@ gaussian-rendering = [
     "torchvision>=0.14.0", 
     "plyfile",
     "PyGlm",
+    "huggingface_hub",
+    "gsplat"
 ]
 
 # XML场景编辑器
@@ -220,6 +222,9 @@ discoverse-check = "check_installation:main"
 [tool.setuptools.packages.find]
 include = ["discoverse*"]
 exclude = ["tests*", "submodules*", "policies*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "discoverse.__version__"}
 
 [tool.setuptools.package-data]
 discoverse = ["*.xml", "*.yaml", "*.yml", "*.json"]

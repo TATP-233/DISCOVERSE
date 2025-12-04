@@ -6,8 +6,8 @@
 
   <tendon>
     <fixed name='gripper_gear'>
-      <joint joint='endleft'  coef='-0.5'/>
-      <joint joint='endright' coef='0.5'/>
+      <joint joint='endleft'  coef='0.5'/>
+      <joint joint='endright' coef='-0.5'/>
     </fixed>
   </tendon>
 

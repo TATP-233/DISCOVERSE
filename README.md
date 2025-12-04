@@ -177,17 +177,6 @@ Install CUDA 11.8+ from [NVIDIA's official site](https://developer.nvidia.com/cu
 ```bash
 # Install Gaussian Splatting requirements
 pip install -e ".[gaussian-rendering]"
-
-# Build diff-gaussian-rasterization
-cd submodules/diff-gaussian-rasterization/
-
-# Apply patches
-sed -i 's/(p_view.z <= 0.2f)/(p_view.z <= 0.01f)/' cuda_rasterizer/auxiliary.h
-sed -i '361s/D += depths\[collected_id\[j\]\] \* alpha \* T;/if (depths[collected_id[j]] < 50.0f)\n        D += depths[collected_id[j]] * alpha * T;/' cuda_rasterizer/forward.cu
-
-# Install
-cd ../..
-pip install submodules/diff-gaussian-rasterization
 ```
 
 ### 3. Download 3DGS Models

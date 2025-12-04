@@ -52,14 +52,6 @@ RUN python3 -m pip install --no-cache-dir \
     plyfile \
     PyGlm -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# Install diff-gaussian-rasterization
-ENV TORCH_CUDA_ARCH_LIST="7.0 7.5 8.0 8.6 8.9 9.0+PTX"
-WORKDIR /root/DISCOVERSE/submodules/diff-gaussian-rasterization
-RUN git checkout 8829d14
-RUN sed -i 's/(p_view.z <= 0.2f)/(p_view.z <= 0.01f)/' cuda_rasterizer/auxiliary.h
-RUN sed -i '361s/D += depths\[collected_id\[j\]\] \* alpha \* T;/if (depths[collected_id[j]] < 50.0f)\n        D += depths[collected_id[j]] * alpha * T;/' cuda_rasterizer/forward.cu
-RUN python3 -m pip install .
-
 WORKDIR /root/DISCOVERSE
 RUN python3 -m pip install -e .
 

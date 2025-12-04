@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
+import sys
 
 def multiple_quaternion_vector3d(qwxyz, vxyz):
     qw = qwxyz[..., 0]
@@ -78,9 +79,13 @@ class Camera:
         x = np.cross(self.up, z)
         return np.stack([x, self.up, z], axis=-1)
 
-    def get_view_matrix(self):
-        # return np.array(glm.lookAt(self.position, self.target, self.up))
-        return np.array(glm.lookAt(glm.vec3(self.position), glm.vec3(self.target), glm.vec3(self.up)))
+    def get_view_matrix(self, backend="glm"):
+        view_matrix = np.array(glm.lookAt(glm.vec3(self.position), glm.vec3(self.target), glm.vec3(self.up)))
+        if backend == "gsplat":
+            view_matrix[[1,2], :] *= -1
+        elif backend == "diff_gaussian":
+            view_matrix[[0,2], :] *= -1
+        return view_matrix
 
     def get_project_matrix(self):
         project_mat = glm.perspective(
@@ -137,18 +142,20 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
         
         print(f"正在从Hugging Face下载模型: {model_path}")
         
+        # 构建完整的HF文件路径（3dgs/相对路径）
+        hf_file_path = f"3dgs/{model_path}"
+
         # 确定本地目录
         if local_dir is None:
-            local_dir = os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs")
+            # 如果未指定目录，使用 assets 根目录
+            # hf_hub_download 会自动保持 3dgs 目录结构，所以不需要额外指定 3dgs 子目录
+            local_dir = DISCOVERSE_ASSETS_DIR
+            local_file_path = os.path.join(local_dir, hf_file_path)
+        else:
+            local_file_path = os.path.join(local_dir, model_path)
         
         # 确保本地目录存在
         os.makedirs(local_dir, exist_ok=True)
-        
-        # 构建完整的HF文件路径（3dgs/相对路径）
-        hf_file_path = f"3dgs/{model_path}"
-        
-        # 构建本地文件的完整路径
-        local_file_path = os.path.join(local_dir, model_path)
         local_file_dir = os.path.dirname(local_file_path)
         
         # 确保本地文件的目录存在
@@ -174,18 +181,22 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
                 shutil.move(expected_hf_path, local_file_path)
                 print(f"文件已移动到: {local_file_path}")
                 
-                # 清理可能创建的3dgs目录
+                # 清理可能创建的空目录
+                cleanup_dir = os.path.dirname(expected_hf_path)
                 hf_3dgs_dir = os.path.join(local_dir, "3dgs")
-                if os.path.exists(hf_3dgs_dir) and os.path.isdir(hf_3dgs_dir):
+                
+                # 循环向上删除空目录，直到 3dgs 目录
+                while cleanup_dir.startswith(hf_3dgs_dir):
                     try:
-                        # 只有当目录为空或只包含我们刚移动的文件时才删除
-                        if not os.listdir(hf_3dgs_dir) or all(
-                            not os.path.exists(os.path.join(hf_3dgs_dir, f)) 
-                            for f in os.listdir(hf_3dgs_dir)
-                        ):
-                            shutil.rmtree(hf_3dgs_dir)
-                    except:
-                        pass
+                        os.rmdir(cleanup_dir)
+                    except OSError:
+                        # 目录非空或无法删除，停止清理
+                        break
+                    
+                    if cleanup_dir == hf_3dgs_dir:
+                        break
+                        
+                    cleanup_dir = os.path.dirname(cleanup_dir)
             else:
                 local_file_path = downloaded_path
         
@@ -196,6 +207,37 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", l
         print("错误: 需要安装 huggingface_hub 库")
         print("请运行: pip install huggingface_hub")
         raise
+
+def check_hf_login_or_exit(verbose=True):
+    """
+    检查当前是否已登录 Hugging Face（huggingface_hub）。
+    如果未安装 huggingface_hub，会提示安装并退出；如果未登录，会提示用户登录并安全退出。
+
+    返回:
+        True 如果已登录；否则不会返回（调用 sys.exit(1) 退出）。
+    """
+    try:
+        from huggingface_hub import HfApi
+    except ImportError:
+        if verbose:
+            print("错误: 未安装 huggingface_hub。请运行: pip install huggingface_hub")
+        sys.exit(1)
+
+    api = HfApi()
+    try:
+        info = api.whoami()
+        # whoami 返回字典，包含 'name' 或 'email' 等字段
+        name = None
+        if isinstance(info, dict):
+            name = info.get('name') or info.get('email') or info.get('user')
+        if verbose:
+            print(f"已使用 Hugging Face 登录: {name}")
+        return True
+    except Exception as e:
+        if verbose:
+            print("检测到未登录 Hugging Face。请执行 `huggingface-cli login` 或 设置 环境变量 `HUGGINGFACE_HUB_TOKEN` 后重试。")
+            print(f"(详细错误: {e})")
+        sys.exit(1)
     except Exception as e:
         print(f"从Hugging Face下载模型失败: {e}")
         raise
