@@ -81,7 +81,7 @@ pip install -e ".[act_full]"
 
 #### 场景4: 高保真视觉仿真
 ```bash
-pip install -e ".[gaussian-rendering]"
+pip install -e ".[gs]"
 ```
 - **包含**: 3D高斯散射、PyTorch
 - **功能**: 逼真的3D场景渲染，支持实时光照
@@ -94,7 +94,7 @@ pip install -e ".[gaussian-rendering]"
 |------|----------|------|----------|
 | **基础** | `pip install -e .` | 核心仿真功能 | 学习、基础开发 |
 | **激光雷达** | `.[lidar]` | 高性能LiDAR仿真 | SLAM、导航研究 |
-| **渲染** | `.[gaussian-rendering]` | 3D高斯散射渲染 | 视觉仿真、Real2Sim |
+| **渲染** | `.[gs]` | 3D高斯散射渲染 | 视觉仿真、Real2Sim |
 | **GUI** | `.[xml-editor]` | 可视化场景编辑 | 场景设计、模型调试 |
 | **ACT** | `.[act]` | 模仿学习算法 | 机器人技能学习 |
 | **扩散策略** | `.[diffusion-policy]` | 扩散模型策略 | 复杂策略学习 |

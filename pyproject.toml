@@ -53,7 +53,7 @@ lidar = [
 ]
 
 # 3D Gaussian Splatting渲染模块
-gaussian-rendering = [
+gs = [
     "torch>=2.0.0",
     "torchvision>=0.14.0", 
     "plyfile",
@@ -164,7 +164,7 @@ dev = [
 # 完整安装 - 包含所有功能模块（除了dev）
 full = [
     "discoverse[lidar]",
-    "discoverse[gaussian-rendering]", 
+    "discoverse[gs]", 
     "discoverse[xml-editor]",
     "discoverse[act]",
     "discoverse[diffusion-policy]",

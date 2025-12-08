@@ -83,7 +83,7 @@ pip install -e ".[act_full]"
 
 #### Scenario 4: High-Fidelity Visual Simulation
 ```bash
-pip install -e ".[gaussian-rendering]"
+pip install -e ".[gs]"
 ```
 - **Includes**: 3D Gaussian Splatting, PyTorch
 - **Function**: Photorealistic 3D scene rendering with real-time lighting
@@ -96,7 +96,7 @@ pip install -e ".[gaussian-rendering]"
 |--------|-----------------|----------|-----------|
 | **Core** | `pip install -e .` | Core simulation | Learning, basic development |
 | **LiDAR** | `.[lidar]` | High-performance LiDAR simulation | SLAM, navigation research |
-| **Rendering** | `.[gaussian-rendering]` | 3D Gaussian Splatting rendering | Visual simulation, Real2Sim |
+| **Rendering** | `.[gs]` | 3D Gaussian Splatting rendering | Visual simulation, Real2Sim |
 | **GUI** | `.[xml-editor]` | Visual scene editing | Scene design, model debugging |
 | **ACT** | `.[act]` | Imitation learning algorithm | Robot skill learning |
 | **Diffusion Policy** | `.[diffusion-policy]` | Diffusion model policy | Complex policy learning |

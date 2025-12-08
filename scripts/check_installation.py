@@ -40,12 +40,12 @@ def check_module(module_name: str, package_name: Optional[str] = None) -> Tuple[
         if version:
             return True, f"{display_name} v{version}"
         else:
-            return True, f"{display_name} (版本未知)"
+            return True, f"{display_name} (Unknown Version / 版本未知)"
             
     except ImportError as e:
         return False, f"{display_name}: {str(e)}"
     except Exception as e:
-        return False, f"{display_name}: 导入错误 - {str(e)}"
+        return False, f"{display_name}: Import Error / 导入错误 - {str(e)}"
 
 def check_core_dependencies() -> List[Tuple[str, bool, str]]:
     """检查核心依赖"""
@@ -70,38 +70,50 @@ def check_core_dependencies() -> List[Tuple[str, bool, str]]:
 def check_optional_dependencies() -> dict:
     """检查可选依赖模块"""
     optional_modules = {
-        "激光雷达仿真": [
+        "LiDAR Simulation / 激光雷达仿真": [
             ("taichi", "Taichi"),
             ("matplotlib", "Matplotlib"),
             ("pynput", "PyNput"),
         ],
-        "3D高斯散射渲染": [
+        "3D Gaussian Splatting / 3D高斯散射渲染": [
             ("torch", "PyTorch"),
             ("torchvision", "TorchVision"),
             ("plyfile", "PLYFile"),
+            ("gsplat", "GSplat"),
         ],
-        "XML场景编辑器": [
+        "XML Scene Editor / XML场景编辑器": [
             ("PyQt5", "PyQt5"),
             ("OpenGL", "PyOpenGL"),
         ],
-        "策略学习": [
+        "Policy Learning (ACT) / 策略学习(ACT)": [
             ("torch", "PyTorch"),
             ("einops", "Einops"),
             ("h5py", "H5Py"),
             ("omegaconf", "OmegaConf"),
             ("hydra", "Hydra"),
         ],
-        "RealSense支持": [
+        "Policy Learning (Diffusion Policy) / 策略学习(Diffusion Policy)": [
+            ("torch", "PyTorch"),
+            ("zarr", "Zarr"),
+            ("numba", "Numba"),
+        ],
+        "Policy Learning (RDT) / 策略学习(RDT)": [
+            ("torch", "PyTorch"),
+            ("diffusers", "Diffusers"),
+            ("timm", "Timm"),
+        ],
+        "RealSense Support / RealSense支持": [
             ("pyrealsense2", "PyRealSense2"),
         ],
-        "ROS支持": [
+        "ROS Support / ROS支持": [
             ("rospkg", "ROSPkg"),
         ],
-        "数据增强": [
+        "Data Augmentation & Generation / 数据增强与生成": [
             ("transformers", "Transformers"),
+            ("safetensors", "SafeTensors"),
             ("PIL", "Pillow"),
         ],
-        "可视化": [
+        "Visualization / 可视化": [
             ("matplotlib", "Matplotlib"),
             ("imageio", "ImageIO"),
         ],
@@ -120,10 +132,10 @@ def check_optional_dependencies() -> dict:
 def check_discoverse_modules() -> List[Tuple[str, bool, str]]:
     """检查DISCOVERSE自身模块"""
     discoverse_modules = [
-        ("discoverse", "DISCOVERSE核心"),
-        ("discoverse.envs", "环境模块"),
-        ("discoverse.robots", "机器人模块"),
-        ("discoverse.utils", "工具模块"),
+        ("discoverse", "DISCOVERSE Core / 核心"),
+        ("discoverse.envs", "Environments / 环境模块"),
+        ("discoverse.robots", "Robots / 机器人模块"),
+        ("discoverse.utils", "Utils / 工具模块"),
     ]
     
     results = []
@@ -138,7 +150,6 @@ def check_submodules() -> Tuple[int, int, List[str]]:
     from pathlib import Path
     
     submodule_mapping = {
-        'gaussian-rendering': ['submodules/diff-gaussian-rasterization'],
         'randomain': ['submodules/ComfyUI'],
         'act': ['policies/act'],
         'lidar': ['submodules/MuJoCo-LiDAR'],
@@ -173,11 +184,11 @@ def check_gpu_support() -> Tuple[bool, str]:
         if torch.cuda.is_available():
             gpu_count = torch.cuda.device_count()
             gpu_name = torch.cuda.get_device_name(0) if gpu_count > 0 else "未知"
-            return True, f"检测到 {gpu_count} 个GPU: {gpu_name}"
+            return True, f"Detected {gpu_count} GPU(s) / 检测到 {gpu_count} 个GPU: {gpu_name}"
         else:
-            return False, "CUDA不可用，将使用CPU模式"
+            return False, "CUDA not available, using CPU mode / CUDA不可用，将使用CPU模式"
     except ImportError:
-        return False, "PyTorch未安装，无法检查GPU支持"
+        return False, "PyTorch not installed, cannot check GPU support / PyTorch未安装，无法检查GPU支持"
 
 def print_results(title: str, results: List[Tuple[str, bool, str]], verbose: bool = False):
     """打印检查结果"""
@@ -195,9 +206,9 @@ def print_results(title: str, results: List[Tuple[str, bool, str]], verbose: boo
         else:
             print(f"✗ {info}")
             if verbose:
-                print(f"  建议: pip install -e \".[{name.lower()}]\"")
+                print(f"  Suggestion / 建议: pip install -e \".[{name.lower()}]\"")
     
-    print(f"\n状态: {success_count}/{total_count} 模块可用")
+    print(f"\nStatus / 状态: {success_count}/{total_count} modules available / 模块可用")
 
 def print_category_results(results: dict, verbose: bool = False):
     """打印分类结果"""
@@ -219,34 +230,34 @@ def main():
                        help="显示详细信息")
     args = parser.parse_args()
     
-    print("🔍 DISCOVERSE 安装状态检查")
+    print("🔍 DISCOVERSE Installation Check / 安装状态检查")
     print("="*60)
     
     # 检查Python版本
     python_version = sys.version_info
-    print(f"Python版本: {python_version.major}.{python_version.minor}.{python_version.micro}")
+    print(f"Python Version / 版本: {python_version.major}.{python_version.minor}.{python_version.micro}")
     if python_version < (3, 8):
-        print("⚠️  警告: 建议使用Python 3.8或更高版本")
+        print("⚠️  Warning: Python 3.8+ recommended / 警告: 建议使用Python 3.8或更高版本")
     
     # 检查DISCOVERSE核心模块
     discoverse_results = check_discoverse_modules()
-    print_results("DISCOVERSE 核心模块", discoverse_results, args.verbose)
+    print_results("DISCOVERSE Core Modules / 核心模块", discoverse_results, args.verbose)
     
     # 检查核心依赖
     core_results = check_core_dependencies()
-    print_results("核心依赖", core_results, args.verbose)
+    print_results("Core Dependencies / 核心依赖", core_results, args.verbose)
     
     # 检查可选依赖
     optional_results = check_optional_dependencies()
     print(f"\n{'='*50}")
-    print("可选功能模块")
+    print("Optional Modules / 可选功能模块")
     print(f"{'='*50}")
     print_category_results(optional_results, args.verbose)
     
     # 检查GPU支持
     gpu_available, gpu_info = check_gpu_support()
     print(f"\n{'='*50}")
-    print("GPU支持")
+    print("GPU Support / GPU支持")
     print(f"{'='*50}")
     symbol = "✓" if gpu_available else "○"
     print(f"{symbol} {gpu_info}")
@@ -254,21 +265,22 @@ def main():
     # 检查Submodules
     initialized_count, total_count, missing_features = check_submodules()
     print(f"\n{'='*50}")
-    print("Submodules状态")
+    print("Submodules Status / Submodules状态")
     print(f"{'='*50}")
     
     if initialized_count == total_count:
-        print(f"✓ 所有submodules已初始化 ({initialized_count}/{total_count})")
+        print(f"✓ All submodules initialized / 所有submodules已初始化 ({initialized_count}/{total_count})")
     else:
-        print(f"○ 部分submodules未初始化 ({initialized_count}/{total_count})")
+        print(f"○ Partial submodules initialized / 部分submodules未初始化 ({initialized_count}/{total_count})")
+        print("⚠️  Important: Install ONLY what you need! Do NOT install all submodules. / 重要提示：请务必按需安装！不要安装所有submodules。")
         if missing_features:
-            print(f"📦 缺失功能模块的submodules: {', '.join(missing_features)}")
-            print(f"💡 运行以下命令来按需下载:")
+            print(f"📦 Submodules missing for features / 缺失功能模块的submodules: {', '.join(missing_features)}")
+            print(f"💡 Run command to download as needed / 运行以下命令来按需下载:")
             print(f"   python scripts/setup_submodules.py --module {' '.join(missing_features)}")
     
     # 生成安装建议
     print(f"\n{'='*50}")
-    print("安装建议")
+    print("Installation Suggestions / 安装建议")
     print(f"{'='*50}")
     
     # 统计各模块可用性
@@ -278,29 +290,31 @@ def main():
         module_status[category] = available
     
     if all(module_status.values()):
-        print("🎉 所有功能模块都已正确安装！")
+        print("🎉 All modules installed correctly! / 所有功能模块都已正确安装！")
     else:
-        print("💡 要安装缺失的功能，请使用以下命令：")
+        print("💡 To install missing features, use the following commands / 要安装缺失的功能，请使用以下命令：")
         
         missing_modules = [cat for cat, avail in module_status.items() if not avail]
     
         install_map = {
-            "激光雷达仿真": "lidar",
-            "3D高斯散射渲染": "gaussian-rendering", 
-            "XML场景编辑器": "xml-editor",
-            "策略学习": "ml",
-            "RealSense支持": "realsense",
-            "ROS支持": "ros",
-            "数据增强": "randomain",
-            "可视化": "visualization",
+            "LiDAR Simulation / 激光雷达仿真": "lidar",
+            "3D Gaussian Splatting / 3D高斯散射渲染": "gs", 
+            "XML Scene Editor / XML场景编辑器": "xml-editor",
+            "Policy Learning (ACT) / 策略学习(ACT)": "act",
+            "Policy Learning (Diffusion Policy) / 策略学习(Diffusion Policy)": "diffusion-policy",
+            "Policy Learning (RDT) / 策略学习(RDT)": "rdt",
+            "RealSense Support / RealSense支持": "realsense",
+            "ROS Support / ROS支持": "ros",
+            "Data Augmentation & Generation / 数据增强与生成": "randomain",
+            "Visualization / 可视化": "visualization",
         }
         
         for module in missing_modules:
             if module in install_map:
                 print(f"   pip install -e \".[{install_map[module]}]\"  # {module}")
     
-    print(f"\n📖 详细安装指南请参考: README_zh.md")
-    print(f"🐛 遇到问题请访问: https://github.com/TATP-233/DISCOVERSE/issues")
+    print(f"\n📖 Detailed Guide / 详细安装指南: README_zh.md")
+    print(f"🐛 Report Issues / 遇到问题请访问: https://github.com/TATP-233/DISCOVERSE/issues")
 
 if __name__ == "__main__":
     main() 
