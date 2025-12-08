@@ -176,7 +176,7 @@ python3 examples/active_slam/camera_view.py
 ### 2. 3DGS依赖
 ```bash
 # 安装gaussian splatting依赖
-pip install -e ".[gaussian-rendering]"
+pip install -e ".[gs]"
 ```
 
 ### 3. 下载3DGS模型

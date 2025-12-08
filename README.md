@@ -176,7 +176,7 @@ Install CUDA 11.8+ from [NVIDIA's official site](https://developer.nvidia.com/cu
 ### 2. 3DGS Dependencies
 ```bash
 # Install Gaussian Splatting requirements
-pip install -e ".[gaussian-rendering]"
+pip install -e ".[gs]"
 ```
 
 ### 3. Download 3DGS Models
