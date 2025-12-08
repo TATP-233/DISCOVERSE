@@ -1,6 +1,3 @@
-[submodule "submodules/diff-gaussian-rasterization"]
-	path = submodules/diff-gaussian-rasterization
-	url = https://github.com/Yuchi-Zhang-00/diff-gaussian-rasterization.git
 [submodule "submodules/ComfyUI"]
 	path = submodules/ComfyUI
 	url = https://github.com/comfyanonymous/ComfyUI.git
@@ -20,6 +17,4 @@
 [submodule "submodules/urdf2mjcf"]
 	path = submodules/urdf2mjcf
 	url = https://github.com/TATP-233/urdf2mjcf
-[submodule "examples/force_control_data_collect_using_joy/joy"]
-	path = examples/force_control_data_collect_using_joy/joy
-	url = git@github.com:LueApp/joy.git
+
