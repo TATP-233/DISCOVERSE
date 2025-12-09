@@ -141,7 +141,7 @@ def batch_env_render(
                 cam_xmat[i:end], 
                 height, 
                 width, 
-                fovy[i:end], 
+                fovy[i:end] if len(fovy) == Nenv else fovy, 
                 bg_imgs=bg_slice, 
                 minibatch=None
             )
