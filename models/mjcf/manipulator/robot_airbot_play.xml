@@ -7,7 +7,6 @@
   <include file="airbot_play/airbot_play_appendix.xml"/>
 
   <worldbody>
-    <camera pos="0.714 -0.599 1.438" xyaxes="0.702 0.712 -0.000 -0.363 0.358 0.860"/>
     <body name="airbot_play_pose" pos="0 0 0.78" euler="0 0 0">
       <include file="airbot_play/airbot_play.xml"/>
     </body>
