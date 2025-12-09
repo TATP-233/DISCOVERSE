@@ -1,4 +1,4 @@
-from typing import Tuple, List, Union, Dict
+from typing import Tuple, List, Union, Dict, Optional
 
 import numpy as np
 import torch
@@ -16,6 +16,7 @@ def batch_render(
     height: int,
     width: int,
     fovy: np.ndarray, # (Ncam,) degree
+    bg_imgs: Optional[torch.Tensor] = None, # (Ncam, H, W, 3)
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
@@ -89,6 +90,15 @@ def batch_render(
     
     color_img = renders[..., :3]
     depth_img = renders[..., 3:4]
+
+    if bg_imgs is not None:
+        if bg_imgs.shape != (Ncam, height, width, 3):
+            raise ValueError(f"bg_imgs shape mismatch. Expected {(Ncam, height, width, 3)}, got {bg_imgs.shape}")
+        
+        if bg_imgs.device != device:
+            bg_imgs = bg_imgs.to(device)
+            
+        color_img = color_img + bg_imgs * (1.0 - alphas)
     
     return color_img, depth_img
 
@@ -100,6 +110,7 @@ def batch_env_render(
     height: int,
     width: int,
     fovy: np.ndarray, # (Nenv, Ncam) degree
+    bg_imgs: Optional[torch.Tensor] = None, # (Nenv, Ncam, H, W, 3)
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
@@ -166,6 +177,15 @@ def batch_env_render(
     
     color_img = renders[..., :3]
     depth_img = renders[..., 3:4]
+
+    if bg_imgs is not None:
+        if bg_imgs.shape != (Nenv, Ncam, height, width, 3):
+            raise ValueError(f"bg_imgs shape mismatch. Expected {(Nenv, Ncam, height, width, 3)}, got {bg_imgs.shape}")
+        
+        if bg_imgs.device != device:
+            bg_imgs = bg_imgs.to(device)
+            
+        color_img = color_img + bg_imgs * (1.0 - alphas)
     
     return color_img, depth_img
 
