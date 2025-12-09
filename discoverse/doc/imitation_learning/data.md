@@ -13,6 +13,12 @@ e.g. python tasks_data_gen.py --robot_name airbot_play --task_name kiwi_place --
 
 ## act
 
+安装依赖：
+
+```bash
+pip install git+https://github.com/DISCOVER-Robotics/Data-Collection.git
+```
+
 将仿真采集的原始数据格式转换为ACT算法中用到的hdf5格式，命令如下：
 
 ```bash
