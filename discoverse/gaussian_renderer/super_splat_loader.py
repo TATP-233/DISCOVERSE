@@ -276,7 +276,8 @@ def _pack_rotations_vectorized(rots: np.ndarray) -> np.ndarray:
         
         # 提取其他分量并归一化到[0, 1]
         other_values = rots[mask][:, other_indices]  # shape=(M, 3)
-        other_normalized = other_values / norm + 0.5
+        # 注意：这里应该是乘法 (value * norm + 0.5)，不是除法
+        other_normalized = other_values * norm + 0.5
         other_normalized = np.clip(other_normalized, 0, 1)
         
         # 打包为10bit整数
@@ -495,7 +496,7 @@ def compress_to_super_splat(
     sh: np.ndarray
 ) -> bytes:
     """
-    将3DGS模型压缩为SuperSplat compressed PLY格式
+    将3DGS模型压缩为SuperSplat compressed PLY格式（向量化优化版）
     
     Args:
         xyz: shape=(N, 3), dtype=float32 - 位置
@@ -543,7 +544,7 @@ def compress_to_super_splat(
     header_lines = [
         'ply',
         'format binary_little_endian 1.0',
-        'comment compressed by super_splat_loader.py',
+        'comment compressed by super_splat_loader.py (vectorized)',
         f'element chunk {num_chunks}'
     ]
     header_lines.extend([f'property float {p}' for p in chunk_props])
@@ -557,38 +558,42 @@ def compress_to_super_splat(
     # 准备输出缓冲区
     output = bytearray(header_bytes)
     
-    # 处理每个chunk
+    # 处理每个chunk（向量化）
     chunk = _Chunk(256)
+    
+    # 预先计算所有chunk需要的数据
+    chunk_data_list = []
+    vertex_data_list = []
     
     for chunk_idx in range(num_chunks):
         start_idx = chunk_idx * 256
         end_idx = min(start_idx + 256, N)
         num_in_chunk = end_idx - start_idx
         
-        # 填充chunk数据
-        for i in range(num_in_chunk):
-            global_idx = start_idx + i
-            chunk.set_data(
-                i,
-                xyz[global_idx],
-                rot[global_idx],
-                scale_log[global_idx],
-                opacity_logit[global_idx, 0],
-                f_dc[global_idx]
-            )
+        # 提取chunk数据
+        chunk_xyz = xyz[start_idx:end_idx]
+        chunk_rot = rot[start_idx:end_idx]
+        chunk_scale_log = scale_log[start_idx:end_idx]
+        chunk_opacity_logit = opacity_logit[start_idx:end_idx, 0]
+        chunk_f_dc = f_dc[start_idx:end_idx]
         
         # 如果最后一个chunk不足256个，用最后一个高斯填充
         if num_in_chunk < 256:
-            last_idx = end_idx - 1
-            for i in range(num_in_chunk, 256):
-                chunk.set_data(
-                    i,
-                    xyz[last_idx],
-                    rot[last_idx],
-                    scale_log[last_idx],
-                    opacity_logit[last_idx, 0],
-                    f_dc[last_idx]
-                )
+            pad_size = 256 - num_in_chunk
+            last_xyz = chunk_xyz[-1:].repeat(pad_size, axis=0)
+            last_rot = chunk_rot[-1:].repeat(pad_size, axis=0)
+            last_scale = chunk_scale_log[-1:].repeat(pad_size, axis=0)
+            last_opacity = np.full(pad_size, chunk_opacity_logit[-1], dtype=np.float32)
+            last_f_dc = chunk_f_dc[-1:].repeat(pad_size, axis=0)
+            
+            chunk_xyz = np.vstack([chunk_xyz, last_xyz])
+            chunk_rot = np.vstack([chunk_rot, last_rot])
+            chunk_scale_log = np.vstack([chunk_scale_log, last_scale])
+            chunk_opacity_logit = np.concatenate([chunk_opacity_logit, last_opacity])
+            chunk_f_dc = np.vstack([chunk_f_dc, last_f_dc])
+        
+        # 批量设置数据
+        chunk.set_data_batch(chunk_xyz, chunk_rot, chunk_scale_log, chunk_opacity_logit, chunk_f_dc)
         
         # 压缩chunk
         ranges = chunk.pack()
@@ -602,48 +607,24 @@ def compress_to_super_splat(
             ranges['cr']['min'], ranges['cg']['min'], ranges['cb']['min'],
             ranges['cr']['max'], ranges['cg']['max'], ranges['cb']['max']
         )
+        chunk_data_list.append(chunk_data)
+        
+        # 保存顶点数据（只保存实际的顶点数，不包括填充）
+        vertex_data_list.append((chunk.position[:num_in_chunk], 
+                                 chunk.rotation[:num_in_chunk],
+                                 chunk.scale[:num_in_chunk],
+                                 chunk.color[:num_in_chunk]))
+    
+    # 写入所有chunk数据
+    for chunk_data in chunk_data_list:
         output.extend(chunk_data)
     
-    # 写入顶点数据
-    for chunk_idx in range(num_chunks):
-        start_idx = chunk_idx * 256
-        end_idx = min(start_idx + 256, N)
-        num_in_chunk = end_idx - start_idx
-        
-        # 重新准备chunk数据
-        for i in range(num_in_chunk):
-            global_idx = start_idx + i
-            chunk.set_data(
-                i,
-                xyz[global_idx],
-                rot[global_idx],
-                scale_log[global_idx],
-                opacity_logit[global_idx, 0],
-                f_dc[global_idx]
-            )
-        
-        if num_in_chunk < 256:
-            last_idx = end_idx - 1
-            for i in range(num_in_chunk, 256):
-                chunk.set_data(
-                    i,
-                    xyz[last_idx],
-                    rot[last_idx],
-                    scale_log[last_idx],
-                    opacity_logit[last_idx, 0],
-                    f_dc[last_idx]
-                )
-        
-        chunk.pack()
-        
-        # 写入顶点数据 (每个顶点4个uint32)
-        for i in range(num_in_chunk):
-            vertex_data = struct.pack('<4I',
-                chunk.position[i],
-                chunk.rotation[i],
-                chunk.scale[i],
-                chunk.color[i]
-            )
-            output.extend(vertex_data)
+    # 写入所有顶点数据（向量化）
+    for position, rotation, scale_data, color in vertex_data_list:
+        num_vertices = len(position)
+        # 将4个uint32数组交织打包
+        vertex_array = np.stack([position, rotation, scale_data, color], axis=1)  # shape=(num_vertices, 4)
+        vertex_bytes = vertex_array.tobytes()
+        output.extend(vertex_bytes)
     
     return bytes(output)

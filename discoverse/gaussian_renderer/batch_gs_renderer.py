@@ -1,4 +1,4 @@
-from typing import Tuple, List, Union, Dict
+from typing import Tuple, List, Union, Dict, Optional
 
 import numpy as np
 import torch
@@ -16,6 +16,7 @@ def batch_render(
     height: int,
     width: int,
     fovy: np.ndarray, # (Ncam,) degree
+    bg_imgs: Optional[torch.Tensor] = None, # (Ncam, H, W, 3)
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
@@ -89,6 +90,15 @@ def batch_render(
     
     color_img = renders[..., :3]
     depth_img = renders[..., 3:4]
+
+    if bg_imgs is not None:
+        if bg_imgs.shape != (Ncam, height, width, 3):
+            raise ValueError(f"bg_imgs shape mismatch. Expected {(Ncam, height, width, 3)}, got {bg_imgs.shape}")
+        
+        if bg_imgs.device != device:
+            bg_imgs = bg_imgs.to(device)
+            
+        color_img.addcmul_(bg_imgs, 1.0 - alphas)
     
     return color_img, depth_img
 
@@ -100,9 +110,44 @@ def batch_env_render(
     height: int,
     width: int,
     fovy: np.ndarray, # (Nenv, Ncam) degree
+    bg_imgs: Optional[torch.Tensor] = None, # (Nenv, Ncam, H, W, 3)
+    minibatch: Optional[int] = None,
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
+    Nenv = cam_pos.shape[0]
+    Ncam = cam_pos.shape[1]
+
+    if minibatch is not None and minibatch > 0 and minibatch < Nenv:
+        out_color = torch.empty((Nenv, Ncam, height, width, 3), dtype=torch.float32, device=device)
+        out_depth = torch.empty((Nenv, Ncam, height, width, 1), dtype=torch.float32, device=device)
+        
+        for i in range(0, Nenv, minibatch):
+            end = min(i + minibatch, Nenv)
+            
+            g_slice = GaussianBatchData(
+                xyz=gaussians.xyz[i:end],
+                rot=gaussians.rot[i:end],
+                scale=gaussians.scale[i:end],
+                opacity=gaussians.opacity[i:end],
+                sh=gaussians.sh[i:end]
+            )
+            
+            bg_slice = bg_imgs[i:end] if bg_imgs is not None else None
+            
+            c, d = batch_env_render(
+                g_slice, 
+                cam_pos[i:end], 
+                cam_xmat[i:end], 
+                height, 
+                width, 
+                fovy[i:end] if len(fovy) == Nenv else fovy, 
+                bg_imgs=bg_slice, 
+                minibatch=None
+            )
+            out_color[i:end] = c
+            out_depth[i:end] = d
+        return out_color, out_depth
     
     # 1. Prepare Gaussians
     # gaussians.xyz is (Nenv, N, 3)
@@ -166,6 +211,15 @@ def batch_env_render(
     
     color_img = renders[..., :3]
     depth_img = renders[..., 3:4]
+
+    if bg_imgs is not None:
+        if bg_imgs.shape != (Nenv, Ncam, height, width, 3):
+            raise ValueError(f"bg_imgs shape mismatch. Expected {(Nenv, Ncam, height, width, 3)}, got {bg_imgs.shape}")
+        
+        if bg_imgs.device != device:
+            bg_imgs = bg_imgs.to(device)
+            
+        color_img.addcmul_(bg_imgs, 1.0 - alphas)
     
     return color_img, depth_img
 
