@@ -67,7 +67,7 @@ def compress_ply_file(
     input_path: Path,
     backup: bool = False,
     gamma: float = 1.0
-) -> Tuple[bool, str, int, int, Path]:
+) -> Tuple[bool, str, int, int, int, Path]:
     """
     压缩单个PLY文件
     
@@ -77,12 +77,12 @@ def compress_ply_file(
         gamma: Gamma校正值
         
     Returns:
-        (成功标志, 消息, 原始大小, 压缩后大小, 文件路径)
+        (成功标志, 消息, 原始大小, 压缩后大小, 点数, 文件路径)
     """
     try:
         # 检查是否已经是SuperSplat格式
         if check_supersplat_format(input_path):
-            return False, "已是SuperSplat格式", 0, 0, input_path
+            return False, "已是SuperSplat格式", 0, 0, 0, input_path
         
         # 记录原始文件大小
         original_size = input_path.stat().st_size
@@ -96,10 +96,11 @@ def compress_ply_file(
         # 加载模型
         try:
             gaussian_data = load_ply(str(input_path), gamma=gamma)
+            num_points = len(gaussian_data.xyz)
         except Exception as e:
             if backup_path and backup_path.exists():
                 backup_path.unlink()
-            return False, f"加载失败: {e}", 0, 0, input_path
+            return False, f"加载失败: {e}", 0, 0, 0, input_path
         
         # 压缩并保存到临时文件
         temp_path = input_path.with_suffix('.ply.tmp')
@@ -110,7 +111,7 @@ def compress_ply_file(
                 temp_path.unlink()
             if backup_path and backup_path.exists():
                 backup_path.unlink()
-            return False, f"压缩失败: {e}", 0, 0, input_path
+            return False, f"压缩失败: {e}", 0, 0, 0, input_path
         
         # 替换原文件
         compressed_size = temp_path.stat().st_size
@@ -120,10 +121,10 @@ def compress_ply_file(
         if not backup and backup_path and backup_path.exists():
             backup_path.unlink()
         
-        return True, "压缩成功", original_size, compressed_size, input_path
+        return True, "压缩成功", original_size, compressed_size, num_points, input_path
         
     except Exception as e:
-        return False, f"错误: {e}", 0, 0, input_path
+        return False, f"错误: {e}", 0, 0, 0, input_path
 
 
 def format_size(size_bytes: int) -> str:
@@ -323,7 +324,7 @@ def main():
                 print(f"\n[{i}/{len(files_to_compress)}] {rel_path}")
                 
                 try:
-                    success, message, orig_size, comp_size, _ = result.get(timeout=600)  # 10分钟超时
+                    success, message, orig_size, comp_size, num_points, _ = result.get(timeout=600)  # 10分钟超时
                     
                     if success:
                         success_count += 1
@@ -331,6 +332,7 @@ def main():
                         total_compressed_size += comp_size
                         compression_ratio = (1 - comp_size / orig_size) * 100 if orig_size > 0 else 0
                         print(f"  ✓ {message}")
+                        print(f"    点数: {num_points:,}")
                         print(f"    原始大小: {format_size(orig_size)}")
                         print(f"    压缩后: {format_size(comp_size)}")
                         print(f"    压缩率: {compression_ratio:.1f}%")
@@ -346,7 +348,7 @@ def main():
             rel_path = ply_file.relative_to(dir_path)
             print(f"\n[{i}/{len(files_to_compress)}] {rel_path}")
             
-            success, message, orig_size, comp_size, _ = compress_ply_file(
+            success, message, orig_size, comp_size, num_points, _ = compress_ply_file(
                 ply_file,
                 backup=args.backup,
                 gamma=args.gamma
@@ -358,6 +360,7 @@ def main():
                 total_compressed_size += comp_size
                 compression_ratio = (1 - comp_size / orig_size) * 100 if orig_size > 0 else 0
                 print(f"  ✓ {message}")
+                print(f"    点数: {num_points:,}")
                 print(f"    原始大小: {format_size(orig_size)}")
                 print(f"    压缩后: {format_size(comp_size)}")
                 print(f"    压缩率: {compression_ratio:.1f}%")
