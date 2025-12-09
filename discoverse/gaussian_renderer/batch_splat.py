@@ -89,7 +89,7 @@ class BatchSplatRenderer:
         rot_all = torch.cat(rot_list, dim=0)
         scale_all = torch.cat(scale_list, dim=0)
         opacity_all = torch.cat(opacity_list, dim=0)
-        sh_all = torch.cat(sh_list, dim=0)
+        sh_all = torch.cat(sh_list, dim=0).reshape(xyz_all.shape[0], -1, 3).contiguous()
 
         self.template = GaussianData(
             xyz=xyz_all,
