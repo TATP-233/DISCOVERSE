@@ -35,12 +35,15 @@ class BatchSplatConfig:
     background_ply: Optional[str] = None
     # Device to place tensors on; if None, will pick CUDA if available else CPU.
     device: Optional[torch.device] = None
+    # Minibatch size for rendering
+    minibatch: Optional[int] = None
 
 
 class BatchSplatRenderer:
     def __init__(self, cfg: BatchSplatConfig, mj_model=None):
         device = cfg.device or (torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))
         self.device = device
+        self.minibatch = cfg.minibatch
 
         xyz_list: List[torch.Tensor] = []
         rot_list: List[torch.Tensor] = []
@@ -137,7 +140,7 @@ class BatchSplatRenderer:
         """Render RGBD for batch envs and cameras."""
         cam_pos = cam_pos.to(self.device)
         cam_xmat = cam_xmat.to(self.device)
-        return _batch_env_render(gsb, cam_pos, cam_xmat, height, width, fovy, bg_imgs=bg_imgs)
+        return _batch_env_render(gsb, cam_pos, cam_xmat, height, width, fovy, bg_imgs=bg_imgs, minibatch=self.minibatch)
 
     @staticmethod
     def from_mjx_state(state, renderer: "BatchSplatRenderer"):
