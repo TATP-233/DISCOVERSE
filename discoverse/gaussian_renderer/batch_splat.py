@@ -132,11 +132,12 @@ class BatchSplatRenderer:
         height: int,
         width: int,
         fovy: np.ndarray,
+        bg_imgs: Optional[torch.Tensor] = None,
     ):
         """Render RGBD for batch envs and cameras."""
         cam_pos = cam_pos.to(self.device)
         cam_xmat = cam_xmat.to(self.device)
-        return _batch_env_render(gsb, cam_pos, cam_xmat, height, width, fovy)
+        return _batch_env_render(gsb, cam_pos, cam_xmat, height, width, fovy, bg_imgs=bg_imgs)
 
     @staticmethod
     def from_mjx_state(state, renderer: "BatchSplatRenderer"):
