@@ -1,8 +1,7 @@
-import tqdm
 import argparse
-import struct
 import numpy as np
 from scipy.spatial.transform import Rotation
+from plyfile import PlyData, PlyElement
 
 import torch
 import einops
@@ -14,7 +13,7 @@ def transform_shs(shs_feat, rotation_matrix):
     ## rotate shs
     P = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]) # switch axes: yzx -> xyz
     permuted_rotation_matrix = np.linalg.inv(P) @ rotation_matrix @ P
-    rot_angles = o3._rotation.matrix_to_angles(torch.from_numpy(permuted_rotation_matrix))
+    rot_angles = o3._rotation.matrix_to_angles(torch.from_numpy(permuted_rotation_matrix).float())
     
     # Construction coefficient
     D_1 = o3.wigner_D(1, rot_angles[0], - rot_angles[1], rot_angles[2])
@@ -68,70 +67,98 @@ def rescale(xyz, scales, scale: float):
 def ply_bin_transpose(input_file, output_file, transformMatrix, scale_factor=1.):
     assert type(transformMatrix) == np.ndarray and transformMatrix.shape == (4,4)
 
-    with open(input_file, 'rb') as f:
-        binary_data = f.read()
-
-    header_end = binary_data.find(b'end_header\n') + len(b'end_header\n')
-    header = binary_data[:header_end].decode('utf-8')
-    body = binary_data[header_end:]
-
-    sh_dc_num = 0
-    sh_rest_num = 0
-    for line in header.split('\n'):
-        if line.startswith('property float f_dc_'):
-            sh_dc_num += 1
-        if line.startswith('property float f_rest_'):
-            sh_rest_num += 1
-
-    offset = 0
-    vertex_format = f'<3f3f{sh_dc_num}f{sh_rest_num}f1f3f4f'  
+    print(f"Reading {input_file}...")
+    plydata = PlyData.read(input_file)
+    vertex = plydata['vertex']
     
-    vertex_size = struct.calcsize(vertex_format)
-    vertex_count = int(header.split('element vertex ')[1].split()[0])
+    # Extract positions
+    print("Processing positions...")
+    x = np.asarray(vertex['x'])
+    y = np.asarray(vertex['y'])
+    z = np.asarray(vertex['z'])
+    xyz = np.stack([x, y, z], axis=-1)
     
-    if len(body) != vertex_count * vertex_size:
-        print(f"Error: body size {len(body)} does not match vertex count {vertex_count} * vertex size {vertex_size}")
-        return
-
-    data = []
-    for _ in tqdm.trange(vertex_count):
-        vertex_data = struct.unpack_from(vertex_format, body, offset)
-        data.append(vertex_data)
-        offset += vertex_size
-    data_arr = np.array(data)
-
-    pose_arr = np.zeros((data_arr.shape[0], 4, 4))
-    pose_arr[:,3,3] = 1
-    pose_arr[:,:3,3] = data_arr[:,:3]
-    quat_wxyz = data_arr[:,-4:]
-    quat_xyzw = quat_wxyz[:,[1,2,3,0]]
-    pose_arr[:,:3,:3] = Rotation.from_quat(quat_xyzw).as_matrix()
-
-    trans_pose_arr = transformMatrix @ pose_arr[:]
-
-    data_arr[:,:3] = trans_pose_arr[:,:3,3]
-    quat_arr = Rotation.from_matrix(trans_pose_arr[:,:3,:3]).as_quat()
-    data_arr[:,-4:] = quat_arr[:,[3,0,1,2]]
-
-    RMat = transformMatrix[:3,:3]
+    # Extract rotations
+    print("Processing rotations...")
+    rot_names = ['rot_0', 'rot_1', 'rot_2', 'rot_3']
+    rots = np.stack([np.asarray(vertex[n]) for n in rot_names], axis=-1)
     
-    if sh_rest_num > 0:
-        f_rest = torch.from_numpy(data_arr[:,9:9+sh_rest_num].reshape((-1, sh_dc_num, sh_rest_num//sh_dc_num)).transpose(0,2,1))
-        shs = transform_shs(f_rest, RMat).numpy()
-        shs = shs.transpose(0,2,1).reshape(-1,sh_rest_num)
-        data_arr[:,9:9+sh_rest_num] = shs
+    # 3DGS stores rotation as quaternion w, x, y, z
+    quat_wxyz = rots
+    quat_xyzw = quat_wxyz[:, [1, 2, 3, 0]]
+    
+    # Construct poses
+    N = xyz.shape[0]
+    pose_arr = np.eye(4).reshape(1, 4, 4).repeat(N, axis=0)
+    pose_arr[:, :3, 3] = xyz
+    
+    # Convert quaternions to rotation matrices
+    r = Rotation.from_quat(quat_xyzw)
+    pose_arr[:, :3, :3] = r.as_matrix()
+    
+    # Apply transformation
+    trans_pose_arr = transformMatrix @ pose_arr
+    
+    # Extract new positions
+    xyz_new = trans_pose_arr[:, :3, 3]
+    
+    # Extract new rotations
+    r_new = Rotation.from_matrix(trans_pose_arr[:, :3, :3])
+    quat_xyzw_new = r_new.as_quat()
+    # Convert back to wxyz
+    quat_wxyz_new = quat_xyzw_new[:, [3, 0, 1, 2]]
+    
+    # Update vertex data
+    vertex['x'] = xyz_new[:, 0]
+    vertex['y'] = xyz_new[:, 1]
+    vertex['z'] = xyz_new[:, 2]
+    
+    for i, n in enumerate(rot_names):
+        vertex[n] = quat_wxyz_new[:, i]
+        
+    # Extract scales
+    print("Processing scales...")
+    scale_names = ['scale_0', 'scale_1', 'scale_2']
+    scales = np.stack([np.asarray(vertex[n]) for n in scale_names], axis=-1)
+    
+    # Rescale
+    xyz_new, scales_new = rescale(xyz_new, scales, scale_factor)
+    
+    # Update scales and positions (again, because rescale modifies xyz)
+    vertex['x'] = xyz_new[:, 0]
+    vertex['y'] = xyz_new[:, 1]
+    vertex['z'] = xyz_new[:, 2]
+    
+    for i, n in enumerate(scale_names):
+        vertex[n] = scales_new[:, i]
+        
+    # SH Features
+    print("Processing SH features...")
+    prop_names = [p.name for p in vertex.properties]
+    f_rest_names = [n for n in prop_names if n.startswith('f_rest_')]
+    f_rest_names.sort(key=lambda x: int(x.split('_')[-1]))
+    
+    if len(f_rest_names) > 0:
+        f_rest = np.stack([np.asarray(vertex[n]) for n in f_rest_names], axis=-1)
+        
+        sh_dc_num = 3 # Assuming RGB
+        sh_rest_num = len(f_rest_names)
+        
+        # Reshape to (N, 3, 15) -> (N, 15, 3)
+        f_rest_tensor = torch.from_numpy(f_rest.reshape((-1, sh_dc_num, sh_rest_num//sh_dc_num)).transpose(0,2,1)).float()
+        
+        RMat = transformMatrix[:3, :3]
+        shs = transform_shs(f_rest_tensor, RMat).numpy()
+        
+        # Reshape back
+        shs = shs.transpose(0,2,1).reshape(-1, sh_rest_num)
+        
+        for i, n in enumerate(f_rest_names):
+            vertex[n] = shs[:, i]
+            
+    print(f"Writing to {output_file}...")
+    plydata.write(output_file)
 
-    xyz, scales = rescale(data_arr[:,:3], data_arr[:,9+sh_rest_num+1:9+sh_rest_num+1+3], scale_factor)
-    data_arr[:,:3] = xyz
-    data_arr[:,9+sh_rest_num+1:9+sh_rest_num+1+3] = scales
-
-    offset = 0
-    with open(output_file, 'wb') as f:
-        f.write(header.replace(f"{vertex_count}", f"{data_arr.shape[0]}").encode('utf-8'))
-
-        for vertex_data in tqdm.tqdm(data_arr):
-            binary_data = struct.pack(vertex_format, *(vertex_data.tolist()))
-            f.write(binary_data)
 
 if __name__ == "__main__":
 

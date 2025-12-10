@@ -223,6 +223,77 @@ def batch_env_render(
     
     return color_img, depth_img
 
+@torch.jit.script
+def _update_gaussians_kernel(
+    tmpl_xyz: Tensor,
+    tmpl_rot: Tensor,
+    body_pos: Tensor,
+    body_quat: Tensor,
+    gs_idx_start: Tensor,
+    gs_idx_end: Tensor,
+    gs_body_ids: Tensor,
+    Nenv: int,
+    total_gaussians: int
+) -> Tuple[Tensor, Tensor]:
+    
+    # Prepare output tensors
+    # We use clone() to ensure we have new memory that we can modify in-place
+    xyz_out = tmpl_xyz.unsqueeze(0).expand(Nenv, -1, -1).clone()
+    rot_out = tmpl_rot.unsqueeze(0).expand(Nenv, -1, -1).clone()
+
+    # Iterate over bodies
+    # JIT will optimize this loop
+    for i in range(len(gs_body_ids)):
+        body_idx = gs_body_ids[i]
+        start = gs_idx_start[i]
+        end = gs_idx_end[i]
+        
+        # (Nenv, 1, 3)
+        b_pos = body_pos[:, body_idx, :].unsqueeze(1)
+        # (Nenv, 1, 4)
+        b_quat = body_quat[:, body_idx, :].unsqueeze(1)
+        
+        # (1, N_g, 3)
+        g_xyz = tmpl_xyz[start:end].unsqueeze(0)
+        # (1, N_g, 4)
+        g_rot = tmpl_rot[start:end].unsqueeze(0)
+        
+        # Apply transform: R * p + t
+        # Inlined multiple_quaternion_vector3d logic for JIT compatibility if needed, 
+        # but calling the function is also fine if it's JIT-compatible.
+        # Here we inline to be safe and self-contained within the JIT kernel.
+        
+        # multiple_quaternion_vector3d(b_quat, g_xyz)
+        qw, qx, qy, qz = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
+        vx, vy, vz = g_xyz[..., 0], g_xyz[..., 1], g_xyz[..., 2]
+        
+        qvw = -vx*qx - vy*qy - vz*qz
+        qvx =  vx*qw - vy*qz + vz*qy
+        qvy =  vx*qz + vy*qw - vz*qx
+        qvz = -vx*qy + vy*qx + vz*qw
+        
+        vx_ =  qvx*qw - qvw*qx + qvz*qy - qvy*qz
+        vy_ =  qvy*qw - qvz*qx - qvw*qy + qvx*qz
+        vz_ =  qvz*qw + qvy*qx - qvx*qy - qvw*qz
+        
+        xyz_new = torch.stack([vx_, vy_, vz_], dim=-1) + b_pos
+        
+        # multiple_quaternions(b_quat, g_rot)
+        q1w, q1x, q1y, q1z = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
+        q2w, q2x, q2y, q2z = g_rot[..., 0], g_rot[..., 1], g_rot[..., 2], g_rot[..., 3]
+
+        qw_ = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z
+        qx_ = q1w * q2x + q1x * q2w + q1y * q2z - q1z * q2y
+        qy_ = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x
+        qz_ = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w
+        
+        rot_new = torch.stack([qw_, qx_, qy_, qz_], dim=-1)
+        
+        xyz_out[:, start:end, :] = xyz_new
+        rot_out[:, start:end, :] = rot_new
+        
+    return xyz_out, rot_out
+
 @torch.no_grad()
 def batch_update_gaussians(
     gaussian_template: GaussianData,
@@ -234,17 +305,6 @@ def batch_update_gaussians(
 ) -> GaussianBatchData:
     """
     Batch update gaussian positions and rotations based on body poses.
-    
-    Args:
-        gaussian_template: The template gaussian data (usually in local coordinates).
-        body_pos: Body positions (Nenv, Nbody, 3).
-        body_quat: Body quaternions (Nenv, Nbody, 4) in wxyz format.
-        gs_idx_start: Start index of gaussians for each body in the template.
-        gs_idx_end: End index of gaussians for each body in the template.
-        gs_body_ids: Body indices corresponding to the gaussian groups.
-        
-    Returns:
-        GaussianBatchData: The updated gaussian data for all environments.
     """
     device = body_pos.device
     Nenv = body_pos.shape[0]
@@ -264,40 +324,30 @@ def batch_update_gaussians(
         tmpl_opacity = gaussian_template.opacity
         tmpl_sh = gaussian_template.sh
 
-    # 2. Prepare output tensors
-    xyz_out = torch.zeros((Nenv, total_gaussians, 3), dtype=torch.float32, device=device)
-    rot_out = torch.zeros((Nenv, total_gaussians, 4), dtype=torch.float32, device=device)
-    xyz_out[...] = tmpl_xyz.unsqueeze(0).expand(Nenv, -1, -1)
-    rot_out[...] = tmpl_rot.unsqueeze(0).expand(Nenv, -1, -1)
+    # Ensure indices are tensors
+    if not isinstance(gs_idx_start, torch.Tensor):
+        gs_idx_start = torch.tensor(gs_idx_start, device=device, dtype=torch.long)
+    else:
+        gs_idx_start = gs_idx_start.to(device=device, dtype=torch.long)
+        
+    if not isinstance(gs_idx_end, torch.Tensor):
+        gs_idx_end = torch.tensor(gs_idx_end, device=device, dtype=torch.long)
+    else:
+        gs_idx_end = gs_idx_end.to(device=device, dtype=torch.long)
+        
+    if not isinstance(gs_body_ids, torch.Tensor):
+        gs_body_ids = torch.tensor(gs_body_ids, device=device, dtype=torch.long)
+    else:
+        gs_body_ids = gs_body_ids.to(device=device, dtype=torch.long)
 
-    # 3. Update each body's gaussians
-    # We iterate over the bodies (objects), which is usually a small number.
-    for i in range(len(gs_body_ids)):
-        body_idx = gs_body_ids[i]
-        start = gs_idx_start[i]
-        end = gs_idx_end[i]
-        
-        # (Nenv, 1, 3)
-        b_pos = body_pos[:, body_idx, :].unsqueeze(1)
-        # (Nenv, 1, 4)
-        b_quat = body_quat[:, body_idx, :].unsqueeze(1)
-        
-        # (1, N_g, 3)
-        g_xyz = tmpl_xyz[start:end].unsqueeze(0)
-        # (1, N_g, 4)
-        g_rot = tmpl_rot[start:end].unsqueeze(0)
-        
-        # Apply transform: R * p + t
-        # multiple_quaternion_vector3d broadcasts (Nenv, 1, 4) and (1, N_g, 3) -> (Nenv, N_g, 3)
-        xyz_new = multiple_quaternion_vector3d(b_quat, g_xyz) + b_pos
-        
-        # Apply rotation: q_body * q_gaussian
-        rot_new = multiple_quaternions(b_quat, g_rot)
-        
-        xyz_out[:, start:end, :] = xyz_new
-        rot_out[:, start:end, :] = rot_new
+    # 2. Run JIT kernel
+    xyz_out, rot_out = _update_gaussians_kernel(
+        tmpl_xyz, tmpl_rot, body_pos, body_quat, 
+        gs_idx_start, gs_idx_end, gs_body_ids, 
+        Nenv, total_gaussians
+    )
 
-    # 4. Expand static properties
+    # 3. Expand static properties
     scale_out = tmpl_scale.unsqueeze(0).expand(Nenv, -1, -1)
     opacity_out = tmpl_opacity.unsqueeze(0).expand(Nenv, -1)
     sh_out = tmpl_sh.unsqueeze(0).expand(Nenv, -1, -1, -1)
