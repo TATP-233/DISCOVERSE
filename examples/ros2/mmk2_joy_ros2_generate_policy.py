@@ -8,7 +8,14 @@ import xml.etree.ElementTree as ET
 import rclpy
 
 from discoverse.robots_env.mmk2_base import MMK2Cfg
-from discoverse.examples.ros2.mmk2_ros2_joy import MMK2ROS2JoyCtl
+
+import sys 
+import os
+# 获取当前文件所在目录（sensor_lidar）
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+from mmk2_ros2_joy import MMK2ROS2JoyCtl
 from discoverse.utils import get_site_tmat, get_body_tmat
 
 def read_object_positions(xml_path):
