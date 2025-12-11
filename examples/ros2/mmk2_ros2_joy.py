@@ -7,7 +7,16 @@ from sensor_msgs.msg import Joy
 
 from discoverse.robots import MMK2FIK
 from discoverse.robots_env.mmk2_base import MMK2Cfg
-from discoverse.examples.ros2.mmk2_ros2 import MMK2ROS2
+
+import sys
+import os
+# 获取当前文件所在目录（sensor_lidar）
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+
+
+from mmk2_ros2 import MMK2ROS2
 from discoverse.utils.joy_stick_ros2 import JoyTeleopRos2
 
 class MMK2ROS2JoyCtl(MMK2ROS2):

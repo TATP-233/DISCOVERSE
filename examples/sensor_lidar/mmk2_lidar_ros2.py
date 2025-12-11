@@ -9,8 +9,22 @@ from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import PointCloud2, PointField
 from visualization_msgs.msg import MarkerArray
 
+
+import sys
+import os
+
+# 获取当前文件的绝对路径
+current_file = __file__
+# 获取当前文件所在目录
+current_dir = os.path.dirname(os.path.abspath(current_file))
+# 获取上一级目录：即从sensor_lidar -> examples 
+project_root = os.path.dirname(current_dir)
+print(project_root)
+# 将项目根目录添加到sys.path
+sys.path.insert(0, project_root)
+
 from discoverse.robots_env.mmk2_base import MMK2Cfg
-from discoverse.examples.ros2.mmk2_ros2_joy import MMK2ROS2JoyCtl
+from ros2.mmk2_ros2_joy import MMK2ROS2JoyCtl
 
 from mujoco_lidar.lidar_wrapper import MjLidarWrapper
 from mujoco_lidar.scan_gen import create_lidar_single_line

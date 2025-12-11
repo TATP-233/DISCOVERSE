@@ -1,3 +1,16 @@
+import sys
+import os
+
+# 获取当前文件的绝对路径
+current_file = __file__
+# 获取当前文件所在目录
+current_dir = os.path.dirname(os.path.abspath(current_file))
+# 获取上一级目录：即从sensor_lidar -> examples 
+project_root = os.path.dirname(current_dir)
+# 将项目根目录添加到sys.path
+sys.path.insert(0, project_root)
+# /workspace/DISCOVERSE/examples/sensor_lidar/mmk2_lidar_ros1.py
+
 import threading
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -7,11 +20,23 @@ import tf2_ros
 from sensor_msgs.msg import PointCloud2
 from visualization_msgs.msg import MarkerArray
 from discoverse.robots_env.mmk2_base import MMK2Cfg
-from discoverse.examples.ros1.mmk2_ros1_joy import MMK2ROS1JoyCtl
 
 from mujoco_lidar.lidar_wrapper import MjLidarWrapper
 from mujoco_lidar.scan_gen import create_lidar_single_line
-from mujoco_lidar.examples.lidar_vis_ros1 import broadcast_tf, publish_scene, publish_point_cloud
+
+
+import mujoco_lidar
+
+mujoco_lidar_dir =  mujoco_lidar.__file__
+mujoco_lidar_examples_dir = os.path.dirname(os.path.dirname(mujoco_lidar_dir))
+print("mmk2", mujoco_lidar_examples_dir )
+# 将目录添加到sys.path
+sys.path.insert(0, mujoco_lidar_examples_dir)
+
+
+from examples.lidar_vis_ros1_wrapper import broadcast_tf, publish_scene, publish_point_cloud
+
+from ros1.mmk2_ros1_joy import MMK2ROS1JoyCtl
 
 if __name__ == "__main__":
     rospy.init_node('mmk2_lidar_node', anonymous=True)
