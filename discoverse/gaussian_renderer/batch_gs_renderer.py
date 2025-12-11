@@ -233,7 +233,6 @@ def _update_gaussians_kernel(
     gs_idx_end: Tensor,
     gs_body_ids: Tensor,
     Nenv: int,
-    total_gaussians: int
 ) -> Tuple[Tensor, Tensor]:
     
     # Prepare output tensors
@@ -344,7 +343,7 @@ def batch_update_gaussians(
     xyz_out, rot_out = _update_gaussians_kernel(
         tmpl_xyz, tmpl_rot, body_pos, body_quat, 
         gs_idx_start, gs_idx_end, gs_body_ids, 
-        Nenv, total_gaussians
+        Nenv
     )
 
     # 3. Expand static properties
