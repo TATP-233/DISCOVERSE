@@ -89,7 +89,6 @@ class CUDARenderer:
             raise RuntimeError("gsplat backend requested but not available. Please install gsplat.")
         
         self.gaussians = None
-        self.gau_env_idx = 0
         self.need_rerender = True
         
         # Buffers for updates
@@ -112,7 +111,6 @@ class CUDARenderer:
                 gau_s.append(gaus_item.scale)
                 gau_a.append(gaus_item.opacity)
                 gau_c.append(gaus_item.sh)
-            self.gau_env_idx = gau_xyz[0].shape[0]
             gau_xyz = np.concatenate(gau_xyz, axis=0)
             gau_rot = np.concatenate(gau_rot, axis=0)
             gau_s = np.concatenate(gau_s, axis=0)
