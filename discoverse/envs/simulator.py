@@ -295,6 +295,10 @@ class SimulatorBase:
         self.gs_idx_end = np.array(self.gs_idx_end)
         self.gs_body_ids = np.array(self.gs_body_ids)
 
+        device = self.gs_renderer.renderer.gaussians.device
+        self.gs_idx_start_tensor = torch.tensor(self.gs_idx_start, device=device, dtype=torch.long)
+        self.gs_idx_end_tensor = torch.tensor(self.gs_idx_end, device=device, dtype=torch.long)
+
     def update_gs_scene(self):
         if not hasattr(self, 'gs_idx_start') or len(self.gs_idx_start) == 0:
             return
@@ -307,8 +311,8 @@ class SimulatorBase:
         
         # Call batch update interface
         self.gs_renderer.renderer.update_gaussian_properties(
-            self.gs_idx_start,
-            self.gs_idx_end,
+            self.gs_idx_start_tensor,
+            self.gs_idx_end_tensor,
             pos_values,
             quat_values
         )

@@ -78,7 +78,6 @@ def test(model_path, render=True, episodes=10, deterministic=True, seed=42):
         cfg.gs_model_dict["kiwi"] = "object/kiwi.ply"  # 定义"奇异果"模型路径
         cfg.gs_model_dict["background"] = "scene/tsimf_library_1/point_cloud.ply"  # 定义背景模型路径
         cfg.mjcf_file_path = "mjcf/tasks_mmk2/pick_kiwi.xml"  # MuJoCo环境文件路径
-        cfg.obj_list = ["plate_white", "kiwi"]  # 环境中包含的对象列表
         cfg.sync = True  # 是否同步更新
         cfg.headless = not render  # 是否启用无头模式（显示渲染画面）
         cfg.obs_rgb_cam_id = [0]  # 使用第一个摄像头

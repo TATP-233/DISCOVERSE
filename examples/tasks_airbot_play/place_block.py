@@ -54,7 +54,6 @@ cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
 env = make_env(robot_name, task_name)
 env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
 
-cfg.obj_list     = ["drawer_1", "drawer_2", "bowl_pink", "block_green"]
 cfg.timestep     = 1/240
 cfg.decimation   = 4
 cfg.sync         = True
@@ -76,7 +75,6 @@ if __name__ == "__main__":
     parser.add_argument("--data_idx", type=int, default=0, help="data index")
     parser.add_argument("--data_set_size", type=int, default=1, help="data set size")
     parser.add_argument("--auto", action="store_true", help="auto run")
-    parser.add_argument("--save_segment", action="store_true", help="save segment videos")
     parser.add_argument('--use_gs', action='store_true', help='Use gaussian splatting renderer')
     args = parser.parse_args()
 
@@ -89,11 +87,6 @@ if __name__ == "__main__":
     save_dir = os.path.join(DISCOVERSE_ROOT_DIR, "data", os.path.splitext(os.path.basename(__file__))[0])
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-
-    if args.save_segment:
-        cfg.obs_depth_cam_id = list(set(cfg.obs_rgb_cam_id + ([] if cfg.obs_depth_cam_id is None else cfg.obs_depth_cam_id)))
-        from discoverse.randomain.utils import SampleforDR
-        samples = SampleforDR(objs=cfg.obj_list[2:], robot_parts=cfg.rb_link_list, cam_ids=cfg.obs_rgb_cam_id, save_dir=os.path.join(save_dir, "segment"), fps=cfg.render_set["fps"])
 
     sim_node = SimNode(cfg)
     if hasattr(cfg, "save_mjb_and_task_config") and cfg.save_mjb_and_task_config and data_idx == 0:

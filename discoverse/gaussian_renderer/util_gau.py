@@ -8,41 +8,6 @@ from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
 import sys
 
-def multiple_quaternion_vector3d(qwxyz, vxyz):
-    qw = qwxyz[..., 0]
-    qx = qwxyz[..., 1]
-    qy = qwxyz[..., 2]
-    qz = qwxyz[..., 3]
-    vx = vxyz[..., 0]
-    vy = vxyz[..., 1]
-    vz = vxyz[..., 2]
-    qvw = -vx*qx - vy*qy - vz*qz
-    qvx =  vx*qw - vy*qz + vz*qy
-    qvy =  vx*qz + vy*qw - vz*qx
-    qvz = -vx*qy + vy*qx + vz*qw
-    vx_ =  qvx*qw - qvw*qx + qvz*qy - qvy*qz
-    vy_ =  qvy*qw - qvz*qx - qvw*qy + qvx*qz
-    vz_ =  qvz*qw + qvy*qx - qvx*qy - qvw*qz
-    return torch.stack([vx_, vy_, vz_], dim=-1).cuda().requires_grad_(False)
-
-def multiple_quaternions(qwxyz1, qwxyz2):
-    q1w = qwxyz1[..., 0]
-    q1x = qwxyz1[..., 1]
-    q1y = qwxyz1[..., 2]
-    q1z = qwxyz1[..., 3]
-
-    q2w = qwxyz2[..., 0]
-    q2x = qwxyz2[..., 1]
-    q2y = qwxyz2[..., 2]
-    q2z = qwxyz2[..., 3]
-
-    qw_ = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z
-    qx_ = q1w * q2x + q1x * q2w + q1y * q2z - q1z * q2y
-    qy_ = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x
-    qz_ = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w
-
-    return torch.stack([qw_, qx_, qy_, qz_], dim=-1).cuda().requires_grad_(False)
-
 class Camera:
     def __init__(self, h, w):
         self.znear = 1e-6

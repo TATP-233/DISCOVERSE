@@ -16,21 +16,7 @@ class SkyRoverCfg(BaseConfig):
     }
     obs_rgb_cam_id   = None
     obs_depth_cam_id = None
-    rb_link_list   = [
-        "skyrover",
-        "skyrover_base_link",
-        "skyrover_folder1_link",
-        "skyrover_folder2_link",
-        "skyrover_wheel1_link",
-        "skyrover_wheel2_link",
-        "skyrover_wheel3_link",
-        "skyrover_wheel4_link",
-        "skyrover_rotor1_link",
-        "skyrover_rotor2_link",
-        "skyrover_rotor3_link",
-        "skyrover_rotor4_link",
-    ]
-    obj_list       = []
+
     use_gaussian_renderer = False
     gs_model_dict  = {
         "skyrover"              :   "skyrover/stretch_link.ply",

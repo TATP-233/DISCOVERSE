@@ -6,7 +6,6 @@ from torch import Tensor
 
 from gsplat.rendering import rasterization
 from discoverse.gaussian_renderer.gaussiandata import GaussianData, GaussianBatchData
-from discoverse.gaussian_renderer.util_gau import multiple_quaternion_vector3d, multiple_quaternions
 
 @torch.no_grad()
 def batch_render(
@@ -258,11 +257,6 @@ def _update_gaussians_kernel(
         g_rot = tmpl_rot[start:end].unsqueeze(0)
         
         # Apply transform: R * p + t
-        # Inlined multiple_quaternion_vector3d logic for JIT compatibility if needed, 
-        # but calling the function is also fine if it's JIT-compatible.
-        # Here we inline to be safe and self-contained within the JIT kernel.
-        
-        # multiple_quaternion_vector3d(b_quat, g_xyz)
         qw, qx, qy, qz = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
         vx, vy, vz = g_xyz[..., 0], g_xyz[..., 1], g_xyz[..., 2]
         
@@ -277,7 +271,6 @@ def _update_gaussians_kernel(
         
         xyz_new = torch.stack([vx_, vy_, vz_], dim=-1) + b_pos
         
-        # multiple_quaternions(b_quat, g_rot)
         q1w, q1x, q1y, q1z = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
         q2w, q2x, q2y, q2z = g_rot[..., 0], g_rot[..., 1], g_rot[..., 2], g_rot[..., 3]
 

@@ -12,8 +12,6 @@
     - `obs_depth_cam_id`: List of integers, used to set the ID of the depth map acquisition camera.
     - `use_gaussian_renderer`: When set to `True`, 3dgs is used for high-fidelity rendering, otherwise the mujoco native renderer is used.
         The following options are unique to high-fidelity rendering and do not need to be set when using the mujoco native renderer:
-    - `rb_link_list`: The body name of the robot.
-    - `obj_list`: The body name of the manipulated objects in the scene. Only objects appearing in `rb_link_list` and `obj_list` will appear during 3dgs rendering.
     - `gs_model_dict`: Of dictionary type, where the key is the body name and the value is the path of the corresponding 3dgs ply file.
 
 + `step`

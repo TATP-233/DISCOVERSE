@@ -18,8 +18,6 @@ class AirbotPlayCfg(BaseConfig):
     }
     init_qpos = np.zeros(7)
     obs_rgb_cam_id  = None
-    rb_link_list   = ["arm_base", "link1", "link2", "link3", "link4", "link5", "link6", "right", "left"]
-    obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict = {
         "arm_base"  : "manipulator/airbot_play/arm_base.ply",

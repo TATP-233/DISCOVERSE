@@ -64,10 +64,3 @@ class GSRenderer:
         self.renderer.gaussian_start_indices = self.gaussians_idx
         self.renderer.gaussian_end_indices = {k: v + self.gaussians_size[k] for k, v in self.gaussians_idx.items()}
         self.renderer.gaussian_model_names = list(self.gaussians_all.keys())
-
-        for name in self.gaussians_all.keys():
-            # :TODO: 找到哪里被改成torch了
-            try:
-                self.gaussians_all[name].R = self.gaussians_all[name].R.numpy()
-            except:
-                pass

@@ -46,7 +46,6 @@ cfg.gs_model_dict["wood"]            = "object/wood.ply"
 cfg.gs_model_dict["background"]      = "scene/tsimf_library_0/point_cloud_for_mmk2.ply"
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/coffeecup_plate.xml"
-cfg.obj_list    = ["plate_white", "coffeecup_white", "wood", "cup_lid"]
 cfg.sync     = True
 cfg.headless = False
 cfg.render_set  = {

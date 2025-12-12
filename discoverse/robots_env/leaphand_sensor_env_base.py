@@ -18,8 +18,6 @@ class LeapHandCfg(BaseConfig):
         "height" : 1080,
     }
     obs_rgb_cam_id  = None
-    # rb_link_list   = ["arm_base", "link1", "link2", "link3", "link4", "link5", "link6", "right", "left"]
-    obj_list       = []
     use_gaussian_renderer = False
 
 class LeapHandBase(SimulatorBase):

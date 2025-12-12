@@ -47,7 +47,6 @@ cfg.gs_model_dict["kiwi"]          = "object/kiwi.ply"
 cfg.gs_model_dict["background"]    = "scene/Lab3/environment.ply"
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/pick_kiwi.xml"
-cfg.obj_list    = ["plate_white", "kiwi"]
 cfg.sync     = True  #加速
 cfg.headless = False
 cfg.render_set  = {

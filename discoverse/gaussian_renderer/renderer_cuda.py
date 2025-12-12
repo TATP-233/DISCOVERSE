@@ -6,6 +6,8 @@ from discoverse.gaussian_renderer import util_gau, GaussianData
 
 import numpy as np
 import torch
+from torch import Tensor
+from typing import Tuple
 
 try:
     from gsplat.rendering import rasterization
@@ -24,6 +26,59 @@ def gaus_cuda_from_cpu(gau: util_gau) -> GaussianData:
     )
     gaus.sh = gaus.sh.reshape(len(gaus), -1, 3).contiguous()
     return gaus
+
+@torch.jit.script
+def _update_gaussian_properties_kernel(
+    gau_ori_xyz: Tensor,
+    gau_ori_rot: Tensor,
+    pos: Tensor,
+    quat: Tensor,
+    start_indices: Tensor,
+    end_indices: Tensor,
+    gau_xyz_out: Tensor,
+    gau_rot_out: Tensor
+) -> Tuple[Tensor, Tensor]:
+    
+    for i in range(len(start_indices)):
+        start = int(start_indices[i].item())
+        end = int(end_indices[i].item())
+        
+        # Slicing tensors
+        xyz_ori = gau_ori_xyz[start:end]
+        rot_ori = gau_ori_rot[start:end]
+        
+        cur_pos = pos[i]
+        cur_quat = quat[i]
+        
+        # Inline quaternion math
+        qw, qx, qy, qz = cur_quat[0], cur_quat[1], cur_quat[2], cur_quat[3]
+        vx, vy, vz = xyz_ori[..., 0], xyz_ori[..., 1], xyz_ori[..., 2]
+        
+        qvw = -vx*qx - vy*qy - vz*qz
+        qvx =  vx*qw - vy*qz + vz*qy
+        qvy =  vx*qz + vy*qw - vz*qx
+        qvz = -vx*qy + vy*qx + vz*qw
+        
+        vx_ =  qvx*qw - qvw*qx + qvz*qy - qvy*qz
+        vy_ =  qvy*qw - qvz*qx - qvw*qy + qvx*qz
+        vz_ =  qvz*qw + qvy*qx - qvx*qy - qvw*qz
+        
+        xyz_new = torch.stack([vx_, vy_, vz_], dim=-1) + cur_pos
+        
+        q1w, q1x, q1y, q1z = cur_quat[0], cur_quat[1], cur_quat[2], cur_quat[3]
+        q2w, q2x, q2y, q2z = rot_ori[..., 0], rot_ori[..., 1], rot_ori[..., 2], rot_ori[..., 3]
+
+        qw_ = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z
+        qx_ = q1w * q2x + q1x * q2w + q1y * q2z - q1z * q2y
+        qy_ = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x
+        qz_ = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w
+        
+        rot_new = torch.stack([qw_, qx_, qy_, qz_], dim=-1)
+        
+        gau_xyz_out[start:end] = xyz_new
+        gau_rot_out[start:end] = rot_new
+        
+    return gau_xyz_out, gau_rot_out
 
 class CUDARenderer:
     def __init__(self):
@@ -93,24 +148,23 @@ class CUDARenderer:
         if not isinstance(quat, torch.Tensor):
             quat = torch.from_numpy(quat).float().cuda()
             
-        for i in range(len(start_indices)):
-            start = start_indices[i]
-            end = end_indices[i]
-            
-            xyz_ori = self.gau_ori_xyz_all_cu[start:end]
-            rot_ori = self.gau_ori_rot_all_cu[start:end]
-            
-            cur_pos = pos[i]
-            cur_quat = quat[i]
-            
-            cur_quat_expanded = cur_quat.unsqueeze(0).expand(xyz_ori.shape[0], -1)
-            
-            xyz_new = util_gau.multiple_quaternion_vector3d(cur_quat_expanded, xyz_ori) + cur_pos
-            rot_new = util_gau.multiple_quaternions(cur_quat_expanded, rot_ori)
-            
-            self.gau_xyz_all_cu[start:end] = xyz_new
-            self.gau_rot_all_cu[start:end] = rot_new
-            
-            self.gaussians.xyz[start:end] = xyz_new
-            self.gaussians.rot[start:end] = rot_new
+        # Convert indices to tensor if they are not
+        if not isinstance(start_indices, torch.Tensor):
+            start_indices = torch.tensor(start_indices, device=pos.device, dtype=torch.long)
+        if not isinstance(end_indices, torch.Tensor):
+            end_indices = torch.tensor(end_indices, device=pos.device, dtype=torch.long)
+
+        _update_gaussian_properties_kernel(
+            self.gau_ori_xyz_all_cu,
+            self.gau_ori_rot_all_cu,
+            pos,
+            quat,
+            start_indices,
+            end_indices,
+            self.gaussians.xyz,
+            self.gaussians.rot
+        )
+        
+        self.gau_xyz_all_cu = self.gaussians.xyz
+        self.gau_rot_all_cu = self.gaussians.rot
 

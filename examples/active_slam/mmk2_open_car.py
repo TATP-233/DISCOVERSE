@@ -6,15 +6,7 @@ class MMK2SlamCfg(DummyRobotConfig):
     mjcf_file_path = "mjcf/mmk2_car.xml"
     timestep       = 0.0025
     decimation     = 4
-    rb_link_list   = [
-        "agv_link", "slide_link", "head_yaw_link", "head_pitch_link",
-        "lft_arm_base", "lft_arm_link1", "lft_arm_link2", 
-        "lft_arm_link3", "lft_arm_link4", "lft_arm_link5", "lft_arm_link6",
-        "lft_finger_left_link", "lft_finger_right_link", 
-        "rgt_arm_base", "rgt_arm_link1", "rgt_arm_link2", 
-        "rgt_arm_link3", "rgt_arm_link4", "rgt_arm_link5", "rgt_arm_link6",
-        "rgt_finger_left_link", "rgt_finger_right_link"
-    ]
+
     gs_model_dict  = {
         "agv_link"              :   "mmk2/agv_link.ply",
         "slide_link"            :   "mmk2/slide_link.ply",
@@ -65,7 +57,6 @@ if __name__ == "__main__":
     cfg.gs_model_dict["background"] = "scene/car/lixiang.ply"
     cfg.gs_model_dict["Box2"] = "scene/car/hougai.ply"
     cfg.gs_model_dict["background_env"] = "scene/car/environment.ply"
-    cfg.obj_list     = ["Box2"]
     robot = MMK2SlamRobot(cfg)
     robot.cam_id = robot_cam_id
 
