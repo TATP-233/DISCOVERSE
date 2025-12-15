@@ -44,7 +44,7 @@ flowchart LR
 
 1) **Start the RPC service**
 ```bash
-cd dexamples/motor/server
+cd examples/motor/server
 python server.py --host 0.0.0.0 --port 8890 --ctrl-hz 200
 ```
 This starts the `AirbotActor` background thread and opens JSON-Lines RPC on the given host/port. Examples default to `127.0.0.1:8890`.
