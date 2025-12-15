@@ -1,5 +1,5 @@
 
-# Motor Examples README
+# Hardware-Sim Examples README
 
 This project provides a motion-control RPC service (`server/server.py`) built on the `Play` facade, plus several real-device example scripts (under `example/`).
 
@@ -44,14 +44,14 @@ flowchart LR
 
 1) **Start the RPC service**
 ```bash
-cd discoverse/examples/motor/server
+cd dexamples/motor/server
 python server.py --host 0.0.0.0 --port 8890 --ctrl-hz 200
 ```
 This starts the `AirbotActor` background thread and opens JSON-Lines RPC on the given host/port. Examples default to `127.0.0.1:8890`.
 
 2) **Run the zero-position example**
 ```bash
-cd discoverse/examples/motor/client
+cd examples/motor/client
 python example/real_play_return_zero.py
 ```
 This initializes all joints (including the gripper), sends a zero PVT command, and waits for convergence.

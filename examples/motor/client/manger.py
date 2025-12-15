@@ -1,8 +1,8 @@
 # manager.py
 import asyncio
 from typing import Dict, Tuple, Iterable, Optional, Any, List
-from discoverse.examples.motor.client.transport import PersistentTransport
-from discoverse.examples.motor.client.motor_client import Motor
+from .transport import PersistentTransport
+from .motor_client import Motor
 
 Key = Tuple[str, int]  # (motor_type, motor_id)
 

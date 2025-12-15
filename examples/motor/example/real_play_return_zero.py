@@ -3,9 +3,13 @@ import math
 import time
 from typing import List
 
-from discoverse.examples.motor.client.airbotplay import Play
-from discoverse.examples.motor.client.motor_client import MotorType, EEFType
+import sys
+from pathlib import Path
+_project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(_project_root))
 
+from client.airbotplay import Play
+from client.motor_client import MotorType, EEFType
 # Configuration
 HOST = "127.0.0.1"
 PORT = 8890

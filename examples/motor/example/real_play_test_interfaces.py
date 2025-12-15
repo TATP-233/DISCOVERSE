@@ -12,8 +12,14 @@ import argparse
 import asyncio
 from typing import Any, Callable, Awaitable, Optional, Sequence
 
-from discoverse.examples.motor.client.airbotplay import Play, PlayState
-from discoverse.examples.motor.client.motor_client import MotorType, EEFType
+# 添加项目根目录到 sys.path，以便使用相对导入
+import sys
+from pathlib import Path
+_project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(_project_root))
+
+from client.airbotplay import Play , PlayState
+from client.motor_client import MotorType, EEFType
 
 
 HOST = "127.0.0.1"

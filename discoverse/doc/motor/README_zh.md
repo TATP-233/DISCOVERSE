@@ -1,4 +1,4 @@
-# Motor 示例 README
+# Hardware-Sim示例 README
 
 本项目提供一个基于 `Play` 门面封装的运动控制 RPC 服务 (`server/server.py`) 以及多份真实设备示例脚本（位于 `example/`）。
 
@@ -43,14 +43,14 @@ flowchart LR
 
 1. **启动 RPC 服务**
    ```bash
-   cd discoverse/examples/motor/server
+   cd examples/motor/server
    python server.py --host 0.0.0.0 --port 8890 --ctrl-hz 200
    ```
    这会拉起 `AirbotActor` 后台线程，并在指定 host/port 上开启 JSON-Lines RPC，示例脚本默认连接 `127.0.0.1:8890`。
 
 2. **运行零位示例**
    ```bash
-   cd discoverse/examples/motor/client
+   cd examples/motor/example
    python example/real_play_return_zero.py
    ```
    该脚本会初始化所有关节（含夹爪）、发零位 PVT 指令并等待电机收敛。
