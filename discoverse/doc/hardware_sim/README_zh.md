@@ -43,15 +43,15 @@ flowchart LR
 
 1. **启动 RPC 服务**
    ```bash
-   cd examples/motor/server
+   cd examples/hardware_sim/server
    python server.py --host 0.0.0.0 --port 8890 --ctrl-hz 200
    ```
    这会拉起 `AirbotActor` 后台线程，并在指定 host/port 上开启 JSON-Lines RPC，示例脚本默认连接 `127.0.0.1:8890`。
 
 2. **运行零位示例**
    ```bash
-   cd examples/motor/example
-   python example/real_play_return_zero.py
+   cd examples/hardware_sim/example
+   python real_play_return_zero.py
    ```
    该脚本会初始化所有关节（含夹爪）、发零位 PVT 指令并等待电机收敛。
 
