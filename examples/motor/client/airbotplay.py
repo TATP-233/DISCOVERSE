@@ -4,8 +4,8 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any, Awaitable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from discoverse.examples.motor.client.transport import PersistentTransport
-from discoverse.examples.motor.client.motor_client import Motor, MotorState, MotorType, EEFType
+from .transport import PersistentTransport
+from .motor_client import Motor, MotorState, MotorType, EEFType
 
 
 MotorSpec = Union[Tuple[str, int], Motor]

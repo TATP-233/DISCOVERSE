@@ -10,10 +10,16 @@ import argparse
 import asyncio
 import curses
 import logging
+import sys
+from pathlib import Path
 from typing import List
 
-from discoverse.examples.motor.client.airbotplay import Play
-from discoverse.examples.motor.client.motor_client import MotorType, EEFType
+# 添加项目根目录到 sys.path，以便使用相对导入
+_project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(_project_root))
+
+from client.airbotplay import Play
+from client.motor_client import MotorType, EEFType
 
 
 LOG_FORMAT = (

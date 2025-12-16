@@ -3,7 +3,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Union
 
-from discoverse.examples.motor.client.transport import PersistentTransport
+from .transport import PersistentTransport
 
 class MotorType(str, Enum):
     OD  = "OD"
