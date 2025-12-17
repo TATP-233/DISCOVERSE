@@ -1,3 +1,27 @@
+# SPDX-License-Identifier: MIT
+#
+# MIT License
+#
+# Copyright (c) 2025 Yufei Jia
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from typing import Tuple, List, Union, Dict, Optional
 
 import numpy as np
@@ -6,6 +30,32 @@ from torch import Tensor
 
 from gsplat.rendering import rasterization
 from discoverse.gaussian_renderer.gaussiandata import GaussianData, GaussianBatchData
+
+@torch.jit.script
+def quaternion_multiply(q1: Tensor, q2: Tensor) -> Tensor:
+    w1, x1, y1, z1 = q1.unbind(-1)
+    w2, x2, y2, z2 = q2.unbind(-1)
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
+    z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
+    return torch.stack((w, x, y, z), dim=-1)
+
+@torch.jit.script
+def transform_points(points: Tensor, pos: Tensor, quat: Tensor) -> Tensor:
+    # points: (N, 3)
+    # pos: (N, 3)
+    # quat: (N, 4) wxyz
+    
+    # Rotate points
+    # v' = v + 2 * cross(q.xyz, cross(q.xyz, v) + q.w * v)
+    q_w = quat[..., 0]
+    q_xyz = quat[..., 1:]
+    
+    t = 2.0 * torch.cross(q_xyz, points)
+    points_rotated = points + q_w.unsqueeze(-1) * t + torch.cross(q_xyz, t)
+    
+    return points_rotated + pos
 
 @torch.no_grad()
 def batch_render(
@@ -222,86 +272,20 @@ def batch_env_render(
     
     return color_img, depth_img
 
-@torch.jit.script
-def _update_gaussians_kernel(
-    tmpl_xyz: Tensor,
-    tmpl_rot: Tensor,
-    body_pos: Tensor,
-    body_quat: Tensor,
-    gs_idx_start: Tensor,
-    gs_idx_end: Tensor,
-    gs_body_ids: Tensor,
-    Nenv: int,
-) -> Tuple[Tensor, Tensor]:
-    
-    # Prepare output tensors
-    # We use clone() to ensure we have new memory that we can modify in-place
-    xyz_out = tmpl_xyz.unsqueeze(0).expand(Nenv, -1, -1).clone()
-    rot_out = tmpl_rot.unsqueeze(0).expand(Nenv, -1, -1).clone()
-
-    # Iterate over bodies
-    # JIT will optimize this loop
-    for i in range(len(gs_body_ids)):
-        body_idx = gs_body_ids[i]
-        start = gs_idx_start[i]
-        end = gs_idx_end[i]
-        
-        # (Nenv, 1, 3)
-        b_pos = body_pos[:, body_idx, :].unsqueeze(1)
-        # (Nenv, 1, 4)
-        b_quat = body_quat[:, body_idx, :].unsqueeze(1)
-        
-        # (1, N_g, 3)
-        g_xyz = tmpl_xyz[start:end].unsqueeze(0)
-        # (1, N_g, 4)
-        g_rot = tmpl_rot[start:end].unsqueeze(0)
-        
-        # Apply transform: R * p + t
-        qw, qx, qy, qz = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
-        vx, vy, vz = g_xyz[..., 0], g_xyz[..., 1], g_xyz[..., 2]
-        
-        qvw = -vx*qx - vy*qy - vz*qz
-        qvx =  vx*qw - vy*qz + vz*qy
-        qvy =  vx*qz + vy*qw - vz*qx
-        qvz = -vx*qy + vy*qx + vz*qw
-        
-        vx_ =  qvx*qw - qvw*qx + qvz*qy - qvy*qz
-        vy_ =  qvy*qw - qvz*qx - qvw*qy + qvx*qz
-        vz_ =  qvz*qw + qvy*qx - qvx*qy - qvw*qz
-        
-        xyz_new = torch.stack([vx_, vy_, vz_], dim=-1) + b_pos
-        
-        q1w, q1x, q1y, q1z = b_quat[..., 0], b_quat[..., 1], b_quat[..., 2], b_quat[..., 3]
-        q2w, q2x, q2y, q2z = g_rot[..., 0], g_rot[..., 1], g_rot[..., 2], g_rot[..., 3]
-
-        qw_ = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z
-        qx_ = q1w * q2x + q1x * q2w + q1y * q2z - q1z * q2y
-        qy_ = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x
-        qz_ = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w
-        
-        rot_new = torch.stack([qw_, qx_, qy_, qz_], dim=-1)
-        
-        xyz_out[:, start:end, :] = xyz_new
-        rot_out[:, start:end, :] = rot_new
-        
-    return xyz_out, rot_out
-
 @torch.no_grad()
 def batch_update_gaussians(
     gaussian_template: GaussianData,
     body_pos: torch.Tensor, # (Nenv, Nbody, 3)
     body_quat: torch.Tensor, # (Nenv, Nbody, 4)
-    gs_idx_start: Union[List, np.ndarray, torch.Tensor], # (N_gs_body,)
-    gs_idx_end: Union[List, np.ndarray, torch.Tensor], # (N_gs_body,)
-    gs_body_ids: Union[List, np.ndarray, torch.Tensor], # (N_gs_body,)
+    point_to_body_idx: Optional[torch.Tensor], # (N_points,)
+    dynamic_mask: Optional[torch.Tensor], # (N_points,)
 ) -> GaussianBatchData:
     """
     Batch update gaussian positions and rotations based on body poses.
     """
     device = body_pos.device
     Nenv = body_pos.shape[0]
-    total_gaussians = len(gaussian_template)
-
+    
     # 1. Convert template to tensor if needed (cache this in practice!)
     if isinstance(gaussian_template.xyz, np.ndarray):
         tmpl_xyz = torch.tensor(gaussian_template.xyz, dtype=torch.float32, device=device)
@@ -316,28 +300,39 @@ def batch_update_gaussians(
         tmpl_opacity = gaussian_template.opacity
         tmpl_sh = gaussian_template.sh
 
-    # Ensure indices are tensors
-    if not isinstance(gs_idx_start, torch.Tensor):
-        gs_idx_start = torch.tensor(gs_idx_start, device=device, dtype=torch.long)
-    else:
-        gs_idx_start = gs_idx_start.to(device=device, dtype=torch.long)
+    # 2. Vectorized Update
+    # Prepare output
+    xyz_out = tmpl_xyz.unsqueeze(0).expand(Nenv, -1, -1).clone()
+    rot_out = tmpl_rot.unsqueeze(0).expand(Nenv, -1, -1).clone()
+    
+    mask = dynamic_mask
+    if mask.any():
+        # (N_dynamic,)
+        body_indices = point_to_body_idx[mask]
         
-    if not isinstance(gs_idx_end, torch.Tensor):
-        gs_idx_end = torch.tensor(gs_idx_end, device=device, dtype=torch.long)
-    else:
-        gs_idx_end = gs_idx_end.to(device=device, dtype=torch.long)
+        # Gather body poses: (Nenv, N_dynamic, 3/4)
+        # body_pos is (Nenv, Nbody, 3)
+        # We want to select body_indices for each env.
+        # body_pos[:, body_indices] works? 
+        # Yes, standard indexing: (Nenv, N_dynamic, 3)
+        pos_expanded = body_pos[:, body_indices]
+        quat_expanded = body_quat[:, body_indices]
         
-    if not isinstance(gs_body_ids, torch.Tensor):
-        gs_body_ids = torch.tensor(gs_body_ids, device=device, dtype=torch.long)
-    else:
-        gs_body_ids = gs_body_ids.to(device=device, dtype=torch.long)
-
-    # 2. Run JIT kernel
-    xyz_out, rot_out = _update_gaussians_kernel(
-        tmpl_xyz, tmpl_rot, body_pos, body_quat, 
-        gs_idx_start, gs_idx_end, gs_body_ids, 
-        Nenv
-    )
+        # Template properties: (N_dynamic, 3/4) -> (1, N_dynamic, 3/4)
+        xyz_ori = tmpl_xyz[mask].unsqueeze(0)
+        rot_ori = tmpl_rot[mask].unsqueeze(0)
+        
+        # Apply transform
+        # transform_points broadcasts: (1, N_dyn, 3) + (Nenv, N_dyn, 3) -> (Nenv, N_dyn, 3)
+        xyz_new = transform_points(xyz_ori, pos_expanded, quat_expanded)
+        rot_new = quaternion_multiply(quat_expanded, rot_ori)
+        
+        # Scatter back
+        # xyz_out is (Nenv, N_total, 3)
+        # We need to assign to xyz_out[:, mask, :]
+        # This works in PyTorch
+        xyz_out[:, mask, :] = xyz_new
+        rot_out[:, mask, :] = rot_new
 
     # 3. Expand static properties
     scale_out = tmpl_scale.unsqueeze(0).expand(Nenv, -1, -1)

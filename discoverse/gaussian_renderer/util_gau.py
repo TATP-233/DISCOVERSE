@@ -1,88 +1,35 @@
+# SPDX-License-Identifier: MIT
+#
+# MIT License
+#
+# Copyright (c) 2025 Yufei Jia
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import numpy as np
 from plyfile import PlyData
-import torch
-import glm
 import os
 from pathlib import Path
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
 import sys
 
-class Camera:
-    def __init__(self, h, w):
-        self.znear = 1e-6
-        self.zfar = 100
-        self.h = h
-        self.w = w
-        self.fovy = 1.05
-        self.position = np.array([0.0, 0.0, -2.0]).astype(np.float32)
-        self.target = np.array([0.0, 0.0, 0.0]).astype(np.float32)
-        self.up = np.array([0.0, 0.0, 1.0]).astype(np.float32)
-        self.yaw = -np.pi / 2
-        self.pitch = 0
-
-        self.is_pose_dirty = True
-        self.is_intrin_dirty = True
-        
-        self.last_x = 640
-        self.last_y = 360
-        self.first_mouse = True
-        
-        self.is_leftmouse_pressed = False
-        self.is_rightmouse_pressed = False
-        
-        self.rot_sensitivity = 0.02
-        self.trans_sensitivity = 0.01
-        self.zoom_sensitivity = 0.08
-        self.roll_sensitivity = 0.03
-        self.target_dist = 3.
-    
-    def _global_rot_mat(self):
-        x = np.array([1, 0, 0])
-        z = np.cross(x, self.up)
-        z = z / np.linalg.norm(z)
-        x = np.cross(self.up, z)
-        return np.stack([x, self.up, z], axis=-1)
-
-    def get_view_matrix(self, backend="glm"):
-        view_matrix = np.array(glm.lookAt(glm.vec3(self.position), glm.vec3(self.target), glm.vec3(self.up)))
-        if backend == "gsplat":
-            view_matrix[[1,2], :] *= -1
-        elif backend == "diff_gaussian":
-            view_matrix[[0,2], :] *= -1
-        return view_matrix
-
-    def get_project_matrix(self):
-        project_mat = glm.perspective(
-            self.fovy,
-            self.w / self.h,
-            self.znear,
-            self.zfar
-        )
-        return np.array(project_mat).astype(np.float32)
-
-    def get_htanfovxy_focal(self):
-        htany = np.tan(self.fovy / 2)
-        htanx = htany / self.h * self.w
-        focal = self.h / (2 * htany)
-        return [htanx, htany, focal]
-
-    def get_focal(self):
-        return self.h / (2 * np.tan(self.fovy / 2))
-
-    def update_target_distance(self):
-        _dir = self.target - self.position
-        _dir = _dir / np.linalg.norm(_dir)
-        self.target = self.position + _dir * self.target_dist
-        
-    def update_resolution(self, height, width):
-        self.h = max(height, 1)
-        self.w = max(width, 1)
-        self.is_intrin_dirty = True
-    
-    def update_fovy(self, fovy):
-        self.fovy = fovy
-        self.is_intrin_dirty = True
 
 def gamma_shs(shs, gamma):
     C0 = 0.28209479177387814

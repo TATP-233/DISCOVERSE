@@ -1,3 +1,27 @@
+# SPDX-License-Identifier: MIT
+#
+# MIT License
+#
+# Copyright (c) 2025 Yufei Jia
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 Minimal batch Gaussian splat renderer that works with mjx state tensors.
 This file avoids depending on the DISCOVERSE env/robot wrappers; it only uses the
@@ -17,11 +41,10 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
-import torch.utils.dlpack as tpack
 
-from discoverse.gaussian_renderer.gaussiandata import GaussianData
-from discoverse.gaussian_renderer.util_gau import load_ply
-from discoverse.gaussian_renderer.batch_gs_renderer import (
+from .gaussiandata import GaussianData
+from .util_gau import load_ply
+from .batch_rasterization import (
     batch_env_render as _batch_env_render,
     batch_update_gaussians as _batch_update_gaussians,
 )
@@ -106,6 +129,18 @@ class BatchSplatRenderer:
         self.gs_idx_end = torch.tensor(self.gs_idx_end, dtype=torch.long, device=device)
         self.gs_body_ids = torch.tensor(self.gs_body_ids, dtype=torch.long, device=device)
 
+        # Precompute point-to-body mapping for vectorized update
+        num_points = len(self.template)
+        self.dynamic_mask = torch.zeros(num_points, dtype=torch.bool, device=device)
+        self.point_to_body_idx = torch.zeros(num_points, dtype=torch.long, device=device)
+        
+        for i in range(len(self.gs_idx_start)):
+            start = self.gs_idx_start[i]
+            end = self.gs_idx_end[i]
+            body_id = self.gs_body_ids[i]
+            self.dynamic_mask[start:end] = True
+            self.point_to_body_idx[start:end] = body_id
+
     def batch_update_gaussians(self, body_pos: torch.Tensor, body_quat: torch.Tensor):
         """Update gaussians using body poses.
 
@@ -122,9 +157,8 @@ class BatchSplatRenderer:
             self.template,
             body_pos,
             body_quat,
-            self.gs_idx_start,
-            self.gs_idx_end,
-            self.gs_body_ids,
+            point_to_body_idx=self.point_to_body_idx,
+            dynamic_mask=self.dynamic_mask,
         )
 
     def batch_env_render(
@@ -141,13 +175,5 @@ class BatchSplatRenderer:
         cam_pos = cam_pos.to(self.device)
         cam_xmat = cam_xmat.to(self.device)
         return _batch_env_render(gsb, cam_pos, cam_xmat, height, width, fovy, bg_imgs=bg_imgs, minibatch=self.minibatch)
-
-    @staticmethod
-    def from_mjx_state(state, renderer: "BatchSplatRenderer"):
-        """Utility to convert mjx state dlpack buffers to torch and update gaussians."""
-        body_pos = tpack.from_dlpack(state.data.xpos)
-        body_quat = tpack.from_dlpack(state.data.xquat)
-        return renderer.batch_update_gaussians(body_pos, body_quat)
-
 
 __all__ = ["BatchSplatConfig", "BatchSplatRenderer"]

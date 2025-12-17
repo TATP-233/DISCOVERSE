@@ -1,3 +1,27 @@
+# SPDX-License-Identifier: MIT
+#
+# MIT License
+#
+# Copyright (c) 2025 Yufei Jia
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import struct
 import numpy as np
 from plyfile import PlyData
@@ -187,56 +211,6 @@ def is_super_splat_format(plydata: PlyData) -> bool:
 # ============================================================================
 # 压缩/编码函数
 # ============================================================================
-
-def _pack_unorm(value: float, bits: int) -> int:
-    """将[0,1]范围的值打包为指定位数的整数"""
-    t = (1 << bits) - 1
-    return max(0, min(t, int(value * t + 0.5)))
-
-
-def _pack_111011(x: float, y: float, z: float) -> int:
-    """打包三个[0,1]值为11-10-11位格式的uint32"""
-    return (_pack_unorm(x, 11) << 21) | (_pack_unorm(y, 10) << 11) | _pack_unorm(z, 11)
-
-
-def _pack_8888(x: float, y: float, z: float, w: float) -> int:
-    """打包四个[0,1]值为8-8-8-8位格式的uint32"""
-    return (_pack_unorm(x, 8) << 24) | (_pack_unorm(y, 8) << 16) | \
-           (_pack_unorm(z, 8) << 8) | _pack_unorm(w, 8)
-
-
-def _pack_rotation(rot: np.ndarray) -> int:
-    """
-    将四元数压缩为2-10-10-10位格式
-    
-    Args:
-        rot: shape=(4,) 四元数 (w, x, y, z)
-    
-    Returns:
-        uint32: 压缩后的旋转
-    """
-    # 归一化四元数
-    rot = rot / np.linalg.norm(rot)
-    
-    # 找到绝对值最大的分量
-    largest = np.argmax(np.abs(rot))
-    
-    # 确保最大分量为正
-    if rot[largest] < 0:
-        rot = -rot
-    
-    # 打包：前2位存储最大分量索引，后30位存储其他三个分量
-    norm = np.sqrt(2) * 0.5
-    result = largest
-    for i in range(4):
-        if i != largest:
-            # 将[-norm, norm]范围映射到[0, 1]
-            value = rot[i] * norm + 0.5
-            result = (result << 10) | _pack_unorm(value, 10)
-    
-    return result
-
-
 def _pack_rotations_vectorized(rots: np.ndarray) -> np.ndarray:
     """
     向量化批量压缩四元数为2-10-10-10位格式
@@ -287,17 +261,6 @@ def _pack_rotations_vectorized(rots: np.ndarray) -> np.ndarray:
         result[mask] = (largest_idx << 30) | (packed[:, 0] << 20) | (packed[:, 1] << 10) | packed[:, 2]
     
     return result
-
-
-def _normalize(x: float, min_val: float, max_val: float) -> float:
-    """将值归一化到[0,1]范围"""
-    if x <= min_val:
-        return 0.0
-    if x >= max_val:
-        return 1.0
-    if max_val - min_val < 0.00001:
-        return 0.0
-    return (x - min_val) / (max_val - min_val)
 
 
 class _Chunk:

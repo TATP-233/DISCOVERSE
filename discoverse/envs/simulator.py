@@ -10,7 +10,6 @@ from PIL import Image
 import OpenGL.GL as gl
 
 import mujoco
-import random
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -21,7 +20,6 @@ if sys.platform == "linux":
     try:
         import torch
         from discoverse.gaussian_renderer import GSRenderer
-        from discoverse.gaussian_renderer.batch_gs_renderer import batch_render
         DISCOVERSE_GAUSSIAN_RENDERER = True
 
     except ImportError:
@@ -104,9 +102,9 @@ class SimulatorBase:
                     hf_repo_id=getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models'),
                     local_dir=getattr(self.config, 'hf_local_dir', None)
                 )
+                self.gs_renderer.init_renderer(self.mj_model)
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
-                self.init_gaussian_renderer()
 
         self.window = None
         self.glfw_initialized = False
@@ -277,46 +275,6 @@ class SimulatorBase:
     def post_load_mjcf(self):
         pass
 
-    def init_gaussian_renderer(self):
-        self.gs_idx_start = []
-        self.gs_idx_end = []
-        self.gs_body_ids = []
-        
-        for i in range(self.mj_model.nbody):
-            body_name = mujoco.mj_id2name(self.mj_model, mujoco.mjtObj.mjOBJ_BODY, i)
-            if body_name in self.gs_renderer.renderer.gaussian_model_names:
-                start_idx = self.gs_renderer.renderer.gaussian_start_indices[body_name]
-                end_idx = self.gs_renderer.renderer.gaussian_end_indices[body_name]
-                self.gs_idx_start.append(start_idx)
-                self.gs_idx_end.append(end_idx)
-                self.gs_body_ids.append(i)
-
-        self.gs_idx_start = np.array(self.gs_idx_start)
-        self.gs_idx_end = np.array(self.gs_idx_end)
-        self.gs_body_ids = np.array(self.gs_body_ids)
-
-        device = self.gs_renderer.renderer.gaussians.device
-        self.gs_idx_start_tensor = torch.tensor(self.gs_idx_start, device=device, dtype=torch.long)
-        self.gs_idx_end_tensor = torch.tensor(self.gs_idx_end, device=device, dtype=torch.long)
-
-    def update_gs_scene(self):
-        if not hasattr(self, 'gs_idx_start') or len(self.gs_idx_start) == 0:
-            return
-
-        # Batch extract position (N, 3)
-        pos_values = self.mj_data.xpos[self.gs_body_ids]
-        
-        # Batch extract quaternion (N, 4) - wxyz
-        quat_values = self.mj_data.xquat[self.gs_body_ids]
-        
-        # Call batch update interface
-        self.gs_renderer.renderer.update_gaussian_properties(
-            self.gs_idx_start_tensor,
-            self.gs_idx_end_tensor,
-            pos_values,
-            quat_values
-        )
-
     def update_renderer_window_size(self, width, height):
         self.renderer._width = width
         self.renderer._height = height
@@ -382,7 +340,6 @@ class SimulatorBase:
 
         self.update_renderer_window_size(self.config.render_set["width"], self.config.render_set["height"])
         if self.config.use_gaussian_renderer and self.show_gaussian_img:
-            self.update_gs_scene()
 
             cam_ids = list(set(self.config.obs_rgb_cam_id + self.config.obs_depth_cam_id))
             if not self.config.headless and self.window is not None:
@@ -390,69 +347,25 @@ class SimulatorBase:
                     cam_ids.append(self.cam_id)
             
             if len(cam_ids) > 0:
-                # 优化：直接使用 mj_data 中的数据，避免循环和转换
-                # 1. 获取固定相机的位姿
-                fixed_cam_ids = [cid for cid in cam_ids if cid != -1]
-                
-                if len(fixed_cam_ids) > 0:
-                    # mj_data.cam_xpos: (Ncam, 3)
-                    # mj_data.cam_xmat: (Ncam, 9)
-                    # mj_model.cam_fovy: (Ncam,)
-                    
-                    # 使用 numpy 索引获取需要的相机数据
-                    fixed_cam_indices = np.array(fixed_cam_ids)
-                    cam_pos_fixed = self.mj_data.cam_xpos[fixed_cam_indices]
-                    cam_xmat_fixed = self.mj_data.cam_xmat[fixed_cam_indices]
-                    fovy_fixed = self.mj_model.cam_fovy[fixed_cam_indices]
-                else:
-                    cam_pos_fixed = np.empty((0, 3))
-                    cam_xmat_fixed = np.empty((0, 9))
-                    fovy_fixed = np.empty((0,))
-
-                # 2. 处理自由相机 (cam_id == -1)
                 if -1 in cam_ids:
                     self.renderer.update_scene(self.mj_data, self.free_camera, self.options)
-                    
-                    # 获取自由相机位姿
-                    # 注意：getCameraPose 返回的是 (3,) 和 (4,) [w,x,y,z]
-                    trans, quat_wxyz = self.getCameraPose(-1)
-                    rmat = Rotation.from_quat(quat_wxyz[[1,2,3,0]]).as_matrix().flatten() # (9,)
-                    fovy = self.mj_model.vis.global_.fovy
-                    
-                    # 拼接到固定相机数据后面
-                    cam_pos = np.vstack([cam_pos_fixed, trans])
-                    cam_xmat = np.vstack([cam_xmat_fixed, rmat])
-                    fovy_arr = np.concatenate([fovy_fixed, [fovy]])
-                    
-                    # 记录 cam_id 到 batch index 的映射
-                    # 固定相机在前，自由相机在最后
-                    batch_indices = {cid: i for i, cid in enumerate(fixed_cam_ids)}
-                    batch_indices[-1] = len(fixed_cam_ids)
-                else:
-                    cam_pos = cam_pos_fixed
-                    cam_xmat = cam_xmat_fixed
-                    fovy_arr = fovy_fixed
-                    batch_indices = {cid: i for i, cid in enumerate(fixed_cam_ids)}
 
-                rgb_tensor, depth_tensor = batch_render(
-                    self.gs_renderer.renderer.gaussians,
-                    cam_pos,
-                    cam_xmat,
-                    self.config.render_set["height"],
+                self.gs_renderer.update_gaussians(self.mj_data)
+                results_tensor = self.gs_renderer.render(
+                    self.mj_model,
+                    self.mj_data,
+                    cam_ids,
                     self.config.render_set["width"],
-                    fovy_arr
+                    self.config.render_set["height"],
+                    self.free_camera
                 )
-                
-                rgb_np = (255. * torch.clamp(rgb_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
-                depth_np = depth_tensor.cpu().numpy()
-                
                 self.batch_render_results = {}
-                for cid, idx in batch_indices.items():
-                    self.batch_render_results[cid] = (rgb_np[idx], depth_np[idx])
-                    if cid in self.config.obs_rgb_cam_id:
-                        self.img_rgb_obs_s[cid] = rgb_np[idx]
-                    if cid in self.config.obs_depth_cam_id:
-                        self.img_depth_obs_s[cid] = depth_np[idx]
+                for cid, (rgb_tensor, depth_tensor) in results_tensor.items():
+                    rgb = (255. * torch.clamp(rgb_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+                    depth = depth_tensor.cpu().numpy()
+                    self.batch_render_results[cid] = (rgb, depth)
+                    self.img_rgb_obs_s[cid] = rgb
+                    self.img_depth_obs_s[cid] = depth
         
         else:
             depth_rendering = self.renderer._depth_rendering
@@ -545,44 +458,6 @@ class SimulatorBase:
         depth_img = self.renderer.render()
         return depth_img
 
-    def getPointCloud(self, cam_id, N_gap=5):
-        """ please call after get_observation """
-
-        assert (cam_id in self.config.obs_rgb_cam_id) and (cam_id in self.config.obs_depth_cam_id), "Invalid cam_id"
-
-        # 相机内参预计算
-        fovy = (self.mj_model.vis.global_.fovy if cam_id == -1 else self.mj_model.cam_fovy[cam_id]) * np.pi / 180.0
-        height, width = self.config.render_set["height"], self.config.render_set["width"]
-        fx = width / (2 * np.tan(fovy * width / (2 * height)))  # 合并计算
-        fy = height / (2 * np.tan(fovy / 2))
-        cx, cy = width / 2, height / 2
-        inv_fx, inv_fy = 1.0 / fx, 1.0 / fy
-
-        rgb = self.obs["rgb"][cam_id][::N_gap, ::N_gap]
-        depth = self.obs["depth"][cam_id][::N_gap, ::N_gap]
-
-        rows, cols = depth.shape
-        u = (np.arange(cols) * N_gap).astype(np.float32)
-        v = (np.arange(rows) * N_gap).astype(np.float32)
-        u, v = np.meshgrid(u, v)
-        u_flat = u.ravel()
-        v_flat = v.ravel()
-        depth_flat = depth.ravel()
-
-        valid = depth_flat > 0
-        u_valid = u_flat[valid]
-        v_valid = v_flat[valid]
-        Z_valid = depth_flat[valid]
-
-        points = np.empty((len(Z_valid), 3), dtype=np.float32)
-        points[:, 0] = (u_valid - cx) * Z_valid * inv_fx
-        points[:, 1] = (v_valid - cy) * Z_valid * inv_fy
-        points[:, 2] = Z_valid
-
-        colors_rgb = rgb.reshape(-1, 3)[valid].astype(np.float32) / 255.0
-
-        return points, colors_rgb
-
     def on_mouse_move(self, window, xpos, ypos):
         if self.cam_id == -1:
             dx = xpos - self.mouse_pos['x']
@@ -627,10 +502,10 @@ class SimulatorBase:
                 if key == glfw.KEY_G:  # Ctrl + G
                     if self.config.use_gaussian_renderer:
                         self.show_gaussian_img = not self.show_gaussian_img
-                        self.gs_renderer.renderer.need_rerender = True
+                        self.gs_renderer.need_rerender = True
                 elif key == glfw.KEY_D:  # Ctrl + D
                     if self.config.use_gaussian_renderer:
-                        self.gs_renderer.renderer.need_rerender = True
+                        self.gs_renderer.need_rerender = True
                     if self.renderer._depth_rendering:
                         self.renderer.disable_depth_rendering()
                     else:
