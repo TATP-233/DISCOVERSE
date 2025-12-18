@@ -97,11 +97,19 @@ class SimulatorBase:
 
             self.config.use_gaussian_renderer = self.config.use_gaussian_renderer and DISCOVERSE_GAUSSIAN_RENDERER
             if self.config.use_gaussian_renderer:
-                self.gs_renderer = GSRenderer(
-                    self.config.gs_model_dict, 
-                    hf_repo_id=getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models'),
-                    local_dir=getattr(self.config, 'hf_local_dir', None)
-                )
+                from discoverse.utils.download_from_huggingface import download_from_huggingface
+                hf_repo_id = getattr(self.config, 'hf_repo_id', 'tatp/DISCOVERSE-models')
+                for name, path in self.config.gs_model_dict.items():
+                    if not os.path.isabs(path):
+                        abs_path = os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs", path)
+                        if os.path.exists(abs_path):
+                            self.config.gs_model_dict[name] = abs_path
+                        else:
+                            self.config.gs_model_dict[name] = download_from_huggingface(path, hf_repo_id)
+                    elif not os.path.exists(path):
+                        print(f"Warning: Model {name} path {path} is absolute and not found locally.")
+
+                self.gs_renderer = GSRenderer(self.config.gs_model_dict)
                 self.gs_renderer.init_renderer(self.mj_model)
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
