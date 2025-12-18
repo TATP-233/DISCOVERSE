@@ -42,7 +42,7 @@ class GaussianData:
         return self.xyz.device
 
     def to_cuda(self):
-        if not torch.is_tensor(self.xyz) and not self.xyz.is_cuda:
+        if not torch.is_tensor(self.xyz) or not self.xyz.is_cuda:
             self.xyz = torch.tensor(self.xyz).float().cuda().requires_grad_(False)
             self.rot = torch.tensor(self.rot).float().cuda().requires_grad_(False)
             self.scale = torch.tensor(self.scale).float().cuda().requires_grad_(False)
