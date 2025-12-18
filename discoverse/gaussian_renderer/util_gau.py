@@ -254,7 +254,7 @@ def load_ply(path, gamma=1, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None)
 
         scales = scales.astype(np.float32)
         opacities = 1/(1 + np.exp(-opacities))
-        opacities = opacities.astype(np.float32)
+        opacities = opacities.astype(np.float32).flatten()
 
         if abs(gamma - 1.0) > 1e-3:
             features_dc = gamma_shs(features_dc, gamma)
