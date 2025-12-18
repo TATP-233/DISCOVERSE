@@ -36,36 +36,20 @@ except ImportError:
     GSPLAT_AVAILABLE = False
     print("Warning: gsplat not available")
 
-from . import util_gau, GaussianData
+from .util_gau import load_ply
+from .gaussiandata import GaussianData
 from .batch_rasterization import batch_render, quaternion_multiply, transform_points
-from discoverse import DISCOVERSE_ASSETS_DIR
-
-def gaus_cuda_from_cpu(gau: util_gau) -> GaussianData:
-    gaus =  GaussianData(
-        xyz = torch.tensor(gau.xyz).float().cuda().requires_grad_(False),
-        rot = torch.tensor(gau.rot).float().cuda().requires_grad_(False),
-        scale = torch.tensor(gau.scale).float().cuda().requires_grad_(False),
-        opacity = torch.tensor(gau.opacity).float().cuda().requires_grad_(False),
-        sh = torch.tensor(gau.sh).float().cuda().requires_grad_(False)
-    )
-    gaus.sh = gaus.sh.reshape(len(gaus), -1, 3).contiguous()
-    return gaus
 
 class GSRenderer:
-    def __init__(self, models_dict:dict, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+    def __init__(self, models_dict:dict):
         """
         初始化高斯飞溅渲染器
         
         Args:
             models_dict: 模型字典,键为模型名称,值为模型路径
-            hf_repo_id: Hugging Face仓库ID,用于下载模型
-            local_dir: 下载目标目录,默认为None(使用DISCOVERSE_ASSETS_DIR/3dgs)
         """
         if not GSPLAT_AVAILABLE:
             raise RuntimeError("gsplat backend requested but not available. Please install gsplat.")
-
-        self.hf_repo_id = hf_repo_id
-        self.local_dir = local_dir
 
         self.gaussians = None
         self.need_rerender = True
@@ -76,24 +60,17 @@ class GSRenderer:
         self.gau_xyz_all_cu = None
         self.gau_rot_all_cu = None
 
-        self.gaussians_all:dict[util_gau.GaussianData] = {}
+        self.gaussians_all:dict[GaussianData] = {}
         self.gaussians_idx = {}
         self.gaussians_size = {}
         idx_sum = 0
 
-        gs_model_dir = Path(os.path.join(DISCOVERSE_ASSETS_DIR, "3dgs"))
-
         bg_key = "background"
         if bg_key in models_dict:
-            data_path = Path(os.path.join(gs_model_dir, models_dict[bg_key]))
-            gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
+            gs = load_ply(models_dict[bg_key])
             if "background_env" in models_dict.keys():
                 bgenv_key = "background_env"
-                bgenv_gs = util_gau.load_ply(
-                    Path(os.path.join(gs_model_dir, models_dict[bgenv_key])),
-                    hf_repo_id=self.hf_repo_id,
-                    local_dir=self.local_dir
-                )
+                bgenv_gs = load_ply(models_dict[bgenv_key])
                 gs.xyz = np.concatenate([gs.xyz, bgenv_gs.xyz], axis=0)
                 gs.rot = np.concatenate([gs.rot, bgenv_gs.rot], axis=0)
                 gs.scale = np.concatenate([gs.scale, bgenv_gs.scale], axis=0)
@@ -105,10 +82,9 @@ class GSRenderer:
             self.gaussians_size[bg_key] = gs.xyz.shape[0]
             idx_sum = self.gaussians_size[bg_key]
 
-        for i, (k, v) in enumerate(models_dict.items()):
+        for (k, v) in models_dict.items():
             if k != "background" and k != "background_env":
-                data_path = Path(os.path.join(gs_model_dir, v))
-                gs = util_gau.load_ply(data_path, hf_repo_id=self.hf_repo_id, local_dir=self.local_dir)
+                gs = load_ply(v)
                 self.gaussians_all[k] = gs
                 self.gaussians_idx[k] = idx_sum
                 self.gaussians_size[k] = gs.xyz.shape[0]
@@ -121,7 +97,7 @@ class GSRenderer:
         self.gaussian_model_names = list(self.gaussians_all.keys())
 
     @torch.no_grad()
-    def update_gaussian_data(self, gaus: util_gau.GaussianData):
+    def update_gaussian_data(self, gaus: GaussianData):
         if type(gaus) is dict:
             gau_xyz = []
             gau_rot = []
@@ -139,10 +115,10 @@ class GSRenderer:
             gau_s = np.concatenate(gau_s, axis=0)
             gau_a = np.concatenate(gau_a, axis=0)
             gau_c = np.concatenate(gau_c, axis=0)
-            gaus_all = util_gau.GaussianData(gau_xyz, gau_rot, gau_s, gau_a, gau_c)
-            self.gaussians = gaus_cuda_from_cpu(gaus_all)
+            gaus_all = GaussianData(gau_xyz, gau_rot, gau_s, gau_a, gau_c)
+            self.gaussians = gaus_all.to_cuda()
         else:
-            self.gaussians = gaus_cuda_from_cpu(gaus)
+            self.gaussians = gaus.to_cuda()
 
         num_points = self.gaussians.xyz.shape[0]
 

@@ -66,7 +66,6 @@ def check_supersplat_format(ply_path: Path) -> bool:
 def compress_ply_file(
     input_path: Path,
     backup: bool = False,
-    gamma: float = 1.0
 ) -> Tuple[bool, str, int, int, int, Path]:
     """
     压缩单个PLY文件
@@ -74,7 +73,6 @@ def compress_ply_file(
     Args:
         input_path: 输入文件路径
         backup: 是否备份原文件
-        gamma: Gamma校正值
         
     Returns:
         (成功标志, 消息, 原始大小, 压缩后大小, 点数, 文件路径)
@@ -95,7 +93,7 @@ def compress_ply_file(
         
         # 加载模型
         try:
-            gaussian_data = load_ply(str(input_path), gamma=gamma)
+            gaussian_data = load_ply(str(input_path))
             num_points = len(gaussian_data.xyz)
         except Exception as e:
             if backup_path and backup_path.exists():
@@ -144,7 +142,7 @@ def main():
 示例:
   %(prog)s models/
   %(prog)s --dir models/3dgs/ --backup
-  %(prog)s models/ --no-recursive --gamma 1.2
+  %(prog)s models/ --no-recursive
   %(prog)s models/ -j 4  # 使用4个并行进程
   %(prog)s models/ -j 0  # 自动使用所有CPU核心
   
@@ -182,14 +180,7 @@ def main():
         action='store_true',
         help='不递归搜索子目录'
     )
-    
-    parser.add_argument(
-        '--gamma',
-        type=float,
-        default=1.0,
-        help='Gamma校正值 (默认: 1.0)'
-    )
-    
+        
     parser.add_argument(
         '--dry-run',
         action='store_true',
@@ -307,8 +298,7 @@ def main():
         # 多进程并行处理
         compress_func = partial(
             compress_ply_file,
-            backup=args.backup,
-            gamma=args.gamma
+            backup=args.backup
         )
         
         # 使用进程池
@@ -350,8 +340,7 @@ def main():
             
             success, message, orig_size, comp_size, num_points, _ = compress_ply_file(
                 ply_file,
-                backup=args.backup,
-                gamma=args.gamma
+                backup=args.backup
             )
             
             if success:

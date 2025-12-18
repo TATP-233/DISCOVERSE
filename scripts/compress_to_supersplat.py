@@ -30,7 +30,7 @@ def main():
 示例:
   %(prog)s models/scene.ply
   %(prog)s models/scene.ply -o models/scene_compressed.ply
-  %(prog)s input.ply --output output.ply --gamma 1.0
+  %(prog)s input.ply --output output.ply
         """
     )
     
@@ -45,13 +45,6 @@ def main():
         type=str,
         default=None,
         help='输出PLY文件路径 (SuperSplat压缩格式)。默认: 输入文件名.compressed.ply'
-    )
-    
-    parser.add_argument(
-        '--gamma',
-        type=float,
-        default=1.0,
-        help='Gamma校正值 (默认: 1.0, 不进行gamma校正)'
     )
     
     parser.add_argument(
@@ -106,7 +99,7 @@ def main():
     
     # 加载模型
     try:
-        gaussian_data = load_ply(str(input_path), gamma=args.gamma)
+        gaussian_data = load_ply(str(input_path))
     except Exception as e:
         print(f"错误: 加载模型失败: {e}", file=sys.stderr)
         return 1

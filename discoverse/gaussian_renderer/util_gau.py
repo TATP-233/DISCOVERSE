@@ -22,183 +22,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import torch
 import numpy as np
-from plyfile import PlyData
-import os
 from pathlib import Path
+from plyfile import PlyData, PlyElement
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
-import sys
 
-
-def gamma_shs(shs, gamma):
-    C0 = 0.28209479177387814
-    new_shs = ((np.clip(shs * C0 + 0.5, 0.0, 1.0) ** gamma) - 0.5) / C0
-    return new_shs
-
-def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
-    """
-    从Hugging Face下载3DGS模型文件到本地models目录
-    
-    Args:
-        model_path: 模型的相对路径（例如: "scene/lab3/point_cloud.ply"）
-        hf_repo_id: Hugging Face仓库ID
-        local_dir: 本地目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
-    
-    Returns:
-        str: 下载后的文件本地路径
-    """
-    try:
-        from huggingface_hub import hf_hub_download
-        from discoverse import DISCOVERSE_ASSETS_DIR
-        
-        print(f"正在从Hugging Face下载模型: {model_path}")
-        
-        # 构建完整的HF文件路径（3dgs/相对路径）
-        hf_file_path = f"3dgs/{model_path}"
-
-        # 确定本地目录
-        if local_dir is None:
-            # 如果未指定目录，使用 assets 根目录
-            # hf_hub_download 会自动保持 3dgs 目录结构，所以不需要额外指定 3dgs 子目录
-            local_dir = DISCOVERSE_ASSETS_DIR
-            local_file_path = os.path.join(local_dir, hf_file_path)
-        else:
-            local_file_path = os.path.join(local_dir, model_path)
-        
-        # 确保本地目录存在
-        os.makedirs(local_dir, exist_ok=True)
-        local_file_dir = os.path.dirname(local_file_path)
-        
-        # 确保本地文件的目录存在
-        os.makedirs(local_file_dir, exist_ok=True)
-        
-        # 下载文件（直接下载到目标位置，不使用HF缓存）
-        downloaded_path = hf_hub_download(
-            repo_id=hf_repo_id,
-            filename=hf_file_path,
-            local_dir=local_dir,
-            local_dir_use_symlinks=False,  # 不使用符号链接，直接复制文件
-            repo_type="model"
-        )
-        
-        # 由于hf_hub_download会在local_dir下创建完整的仓库结构
-        # 我们需要将文件移动到正确的位置
-        if downloaded_path != local_file_path and os.path.exists(downloaded_path):
-            # 检查下载的文件是否在预期位置
-            expected_hf_path = os.path.join(local_dir, hf_file_path)
-            if os.path.exists(expected_hf_path) and expected_hf_path != local_file_path:
-                # 移动文件到正确位置
-                import shutil
-                shutil.move(expected_hf_path, local_file_path)
-                print(f"文件已移动到: {local_file_path}")
-                
-                # 清理可能创建的空目录
-                cleanup_dir = os.path.dirname(expected_hf_path)
-                hf_3dgs_dir = os.path.join(local_dir, "3dgs")
-                
-                # 循环向上删除空目录，直到 3dgs 目录
-                while cleanup_dir.startswith(hf_3dgs_dir):
-                    try:
-                        os.rmdir(cleanup_dir)
-                    except OSError:
-                        # 目录非空或无法删除，停止清理
-                        break
-                    
-                    if cleanup_dir == hf_3dgs_dir:
-                        break
-                        
-                    cleanup_dir = os.path.dirname(cleanup_dir)
-            else:
-                local_file_path = downloaded_path
-        
-        print(f"模型下载成功: {local_file_path}")
-        return local_file_path
-        
-    except ImportError:
-        print("错误: 需要安装 huggingface_hub 库")
-        print("请运行: pip install huggingface_hub")
-        raise
-
-def check_hf_login_or_exit(verbose=True):
-    """
-    检查当前是否已登录 Hugging Face（huggingface_hub）。
-    如果未安装 huggingface_hub，会提示安装并退出；如果未登录，会提示用户登录并安全退出。
-
-    返回:
-        True 如果已登录；否则不会返回（调用 sys.exit(1) 退出）。
-    """
-    try:
-        from huggingface_hub import HfApi
-    except ImportError:
-        if verbose:
-            print("错误: 未安装 huggingface_hub。请运行: pip install huggingface_hub")
-        sys.exit(1)
-
-    api = HfApi()
-    try:
-        info = api.whoami()
-        # whoami 返回字典，包含 'name' 或 'email' 等字段
-        name = None
-        if isinstance(info, dict):
-            name = info.get('name') or info.get('email') or info.get('user')
-        if verbose:
-            print(f"已使用 Hugging Face 登录: {name}")
-        return True
-    except Exception as e:
-        if verbose:
-            print("检测到未登录 Hugging Face。请执行 `huggingface-cli login` 或 设置 环境变量 `HUGGINGFACE_HUB_TOKEN` 后重试。")
-            print(f"(详细错误: {e})")
-        sys.exit(1)
-    except Exception as e:
-        print(f"从Hugging Face下载模型失败: {e}")
-        raise
-
-def load_ply(path, gamma=1, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None):
+def load_ply(path):
     """
     加载PLY格式的3DGS模型，支持从本地或Hugging Face下载
     
     Args:
         path: 模型文件路径（本地路径或相对路径）
-        gamma: gamma校正值
-        hf_repo_id: Hugging Face仓库ID，当本地文件不存在时使用
-        local_dir: 下载目标目录，默认为None（使用DISCOVERSE_ASSETS_DIR/3dgs）
     
     Returns:
         GaussianData: 加载的高斯数据
     """
-    # 转换为Path对象
-    path = Path(path)
-    
-    # 检查本地文件是否存在
-    if not path.exists():
-        print(f"本地未找到模型文件: {path}")
-        
-        # 尝试从Hugging Face下载
-        # 获取相对路径（假设路径格式为: .../3dgs/model_name/scene.ply）
-        try:
-            # 尝试提取相对路径
-            path_parts = path.parts
-            if "3dgs" in path_parts:
-                idx = path_parts.index("3dgs")
-                relative_path = "/".join(path_parts[idx+1:])
-            else:
-                # 如果路径中没有3dgs，使用文件名
-                relative_path = path.name
-            
-            print(f"尝试使用相对路径从HF下载: {relative_path}")
-            downloaded_path = download_from_huggingface(
-                relative_path, 
-                hf_repo_id=hf_repo_id,
-                local_dir=local_dir
-            )
-            path = Path(downloaded_path)
-            
-        except Exception as e:
-            print(f"从Hugging Face下载失败: {e}")
-            raise FileNotFoundError(f"本地和远程都未找到模型文件: {path}")
-    
-    max_sh_degree = 0
     plydata = PlyData.read(path)
 
     # 检查是否为 SuperSplat 格式
@@ -207,10 +47,11 @@ def load_ply(path, gamma=1, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None)
     
     # 标准 3DGS 格式
     else:
+        max_sh_degree = 0
         xyz = np.stack((np.asarray(plydata.elements[0]["x"]),
                         np.asarray(plydata.elements[0]["y"]),
                         np.asarray(plydata.elements[0]["z"])),  axis=1)
-        opacities = np.asarray(plydata.elements[0]["opacity"])[..., np.newaxis]
+        opacities = np.asarray(plydata.elements[0]["opacity"])
 
         features_dc = np.zeros((xyz.shape[0], 3, 1))
         features_dc[:, 0, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
@@ -253,15 +94,97 @@ def load_ply(path, gamma=1, hf_repo_id="tatp/DISCOVERSE-models", local_dir=None)
             scales = np.hstack([scales, 1e-9 * np.ones_like(scales[:, :1])])
 
         scales = scales.astype(np.float32)
-        opacities = 1/(1 + np.exp(-opacities))
-        opacities = opacities.astype(np.float32).flatten()
+        opacities = 1. / (1. + np.exp(-opacities))
+        opacities = opacities.astype(np.float32)
 
-        if abs(gamma - 1.0) > 1e-3:
-            features_dc = gamma_shs(features_dc, gamma)
-            features_extra[...,:] = 0.0
-            opacities *= 0.8
+        shs = np.concatenate([
+            features_dc.reshape(-1, 3), 
+            features_extra.reshape(-1, len(features_dc))
+        ], axis=-1).astype(np.float32)
 
-        shs = np.concatenate([features_dc.reshape(-1, 3), 
-                            features_extra.reshape(len(features_dc), -1)], axis=-1).astype(np.float32)
-        shs = shs.astype(np.float32)
         return GaussianData(xyz, rots, scales, opacities, shs)
+
+def save_ply(gaussian_data: GaussianData, path):
+    """
+    保存GaussianData为PLY文件
+    
+    Args:
+        gaussian_data: 要保存的高斯数据
+        path: 保存路径
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    def to_numpy(x):
+        if isinstance(x, torch.Tensor):
+            return x.detach().cpu().numpy()
+        return x
+
+    xyz = to_numpy(gaussian_data.xyz)
+    normals = np.zeros_like(xyz)
+    
+    shs = to_numpy(gaussian_data.sh)
+    f_dc = shs[:, :1, :3]
+    f_rest = shs[:, 1:, 3:]
+    
+    opacities = to_numpy(gaussian_data.opacity)
+    # inverse sigmoid: ln(x / (1-x))
+    # clip to avoid nan/inf
+    opacities = np.clip(opacities, 1e-6, 1.0 - 1e-6)
+    opacities = np.log(opacities / (1 - opacities))
+    
+    scales = to_numpy(gaussian_data.scale)
+    scales = np.log(np.maximum(scales, 1e-8))
+    
+    rots = to_numpy(gaussian_data.rot)
+    
+    # Construct dtype
+    dtype_full = [('x', 'f4'), ('y', 'f4'), ('z', 'f4'), 
+                  ('nx', 'f4'), ('ny', 'f4'), ('nz', 'f4'),
+                  ('f_dc_0', 'f4'), ('f_dc_1', 'f4'), ('f_dc_2', 'f4')]
+    
+    # f_rest handling
+    # load_ply: 
+    #   features_extra (N, 3*k) -> reshape(N, 3, k) -> transpose(0, 2, 1) -> (N, k, 3) -> reshape(N, 3*k) -> shs[:, 3:]
+    # save_ply reverse:
+    #   f_rest (N, 3*k) [k0c0, k0c1, k0c2, k1c0...] -> reshape(N, k, 3) -> transpose(0, 2, 1) -> (N, 3, k) -> reshape(N, 3*k)
+    num_extra = f_rest.shape[1]
+    if num_extra > 0:
+        k = num_extra // 3
+        f_rest = f_rest.reshape(-1, k, 3).transpose(0, 2, 1).reshape(-1, num_extra)
+    
+    for i in range(num_extra):
+        dtype_full.append((f'f_rest_{i}', 'f4'))
+        
+    dtype_full.append(('opacity', 'f4'))
+    
+    for i in range(scales.shape[1]):
+        dtype_full.append((f'scale_{i}', 'f4'))
+        
+    for i in range(rots.shape[1]):
+        dtype_full.append((f'rot_{i}', 'f4'))
+        
+    elements = np.empty(xyz.shape[0], dtype=dtype_full)
+    elements['x'] = xyz[:, 0]
+    elements['y'] = xyz[:, 1]
+    elements['z'] = xyz[:, 2]
+    elements['nx'] = normals[:, 0]
+    elements['ny'] = normals[:, 1]
+    elements['nz'] = normals[:, 2]
+    elements['f_dc_0'] = f_dc[:, 0, 0]
+    elements['f_dc_1'] = f_dc[:, 0, 1]
+    elements['f_dc_2'] = f_dc[:, 0, 2]
+    
+    for i in range(num_extra):
+        elements[f'f_rest_{i}'] = f_rest[:, i]
+        
+    elements['opacity'] = opacities.flatten()
+    
+    for i in range(scales.shape[1]):
+        elements[f'scale_{i}'] = scales[:, i]
+        
+    for i in range(rots.shape[1]):
+        elements[f'rot_{i}'] = rots[:, i]
+        
+    el = PlyElement.describe(elements, 'vertex')
+    PlyData([el]).write(path)

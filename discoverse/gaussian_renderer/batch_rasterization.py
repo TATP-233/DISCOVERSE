@@ -31,7 +31,7 @@ from torch import Tensor
 from gsplat.rendering import rasterization
 from discoverse.gaussian_renderer.gaussiandata import GaussianData, GaussianBatchData
 
-@torch.jit.script
+@torch.compile
 def quaternion_multiply(q1: Tensor, q2: Tensor) -> Tensor:
     w1, x1, y1, z1 = q1.unbind(-1)
     w2, x2, y2, z2 = q2.unbind(-1)
@@ -41,7 +41,7 @@ def quaternion_multiply(q1: Tensor, q2: Tensor) -> Tensor:
     z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
     return torch.stack((w, x, y, z), dim=-1)
 
-@torch.jit.script
+@torch.compile
 def transform_points(points: Tensor, pos: Tensor, quat: Tensor) -> Tensor:
     # points: (N, 3)
     # pos: (N, 3)

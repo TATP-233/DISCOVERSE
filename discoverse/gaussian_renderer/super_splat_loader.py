@@ -131,11 +131,9 @@ def _decode_colors_and_opacities(vtx, gather_chunk):
     fg = (fg - 0.5) / SH_C0
     fb = (fb - 0.5) / SH_C0
     
-    opacity = a8.astype(np.float32) / 255.0
-    # opacity = 1.0 / (1.0 + np.exp(-opacity))
+    opacities = a8.astype(np.float32) / 255.0
     
     colors = np.stack([fr, fg, fb], axis=1).astype(np.float32)
-    opacities = opacity.astype(np.float32)
     
     return colors, opacities
 

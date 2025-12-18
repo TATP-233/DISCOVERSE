@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import numpy as np
 import torch
 from dataclasses import dataclass
 
@@ -35,20 +34,21 @@ class GaussianData:
         self.opacity = opacity
         self.sh = sh
 
-    def flat(self) -> np.ndarray:
-        ret = np.concatenate([self.xyz, self.rot, self.scale, self.opacity, self.sh], axis=-1)
-        return np.ascontiguousarray(ret)
-    
     def __len__(self):
         return len(self.xyz)
     
-    @property 
-    def sh_dim(self):
-        return self.sh.shape[-1]
-
     @property
     def device(self):
         return self.xyz.device
+
+    def to_cuda(self):
+        if not torch.is_tensor(self.xyz) and not self.xyz.is_cuda:
+            self.xyz = torch.tensor(self.xyz).float().cuda().requires_grad_(False)
+            self.rot = torch.tensor(self.rot).float().cuda().requires_grad_(False)
+            self.scale = torch.tensor(self.scale).float().cuda().requires_grad_(False)
+            self.opacity = torch.tensor(self.opacity).float().cuda().requires_grad_(False)
+            self.sh = torch.tensor(self.sh).float().cuda().requires_grad_(False)
+        return self
 
 @dataclass
 class GaussianBatchData:
@@ -64,10 +64,6 @@ class GaussianBatchData:
     @property
     def batch_size(self):
         return self.xyz.shape[0]
-
-    @property 
-    def sh_dim(self):
-        return self.sh.shape[-1]
 
     @property
     def device(self):
