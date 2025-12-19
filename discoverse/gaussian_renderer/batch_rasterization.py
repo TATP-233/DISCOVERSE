@@ -29,7 +29,7 @@ import torch
 from torch import Tensor
 
 from gsplat.rendering import rasterization
-from discoverse.gaussian_renderer.gaussiandata import GaussianData, GaussianBatchData
+from .gaussiandata import GaussianData, GaussianBatchData
 
 @torch.compile
 def quaternion_multiply(q1: Tensor, q2: Tensor) -> Tensor:

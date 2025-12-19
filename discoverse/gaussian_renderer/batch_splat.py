@@ -24,8 +24,6 @@
 
 """
 Minimal batch Gaussian splat renderer that works with mjx state tensors.
-This file avoids depending on the DISCOVERSE env/robot wrappers; it only uses the
-Gaussian renderer utilities already present in the repository.
 
 Usage pattern (3 steps):
 1) init: cfg = BatchSplatConfig(...); renderer = BatchSplatRenderer(cfg)
