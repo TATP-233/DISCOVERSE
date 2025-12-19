@@ -193,3 +193,71 @@ def save_ply(gaussian_data: GaussianData, path):
         
     el = PlyElement.describe(elements, 'vertex')
     PlyData([el]).write(path)
+
+def transform_shs(shs_feat: torch.Tensor, rotation_matrix: np.ndarray) -> torch.Tensor:
+    """
+    Rotate spherical harmonics features.
+    
+    Args:
+        shs_feat (torch.Tensor): (N, M, 3) tensor, where M is the number of SH coefficients excluding DC.
+                                 M should be 3 (degree 1), 8 (degree 2), or 15 (degree 3).
+                                 The last dimension is RGB.
+        rotation_matrix (np.ndarray): (3, 3) rotation matrix.
+        
+    Returns:
+        torch.Tensor: Rotated shs_feat with shape (N, M, 3).
+    """
+
+    import einops
+    from e3nn import o3
+
+    assert len(shs_feat.shape) == 3, f"shs_feat shape should be (N, M, 3), got {shs_feat.shape}"
+    assert shs_feat.shape[2] == 3, f"shs_feat last dimension should be 3 (RGB), got {shs_feat.shape[2]}"
+    assert shs_feat.shape[1] in [3, 8, 15], f"shs_feat second dimension should be 3, 8, or 15 (excluding DC), got {shs_feat.shape[1]}"
+
+    ## rotate shs
+    P = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]) # switch axes: yzx -> xyz
+    permuted_rotation_matrix = np.linalg.inv(P) @ rotation_matrix @ P
+    rot_angles = o3._rotation.matrix_to_angles(torch.from_numpy(permuted_rotation_matrix).float())
+    
+    # Construction coefficient
+    D_1 = o3.wigner_D(1, rot_angles[0], - rot_angles[1], rot_angles[2])
+    D_2 = o3.wigner_D(2, rot_angles[0], - rot_angles[1], rot_angles[2])
+    D_3 = o3.wigner_D(3, rot_angles[0], - rot_angles[1], rot_angles[2])
+
+    #rotation of the shs features
+    one_degree_shs = shs_feat[:, 0:3]
+    one_degree_shs = einops.rearrange(one_degree_shs, 'n shs_num rgb -> n rgb shs_num')
+    one_degree_shs = einops.einsum(
+            D_1,
+            one_degree_shs,
+            "... i j, ... j -> ... i",
+        )
+    one_degree_shs = einops.rearrange(one_degree_shs, 'n rgb shs_num -> n shs_num rgb')
+    shs_feat[:, 0:3] = one_degree_shs
+
+    if shs_feat.shape[1] < 8:
+        return shs_feat    
+    two_degree_shs = shs_feat[:, 3:8]
+    two_degree_shs = einops.rearrange(two_degree_shs, 'n shs_num rgb -> n rgb shs_num')
+    two_degree_shs = einops.einsum(
+            D_2,
+            two_degree_shs,
+            "... i j, ... j -> ... i",
+        )
+    two_degree_shs = einops.rearrange(two_degree_shs, 'n rgb shs_num -> n shs_num rgb')
+    shs_feat[:, 3:8] = two_degree_shs
+    if shs_feat.shape[1] < 15:
+        return shs_feat
+
+    three_degree_shs = shs_feat[:, 8:15]
+    three_degree_shs = einops.rearrange(three_degree_shs, 'n shs_num rgb -> n rgb shs_num')
+    three_degree_shs = einops.einsum(
+            D_3,
+            three_degree_shs,
+            "... i j, ... j -> ... i",
+        )
+    three_degree_shs = einops.rearrange(three_degree_shs, 'n rgb shs_num -> n shs_num rgb')
+    shs_feat[:, 8:15] = three_degree_shs
+
+    return shs_feat

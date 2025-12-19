@@ -1,13 +1,10 @@
-import argparse
-import numpy as np
 import os
 import sys
-from scipy.spatial.transform import Rotation
+import argparse
 
 import torch
-import einops
-from einops import einsum
-from e3nn import o3
+import numpy as np
+from scipy.spatial.transform import Rotation
 
 # Add project root to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,60 +12,24 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from discoverse.gaussian_renderer.util_gau import load_ply, save_ply
+from discoverse.gaussian_renderer.gaussiandata import GaussianData
 from discoverse.gaussian_renderer.super_splat_loader import save_super_splat_ply
+from discoverse.gaussian_renderer.util_gau import load_ply, save_ply, transform_shs
 
-def transform_shs(shs_feat, rotation_matrix):
+def transform_gaussian(gaussian_data: GaussianData, transformMatrix: np.ndarray, scale_factor: float = 1., slient: bool = False) -> GaussianData:
+    """
+    Apply transformation to Gaussian data.
 
-    ## rotate shs
-    P = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]) # switch axes: yzx -> xyz
-    permuted_rotation_matrix = np.linalg.inv(P) @ rotation_matrix @ P
-    rot_angles = o3._rotation.matrix_to_angles(torch.from_numpy(permuted_rotation_matrix).float())
-    
-    # Construction coefficient
-    D_1 = o3.wigner_D(1, rot_angles[0], - rot_angles[1], rot_angles[2])
-    D_2 = o3.wigner_D(2, rot_angles[0], - rot_angles[1], rot_angles[2])
-    D_3 = o3.wigner_D(3, rot_angles[0], - rot_angles[1], rot_angles[2])
+    Args:
+        gaussian_data (GaussianData): The Gaussian data to transform.
+        transformMatrix (np.ndarray): (4, 4) transformation matrix.
+        scale_factor (float): Scale factor to apply. Defaults to 1.0.
+        slient (bool): Whether to suppress output. Defaults to False.
 
-    #rotation of the shs features
-    one_degree_shs = shs_feat[:, 0:3]
-    one_degree_shs = einops.rearrange(one_degree_shs, 'n shs_num rgb -> n rgb shs_num')
-    one_degree_shs = einsum(
-            D_1,
-            one_degree_shs,
-            "... i j, ... j -> ... i",
-        )
-    one_degree_shs = einops.rearrange(one_degree_shs, 'n rgb shs_num -> n shs_num rgb')
-    shs_feat[:, 0:3] = one_degree_shs
-
-    if shs_feat.shape[1] < 8:
-        return shs_feat    
-    two_degree_shs = shs_feat[:, 3:8]
-    two_degree_shs = einops.rearrange(two_degree_shs, 'n shs_num rgb -> n rgb shs_num')
-    two_degree_shs = einsum(
-            D_2,
-            two_degree_shs,
-            "... i j, ... j -> ... i",
-        )
-    two_degree_shs = einops.rearrange(two_degree_shs, 'n rgb shs_num -> n shs_num rgb')
-    shs_feat[:, 3:8] = two_degree_shs
-    if shs_feat.shape[1] < 15:
-        return shs_feat
-
-    three_degree_shs = shs_feat[:, 8:15]
-    three_degree_shs = einops.rearrange(three_degree_shs, 'n shs_num rgb -> n rgb shs_num')
-    three_degree_shs = einsum(
-            D_3,
-            three_degree_shs,
-            "... i j, ... j -> ... i",
-        )
-    three_degree_shs = einops.rearrange(three_degree_shs, 'n rgb shs_num -> n shs_num rgb')
-    shs_feat[:, 8:15] = three_degree_shs
-
-    return shs_feat
-
-def transform_gaussian(gaussian_data, transformMatrix, scale_factor=1., slient=False):
-    assert type(transformMatrix) == np.ndarray and transformMatrix.shape == (4,4)
+    Returns:
+        GaussianData: The transformed Gaussian data.
+    """
+    assert isinstance(transformMatrix, np.ndarray) and transformMatrix.shape == (4,4)
     
     if not slient:
         print("Processing...")
