@@ -8,8 +8,8 @@
 """
 
 import argparse
-import os
 import sys
+import traceback
 from pathlib import Path
 
 # 添加项目根目录到Python路径
@@ -94,6 +94,7 @@ def main():
             print("警告: 输入文件已经是SuperSplat格式,无需压缩", file=sys.stderr)
             return 1
     except Exception as e:
+        traceback.print_exc()
         print(f"错误: 无法读取输入文件: {e}", file=sys.stderr)
         return 1
     
@@ -101,6 +102,7 @@ def main():
     try:
         gaussian_data = load_ply(str(input_path))
     except Exception as e:
+        traceback.print_exc()
         print(f"错误: 加载模型失败: {e}", file=sys.stderr)
         return 1
     
@@ -119,6 +121,7 @@ def main():
     try:
         save_super_splat_ply(gaussian_data, str(output_path))
     except Exception as e:
+        traceback.print_exc()
         print(f"错误: 保存失败: {e}", file=sys.stderr)
         return 1
     
