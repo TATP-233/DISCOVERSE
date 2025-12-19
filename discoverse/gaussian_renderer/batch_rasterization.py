@@ -52,10 +52,11 @@ def transform_points(points: Tensor, pos: Tensor, quat: Tensor) -> Tensor:
     q_w = quat[..., 0]
     q_xyz = quat[..., 1:]
     
-    t = 2.0 * torch.cross(q_xyz, points)
-    points_rotated = points + q_w.unsqueeze(-1) * t + torch.cross(q_xyz, t)
+    t = 2.0 * torch.cross(q_xyz, points, dim=-1)
+    points_rotated = points + q_w.unsqueeze(-1) * t + torch.cross(q_xyz, t, dim=-1)
     
     return points_rotated + pos
+
 
 @torch.no_grad()
 def batch_render(

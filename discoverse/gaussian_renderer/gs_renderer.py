@@ -22,11 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import numpy as np
-from pathlib import Path
-import mujoco
 import torch
+import numpy as np
+import mujoco
 from scipy.spatial.transform import Rotation
 
 try:
