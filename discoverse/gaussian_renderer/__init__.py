@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from .gaussiandata import GaussianData, GaussianBatchData
-from .util_gau import load_ply
-from .gs_renderer import GSRenderer
+from .util_gau import load_ply, save_ply, transform_shs
 from .batch_rasterization import batch_render, batch_env_render, batch_update_gaussians
+from .batch_splat import BatchSplatConfig, BatchSplatRenderer
+from .gs_renderer import GSRenderer
