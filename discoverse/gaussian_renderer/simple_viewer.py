@@ -8,15 +8,15 @@ import sys
 import time
 from scipy.spatial.transform import Rotation
 
-# Add project root to path
+# Add parent dir to path to allow importing gaussian_renderer as a package
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(current_dir))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
-from discoverse.gaussian_renderer.util_gau import load_ply
-from discoverse.gaussian_renderer.batch_rasterization import batch_render
-from discoverse.gaussian_renderer.gaussiandata import GaussianData
+from gaussian_renderer.util_gau import load_ply
+from gaussian_renderer.batch_rasterization import batch_render
+from gaussian_renderer.gaussiandata import GaussianData
 
 class SimpleViewer:
     def __init__(self, width=1280, height=720):
@@ -109,14 +109,19 @@ class SimpleViewer:
         if len(paths) > 0:
             self.load_model(paths[0])
 
+    def update_title(self):
+        glfw.set_window_title(self.window, f"Simple 3DGS Viewer - FPS: {self.fps:.1f} - SH: {self.sh_degree}")
+
     def key_callback(self, window, key, scancode, action, mods):
         if action == glfw.PRESS:
             if key == glfw.KEY_UP:
                 self.sh_degree = min(self.sh_degree + 1, self.max_sh_degree)
                 print(f"SH Degree: {self.sh_degree}")
+                self.update_title()
             elif key == glfw.KEY_DOWN:
                 self.sh_degree = max(self.sh_degree - 1, 0)
                 print(f"SH Degree: {self.sh_degree}")
+                self.update_title()
 
     def mouse_button_callback(self, window, button, action, mods):
         if action == glfw.PRESS:
@@ -222,7 +227,7 @@ class SimpleViewer:
                 self.fps = self.frame_count / (curr_time - self.last_time)
                 self.frame_count = 0
                 self.last_time = curr_time
-                glfw.set_window_title(self.window, f"Simple 3DGS Viewer - FPS: {self.fps:.1f} - SH: {self.sh_degree}")
+                self.update_title()
             
             glfw.swap_buffers(self.window)
             
