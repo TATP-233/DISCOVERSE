@@ -29,9 +29,67 @@ from plyfile import PlyData, PlyElement
 from .gaussiandata import GaussianData
 from .super_splat_loader import is_super_splat_format, load_super_splat_ply
 
+def load_ply_3dgs(plydata):
+    max_sh_degree = 3
+    xyz = np.stack((np.asarray(plydata.elements[0]["x"]),
+                    np.asarray(plydata.elements[0]["y"]),
+                    np.asarray(plydata.elements[0]["z"])),  axis=1)
+    opacities = np.asarray(plydata.elements[0]["opacity"])
+
+    features_dc = np.zeros((xyz.shape[0], 3))
+    features_dc[:, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
+    features_dc[:, 1] = np.asarray(plydata.elements[0]["f_dc_1"])
+    features_dc[:, 2] = np.asarray(plydata.elements[0]["f_dc_2"])
+
+    extra_f_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("f_rest_")]
+    extra_f_names = sorted(extra_f_names, key = lambda x: int(x.split('_')[-1]))
+
+    features_extra = np.zeros((xyz.shape[0], len(extra_f_names)))
+    for idx, attr_name in enumerate(extra_f_names):
+        features_extra[:, idx] = np.asarray(plydata.elements[0][attr_name])
+
+    shs_num = (max_sh_degree + 1) ** 2 - 1
+    # features_extra = features_extra.reshape((features_extra.shape[0], 3, (max_sh_degree + 1) ** 2 - 1))
+    features_extra = features_extra.reshape((features_extra.shape[0], 3, len(extra_f_names)//3))
+    features_extra = features_extra[:, :, :shs_num]
+    features_extra = np.transpose(features_extra, [0, 2, 1])
+
+    scale_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("scale_")]
+    scale_names = sorted(scale_names, key = lambda x: int(x.split('_')[-1]))
+    scales = np.zeros((xyz.shape[0], len(scale_names)))
+    for idx, attr_name in enumerate(scale_names):
+        scales[:, idx] = np.asarray(plydata.elements[0][attr_name])
+
+    rot_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("rot")]
+    rot_names = sorted(rot_names, key = lambda x: int(x.split('_')[-1]))
+    rots = np.zeros((xyz.shape[0], len(rot_names)))
+    for idx, attr_name in enumerate(rot_names):
+        rots[:, idx] = np.asarray(plydata.elements[0][attr_name])
+
+    xyz = xyz.astype(np.float32)
+    rots = rots / np.linalg.norm(rots, axis=-1, keepdims=True)
+    rots = rots.astype(np.float32)
+    scales = np.exp(scales)
+
+    # if 2dgs
+    if len(scale_names) == 2:
+        print(f"len(scale_names) = {len(scale_names)} (2dgs ply model)")
+        scales = np.hstack([scales, 1e-9 * np.ones_like(scales[:, :1])])
+
+    scales = scales.astype(np.float32)
+    opacities = 1. / (1. + np.exp(-opacities))
+    opacities = opacities.astype(np.float32)
+
+    shs = np.concatenate([
+        features_dc.reshape(-1, 3), 
+        features_extra.reshape(features_dc.shape[0], shs_num * 3)
+    ], axis=-1).astype(np.float32)
+
+    return GaussianData(xyz, rots, scales, opacities, shs)
+
 def load_ply(path):
     """
-    加载PLY格式的3DGS模型，支持从本地或Hugging Face下载
+    加载PLY格式的3DGS模型
     
     Args:
         path: 模型文件路径（本地路径或相对路径）
@@ -47,62 +105,7 @@ def load_ply(path):
     
     # 标准 3DGS 格式
     else:
-        max_sh_degree = 3
-        xyz = np.stack((np.asarray(plydata.elements[0]["x"]),
-                        np.asarray(plydata.elements[0]["y"]),
-                        np.asarray(plydata.elements[0]["z"])),  axis=1)
-        opacities = np.asarray(plydata.elements[0]["opacity"])
-
-        features_dc = np.zeros((xyz.shape[0], 3))
-        features_dc[:, 0] = np.asarray(plydata.elements[0]["f_dc_0"])
-        features_dc[:, 1] = np.asarray(plydata.elements[0]["f_dc_1"])
-        features_dc[:, 2] = np.asarray(plydata.elements[0]["f_dc_2"])
-
-        extra_f_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("f_rest_")]
-        extra_f_names = sorted(extra_f_names, key = lambda x: int(x.split('_')[-1]))
-
-        features_extra = np.zeros((xyz.shape[0], len(extra_f_names)))
-        for idx, attr_name in enumerate(extra_f_names):
-            features_extra[:, idx] = np.asarray(plydata.elements[0][attr_name])
-
-        shs_num = (max_sh_degree + 1) ** 2 - 1
-        # features_extra = features_extra.reshape((features_extra.shape[0], 3, (max_sh_degree + 1) ** 2 - 1))
-        features_extra = features_extra.reshape((features_extra.shape[0], 3, len(extra_f_names)//3))
-        features_extra = features_extra[:, :, :shs_num]
-        features_extra = np.transpose(features_extra, [0, 2, 1])
-
-        scale_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("scale_")]
-        scale_names = sorted(scale_names, key = lambda x: int(x.split('_')[-1]))
-        scales = np.zeros((xyz.shape[0], len(scale_names)))
-        for idx, attr_name in enumerate(scale_names):
-            scales[:, idx] = np.asarray(plydata.elements[0][attr_name])
-
-        rot_names = [p.name for p in plydata.elements[0].properties if p.name.startswith("rot")]
-        rot_names = sorted(rot_names, key = lambda x: int(x.split('_')[-1]))
-        rots = np.zeros((xyz.shape[0], len(rot_names)))
-        for idx, attr_name in enumerate(rot_names):
-            rots[:, idx] = np.asarray(plydata.elements[0][attr_name])
-
-        xyz = xyz.astype(np.float32)
-        rots = rots / np.linalg.norm(rots, axis=-1, keepdims=True)
-        rots = rots.astype(np.float32)
-        scales = np.exp(scales)
-
-        # if 2dgs
-        if len(scale_names) == 2:
-            print(f"len(scale_names) = {len(scale_names)} (2dgs ply model)")
-            scales = np.hstack([scales, 1e-9 * np.ones_like(scales[:, :1])])
-
-        scales = scales.astype(np.float32)
-        opacities = 1. / (1. + np.exp(-opacities))
-        opacities = opacities.astype(np.float32)
-
-        shs = np.concatenate([
-            features_dc.reshape(-1, 3), 
-            features_extra.reshape(features_dc.shape[0], shs_num * 3)
-        ], axis=-1).astype(np.float32)
-
-        return GaussianData(xyz, rots, scales, opacities, shs)
+        return load_ply_3dgs(plydata)
 
 def save_ply(gaussian_data: GaussianData, path):
     """
@@ -123,6 +126,8 @@ def save_ply(gaussian_data: GaussianData, path):
     xyz = to_numpy(gaussian_data.xyz)
     normals = np.zeros_like(xyz)
     
+    if len(gaussian_data.sh.shape) > 2:
+        gaussian_data.sh = gaussian_data.sh.reshape(gaussian_data.sh.shape[0], -1)
     shs = to_numpy(gaussian_data.sh)
     f_dc = shs[:, :3]
     f_rest = shs[:, 3:]

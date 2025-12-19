@@ -104,12 +104,24 @@ class GSRenderer:
             gau_s = []
             gau_a = []
             gau_c = []
+
+            max_sh_dim = 0
+            for gaus_item in gaus.values():
+                if gaus_item.sh.shape[1] > max_sh_dim:
+                    max_sh_dim = gaus_item.sh.shape[1]
+
             for gaus_item in gaus.values():
                 gau_xyz.append(gaus_item.xyz)
                 gau_rot.append(gaus_item.rot)
                 gau_s.append(gaus_item.scale)
                 gau_a.append(gaus_item.opacity)
-                gau_c.append(gaus_item.sh)
+                
+                current_sh = gaus_item.sh
+                if current_sh.shape[1] < max_sh_dim:
+                    padding = np.zeros((current_sh.shape[0], max_sh_dim - current_sh.shape[1]), dtype=current_sh.dtype)
+                    current_sh = np.hstack([current_sh, padding])
+                gau_c.append(current_sh)
+
             gau_xyz = np.concatenate(gau_xyz, axis=0)
             gau_rot = np.concatenate(gau_rot, axis=0)
             gau_s = np.concatenate(gau_s, axis=0)

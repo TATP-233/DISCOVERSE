@@ -505,6 +505,9 @@ def compress_to_super_splat(
     opacity_clamped = np.clip(opacity, epsilon, 1.0 - epsilon)
     opacity_logit = np.log(opacity_clamped / (1.0 - opacity_clamped))
     
+    if len(sh.shape) > 2:
+        sh = sh.reshape(sh.shape[0], -1)
+
     # 提取DC分量 (前3个sh系数)
     f_dc = sh[:, :3]  # shape=(N, 3)
     
