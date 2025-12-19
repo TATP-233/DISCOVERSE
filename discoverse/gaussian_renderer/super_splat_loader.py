@@ -23,10 +23,11 @@
 # SOFTWARE.
 
 import struct
+import torch
 import numpy as np
 from plyfile import PlyData
 from typing import Dict, Tuple
-from .util_gau import GaussianData
+from .gaussiandata import GaussianData
 
 # 球谐常数
 SH_C0 = 0.28209479177387814
@@ -83,6 +84,23 @@ def load_super_splat_ply(plydata: PlyData) -> GaussianData:
     
     # 解码旋转(最大分量索引 + 3×10bit)
     quats = _decode_rotations(vtx, num_vertex)
+
+    # 处理高阶球谐系数 (SH > 0)
+    if 'sh' in plydata:
+        sh_elem = plydata['sh'].data
+        # 获取所有 f_rest_* 属性名
+        prop_names = [p.name for p in plydata['sh'].properties]
+        f_rest_names = [n for n in prop_names if n.startswith('f_rest_')]
+        
+        if f_rest_names:
+            # 提取并堆叠数据 (N, num_rest)
+            f_rest_uint8 = np.stack([sh_elem[n] for n in f_rest_names], axis=1).astype(np.float32)
+            
+            # 反量化: value = (uint8 / 256 - 0.5) * 8
+            f_rest = (f_rest_uint8 / 256.0 - 0.5) * 8.0
+            
+            # 合并 DC 和 Rest
+            colors = np.concatenate([colors, f_rest], axis=1)
 
     return GaussianData(positions, quats, scales, opacities, colors)
 
@@ -437,12 +455,17 @@ def save_super_splat_ply(
         gaussian_data: 要压缩的高斯数据
         output_path: 输出文件路径
     """
+    def to_numpy(x):
+        if isinstance(x, torch.Tensor):
+            return x.detach().cpu().numpy()
+        return x
+
     compressed_data = compress_to_super_splat(
-        gaussian_data.xyz,
-        gaussian_data.rot,
-        gaussian_data.scale,
-        gaussian_data.opacity,
-        gaussian_data.sh
+        to_numpy(gaussian_data.xyz),
+        to_numpy(gaussian_data.rot),
+        to_numpy(gaussian_data.scale),
+        to_numpy(gaussian_data.opacity),
+        to_numpy(gaussian_data.sh)
     )
     
     with open(output_path, 'wb') as f:
@@ -485,6 +508,10 @@ def compress_to_super_splat(
     # 提取DC分量 (前3个sh系数)
     f_dc = sh[:, :3]  # shape=(N, 3)
     
+    # 提取高阶分量
+    f_rest = sh[:, 3:] if sh.shape[1] > 3 else None
+    num_rest_coeffs = f_rest.shape[1] if f_rest is not None else 0
+    
     # 准备头部
     chunk_props = [
         'min_x', 'min_y', 'min_z',
@@ -511,6 +538,11 @@ def compress_to_super_splat(
     header_lines.extend([f'property float {p}' for p in chunk_props])
     header_lines.append(f'element vertex {N}')
     header_lines.extend([f'property uint {p}' for p in vertex_props])
+    
+    if num_rest_coeffs > 0:
+        header_lines.append(f'element sh {N}')
+        header_lines.extend([f'property uchar f_rest_{i}' for i in range(num_rest_coeffs)])
+        
     header_lines.append('end_header')
     
     header_text = '\n'.join(header_lines) + '\n'
@@ -535,7 +567,7 @@ def compress_to_super_splat(
         chunk_xyz = xyz[start_idx:end_idx]
         chunk_rot = rot[start_idx:end_idx]
         chunk_scale_log = scale_log[start_idx:end_idx]
-        chunk_opacity_logit = opacity_logit[start_idx:end_idx, 0]
+        chunk_opacity_logit = opacity_logit[start_idx:end_idx]
         chunk_f_dc = f_dc[start_idx:end_idx]
         
         # 如果最后一个chunk不足256个，用最后一个高斯填充
@@ -587,5 +619,13 @@ def compress_to_super_splat(
         vertex_array = np.stack([position, rotation, scale_data, color], axis=1)  # shape=(num_vertices, 4)
         vertex_bytes = vertex_array.tobytes()
         output.extend(vertex_bytes)
+    
+    # 写入高阶SH数据
+    if num_rest_coeffs > 0:
+        # 量化: uint8 = (value / 8 + 0.5) * 256
+        # 限制在 [0, 255]
+        f_rest_quantized = (f_rest / 8.0 + 0.5) * 256.0
+        f_rest_quantized = np.clip(f_rest_quantized, 0, 255).astype(np.uint8)
+        output.extend(f_rest_quantized.tobytes())
     
     return bytes(output)

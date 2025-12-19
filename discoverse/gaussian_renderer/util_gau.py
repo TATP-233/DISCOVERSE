@@ -124,14 +124,14 @@ def save_ply(gaussian_data: GaussianData, path):
     normals = np.zeros_like(xyz)
     
     shs = to_numpy(gaussian_data.sh)
-    f_dc = shs[:, :1, :3]
-    f_rest = shs[:, 1:, 3:]
+    f_dc = shs[:, :3]
+    f_rest = shs[:, 3:]
     
     opacities = to_numpy(gaussian_data.opacity)
     # inverse sigmoid: ln(x / (1-x))
     # clip to avoid nan/inf
     opacities = np.clip(opacities, 1e-6, 1.0 - 1e-6)
-    opacities = np.log(opacities / (1 - opacities))
+    opacities = np.log(opacities / (1. - opacities))
     
     scales = to_numpy(gaussian_data.scale)
     scales = np.log(np.maximum(scales, 1e-8))
@@ -149,9 +149,9 @@ def save_ply(gaussian_data: GaussianData, path):
     # save_ply reverse:
     #   f_rest (N, 3*k) [k0c0, k0c1, k0c2, k1c0...] -> reshape(N, k, 3) -> transpose(0, 2, 1) -> (N, 3, k) -> reshape(N, 3*k)
     num_extra = f_rest.shape[1]
-    if num_extra > 0:
-        k = num_extra // 3
-        f_rest = f_rest.reshape(-1, k, 3).transpose(0, 2, 1).reshape(-1, num_extra)
+    # if num_extra > 0:
+    #     k = num_extra // 3
+    #     f_rest = f_rest.reshape(-1, k, 3).transpose(0, 2, 1).reshape(-1, num_extra)
     
     for i in range(num_extra):
         dtype_full.append((f'f_rest_{i}', 'f4'))
@@ -171,9 +171,9 @@ def save_ply(gaussian_data: GaussianData, path):
     elements['nx'] = normals[:, 0]
     elements['ny'] = normals[:, 1]
     elements['nz'] = normals[:, 2]
-    elements['f_dc_0'] = f_dc[:, 0, 0]
-    elements['f_dc_1'] = f_dc[:, 0, 1]
-    elements['f_dc_2'] = f_dc[:, 0, 2]
+    elements['f_dc_0'] = f_dc[:, 0]
+    elements['f_dc_1'] = f_dc[:, 1]
+    elements['f_dc_2'] = f_dc[:, 2]
     
     for i in range(num_extra):
         elements[f'f_rest_{i}'] = f_rest[:, i]
