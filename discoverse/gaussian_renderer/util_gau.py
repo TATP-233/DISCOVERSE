@@ -154,9 +154,9 @@ def save_ply(gaussian_data: GaussianData, path):
     # save_ply reverse:
     #   f_rest (N, 3*k) [k0c0, k0c1, k0c2, k1c0...] -> reshape(N, k, 3) -> transpose(0, 2, 1) -> (N, 3, k) -> reshape(N, 3*k)
     num_extra = f_rest.shape[1]
-    # if num_extra > 0:
-    #     k = num_extra // 3
-    #     f_rest = f_rest.reshape(-1, k, 3).transpose(0, 2, 1).reshape(-1, num_extra)
+    if num_extra > 0:
+        k = num_extra // 3
+        f_rest = f_rest.reshape(-1, k, 3).transpose(0, 2, 1).reshape(-1, num_extra)
     
     for i in range(num_extra):
         dtype_full.append((f'f_rest_{i}', 'f4'))

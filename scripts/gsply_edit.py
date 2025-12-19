@@ -1,12 +1,22 @@
 import argparse
 import numpy as np
+import os
+import sys
 from scipy.spatial.transform import Rotation
-from plyfile import PlyData, PlyElement
 
 import torch
 import einops
 from einops import einsum
 from e3nn import o3
+
+# Add project root to path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from discoverse.gaussian_renderer.util_gau import load_ply, save_ply
+from discoverse.gaussian_renderer.super_splat_loader import save_super_splat_ply
 
 def transform_shs(shs_feat, rotation_matrix):
 
@@ -57,115 +67,85 @@ def transform_shs(shs_feat, rotation_matrix):
 
     return shs_feat
 
-def rescale(xyz, scales, scale: float):
-    if scale != 1.:
-        xyz *= scale
-        scales += np.log(scale)
-        print("rescaled with factor {}".format(scale))
-    return xyz, scales
-
-def ply_bin_transpose(input_file, output_file, transformMatrix, scale_factor=1.):
+def transform_gaussian(gaussian_data, transformMatrix, scale_factor=1., slient=False):
     assert type(transformMatrix) == np.ndarray and transformMatrix.shape == (4,4)
+    
+    if not slient:
+        print("Processing...")
+    
+    # 1. Transform Positions
+    xyz = gaussian_data.xyz
+    R = transformMatrix[:3, :3]
+    t = transformMatrix[:3, 3]
+    
+    # xyz_new = (R @ xyz.T).T + t
+    xyz_new = np.dot(xyz, R.T) + t
+    
+    # Scale positions
+    if scale_factor != 1.0:
+        xyz_new *= scale_factor
+        if not slient:
+            print(f"Rescaled positions with factor {scale_factor}")
+    
+    gaussian_data.xyz = xyz_new.astype(np.float32)
+    
+    # 2. Transform Rotations
+    # rot is (N, 4) wxyz
+    rot = gaussian_data.rot
+    # Convert to matrix
+    # scipy Rotation uses xyzw
+    r_orig = Rotation.from_quat(rot[:, [1, 2, 3, 0]]) 
+    mat_orig = r_orig.as_matrix()
+    
+    # Apply rotation R
+    mat_new = np.matmul(R, mat_orig)
+    
+    # Convert back to quat
+    r_new = Rotation.from_matrix(mat_new)
+    rot_new_xyzw = r_new.as_quat()
+    rot_new = rot_new_xyzw[:, [3, 0, 1, 2]] # xyzw -> wxyz
+    
+    gaussian_data.rot = rot_new.astype(np.float32)
+    
+    # 3. Transform Scales
+    if scale_factor != 1.0:
+        gaussian_data.scale *= scale_factor
+        if not slient:
+            print(f"Rescaled scales with factor {scale_factor}")
+    
+    # 4. Transform SH Features
+    sh = gaussian_data.sh
+    # Ensure sh is (N, K, 3)
+    if len(sh.shape) == 2:
+        sh = sh.reshape(sh.shape[0], -1, 3)
+    
+    # Check if we have higher order SH
+    if sh.shape[1] > 1:
+        if not slient:
+            print("Processing SH features...")
+        # DC is sh[:, 0, :]
+        # Rest is sh[:, 1:, :]
+        sh_rest = sh[:, 1:, :] # (N, K-1, 3)
+        
+        sh_rest_tensor = torch.from_numpy(sh_rest).float()
+        
+        # transform_shs modifies in place or returns new tensor
+        sh_rest_transformed = transform_shs(sh_rest_tensor, R)
+        
+        sh[:, 1:, :] = sh_rest_transformed.numpy()
+        gaussian_data.sh = sh
+    
+    return gaussian_data
 
-    print(f"Reading {input_file}...")
-    plydata = PlyData.read(input_file)
-    vertex = plydata['vertex']
-    
-    # Extract positions
-    print("Processing positions...")
-    x = np.asarray(vertex['x'])
-    y = np.asarray(vertex['y'])
-    z = np.asarray(vertex['z'])
-    xyz = np.stack([x, y, z], axis=-1)
-    
-    # Extract rotations
-    print("Processing rotations...")
-    rot_names = ['rot_0', 'rot_1', 'rot_2', 'rot_3']
-    rots = np.stack([np.asarray(vertex[n]) for n in rot_names], axis=-1)
-    
-    # 3DGS stores rotation as quaternion w, x, y, z
-    quat_wxyz = rots
-    quat_xyzw = quat_wxyz[:, [1, 2, 3, 0]]
-    
-    # Construct poses
-    N = xyz.shape[0]
-    pose_arr = np.eye(4).reshape(1, 4, 4).repeat(N, axis=0)
-    pose_arr[:, :3, 3] = xyz
-    
-    # Convert quaternions to rotation matrices
-    r = Rotation.from_quat(quat_xyzw)
-    pose_arr[:, :3, :3] = r.as_matrix()
-    
-    # Apply transformation
-    trans_pose_arr = transformMatrix @ pose_arr
-    
-    # Extract new positions
-    xyz_new = trans_pose_arr[:, :3, 3]
-    
-    # Extract new rotations
-    r_new = Rotation.from_matrix(trans_pose_arr[:, :3, :3])
-    quat_xyzw_new = r_new.as_quat()
-    # Convert back to wxyz
-    quat_wxyz_new = quat_xyzw_new[:, [3, 0, 1, 2]]
-    
-    # Update vertex data
-    vertex['x'] = xyz_new[:, 0]
-    vertex['y'] = xyz_new[:, 1]
-    vertex['z'] = xyz_new[:, 2]
-    
-    for i, n in enumerate(rot_names):
-        vertex[n] = quat_wxyz_new[:, i]
-        
-    # Extract scales
-    print("Processing scales...")
-    scale_names = ['scale_0', 'scale_1', 'scale_2']
-    scales = np.stack([np.asarray(vertex[n]) for n in scale_names], axis=-1)
-    
-    # Rescale
-    xyz_new, scales_new = rescale(xyz_new, scales, scale_factor)
-    
-    # Update scales and positions (again, because rescale modifies xyz)
-    vertex['x'] = xyz_new[:, 0]
-    vertex['y'] = xyz_new[:, 1]
-    vertex['z'] = xyz_new[:, 2]
-    
-    for i, n in enumerate(scale_names):
-        vertex[n] = scales_new[:, i]
-        
-    # SH Features
-    print("Processing SH features...")
-    prop_names = [p.name for p in vertex.properties]
-    f_rest_names = [n for n in prop_names if n.startswith('f_rest_')]
-    f_rest_names.sort(key=lambda x: int(x.split('_')[-1]))
-    
-    if len(f_rest_names) > 0:
-        f_rest = np.stack([np.asarray(vertex[n]) for n in f_rest_names], axis=-1)
-        
-        sh_dc_num = 3 # Assuming RGB
-        sh_rest_num = len(f_rest_names)
-        
-        # Reshape to (N, 3, 15) -> (N, 15, 3)
-        f_rest_tensor = torch.from_numpy(f_rest.reshape((-1, sh_dc_num, sh_rest_num//sh_dc_num)).transpose(0,2,1)).float()
-        
-        RMat = transformMatrix[:3, :3]
-        shs = transform_shs(f_rest_tensor, RMat).numpy()
-        
-        # Reshape back
-        shs = shs.transpose(0,2,1).reshape(-1, sh_rest_num)
-        
-        for i, n in enumerate(f_rest_names):
-            vertex[n] = shs[:, i]
-            
-    print(f"Writing to {output_file}...")
-    plydata.write(output_file)
 
 
 if __name__ == "__main__":
 
     np.set_printoptions(precision=3, suppress=True, linewidth=500)
 
-    parser = argparse.ArgumentParser(description='example: python3 scripts/ply_transpose.py -i data/ply/000000.ply -o data/ply/000000_trans.ply -t [0, 0, 0] -r [0.707, 0., 0., 0.707] -s 1')
+    parser = argparse.ArgumentParser(description='example: python3 scripts/gsply_edit.py -i data/ply/000000.ply -o data/ply/000000_trans.ply -t [0, 0, 0] -r [0.707, 0., 0., 0.707] -s 1')
     parser.add_argument('input_file', type=str, help='Path to the input binary PLY file')
+    parser.add_argument('-c', '--compress', action='store_true', help='Save as compressed PLY', default=False)
     parser.add_argument('-o', '--output_file', type=str, help='Path to the output PLY file', default=None)
     parser.add_argument('-t', '--transform', nargs=3, type=float, help='transformation', default=None)
     parser.add_argument('-r', '--rotation', nargs=4, type=float, help='rotation quaternion xyzw', default=None)
@@ -182,4 +162,14 @@ if __name__ == "__main__":
     if args.output_file is None:
         args.output_file = args.input_file.replace('.ply', '_trans.ply')
 
-    ply_bin_transpose(args.input_file, args.output_file, Tmat, scale_factor=args.scale)
+    print(f"Reading {args.input_file}...")
+    gaussian_data = load_ply(args.input_file)
+
+    gaussian_data_new = transform_gaussian(gaussian_data, Tmat, scale_factor=args.scale)
+
+    if args.compress:
+        print(f"Compress and save to {args.output_file}...")
+        save_super_splat_ply(gaussian_data_new, args.output_file)
+    else:
+        print(f"Writing to {args.output_file}...")
+        save_ply(gaussian_data_new, args.output_file)
