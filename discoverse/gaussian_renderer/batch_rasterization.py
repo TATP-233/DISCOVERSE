@@ -67,6 +67,7 @@ def batch_render(
     width: int,
     fovy: np.ndarray, # (Ncam,) degree
     bg_imgs: Optional[torch.Tensor] = None, # (Ncam, H, W, 3)
+    y_up: bool = True,
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
@@ -114,8 +115,9 @@ def batch_render(
     Tmats[:, :3, 3] = cam_pos_t
     
     # Flip Y and Z columns of rotation (MuJoCo to OpenGL convention)
-    Tmats[:, 0:3, 1] *= -1
-    Tmats[:, 0:3, 2] *= -1
+    if y_up:
+        Tmats[:, 0:3, 1] *= -1
+        Tmats[:, 0:3, 2] *= -1
     
     # View Matrix = Inverse of World Matrix
     viewmats = torch.inverse(Tmats)
@@ -162,6 +164,7 @@ def batch_env_render(
     fovy: np.ndarray, # (Nenv, Ncam) degree
     bg_imgs: Optional[torch.Tensor] = None, # (Nenv, Ncam, H, W, 3)
     minibatch: Optional[int] = None,
+    y_up: bool = True,
 ) -> Tuple[Tensor, Tensor]:
     
     device = gaussians.device
@@ -235,8 +238,9 @@ def batch_env_render(
     Tmats[..., :3, 3] = cam_pos
     
     # Flip Y and Z columns of rotation (MuJoCo to OpenGL convention)
-    Tmats[..., 0:3, 1] *= -1
-    Tmats[..., 0:3, 2] *= -1
+    if y_up:
+        Tmats[..., 0:3, 1] *= -1
+        Tmats[..., 0:3, 2] *= -1
     
     # View Matrix = Inverse of World Matrix
     viewmats = torch.inverse(Tmats)
