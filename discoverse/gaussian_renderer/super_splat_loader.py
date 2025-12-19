@@ -99,6 +99,12 @@ def load_super_splat_ply(plydata: PlyData) -> GaussianData:
             # 反量化: value = (uint8 / 256 - 0.5) * 8
             f_rest = (f_rest_uint8 / 256.0 - 0.5) * 8.0
             
+            # SuperSplat stores SH as planar (R..., G..., B...), but GaussianData expects interleaved (RGB, RGB...)
+            # f_rest is (N, 3 * k) -> (N, 3, k) -> (N, k, 3) -> (N, 3 * k)
+            f_rest = f_rest.reshape(f_rest.shape[0], 3, -1)
+            f_rest = f_rest.transpose(0, 2, 1)
+            f_rest = f_rest.reshape(f_rest.shape[0], -1)
+            
             # 合并 DC 和 Rest
             colors = np.concatenate([colors, f_rest], axis=1)
 
@@ -625,9 +631,15 @@ def compress_to_super_splat(
     
     # 写入高阶SH数据
     if num_rest_coeffs > 0:
+        # GaussianData stores SH as interleaved (RGB, RGB...), but SuperSplat expects planar (R..., G..., B...)
+        # f_rest is (N, 3 * k) -> (N, k, 3) -> (N, 3, k) -> (N, 3 * k)
+        f_rest_reshaped = f_rest.reshape(N, -1, 3)
+        f_rest_planar = f_rest_reshaped.transpose(0, 2, 1)
+        f_rest_planar = f_rest_planar.reshape(N, -1)
+
         # 量化: uint8 = (value / 8 + 0.5) * 256
         # 限制在 [0, 255]
-        f_rest_quantized = (f_rest / 8.0 + 0.5) * 256.0
+        f_rest_quantized = (f_rest_planar / 8.0 + 0.5) * 256.0
         f_rest_quantized = np.clip(f_rest_quantized, 0, 255).astype(np.uint8)
         output.extend(f_rest_quantized.tobytes())
     
