@@ -82,7 +82,7 @@ def load_ply_3dgs(plydata):
 
     shs = np.concatenate([
         features_dc.reshape(-1, 3), 
-        features_extra.reshape(features_dc.shape[0], shs_num * 3)
+        features_extra.reshape(features_extra.shape[0], features_extra.shape[1] * features_extra.shape[2])
     ], axis=-1).astype(np.float32)
 
     return GaussianData(xyz, rots, scales, opacities, shs)
