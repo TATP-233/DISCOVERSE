@@ -61,7 +61,7 @@ class GaussianRenderingServer:
                     candidate = os.path.join(DISCOVERSE_ASSETS_DIR, suffix)
                 
                 if os.path.exists(candidate):
-                    print(f"Path resolved: {path} -> {candidate}")
+                    # print(f"Path resolved: {path} -> {candidate}")
                     return candidate
                     
         print(f"Warning: Could not resolve path: {path}")

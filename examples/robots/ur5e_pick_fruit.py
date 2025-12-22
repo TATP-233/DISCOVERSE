@@ -4,7 +4,10 @@ import time
 import mink
 import mujoco
 import mujoco.viewer
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None
 import numpy as np
 from etils import epath
 import argparse
@@ -16,7 +19,10 @@ except ImportError:
 
 from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.utils import update_assets
-from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+try:
+    from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+except ImportError:
+    raise ImportError("Please install gsplat to use GSRendererMuJoCo.")   
 from discoverse.gaussian_web_renderer.client import GSRendererRemote
 
 H = 300; W = 400
@@ -130,10 +136,14 @@ class FrankaBase:
         
         # Handle both float (local GPU) and uint8 (remote CPU) tensors
         img_tensor = results_tensor[0][0]
-        if img_tensor.dtype == torch.uint8:
+        if isinstance(img_tensor, np.ndarray):
+            rgb_np = img_tensor
+        elif torch is not None and img_tensor.dtype == torch.uint8:
             rgb_np = img_tensor.cpu().numpy()
-        else:
+        elif torch is not None:
             rgb_np = (255. * torch.clamp(img_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+        else:
+            rgb_np = img_tensor
         
         observation_dict = {
             "state"       : self.mj_data.qpos[self._robot_qposadr].copy(),
@@ -143,10 +153,14 @@ class FrankaBase:
         if self.free_camera is not None and -1 in results_tensor:
             # Handle free camera similarly
             free_img_tensor = results_tensor[-1][0]
-            if free_img_tensor.dtype == torch.uint8:
+            if isinstance(free_img_tensor, np.ndarray):
+                rgb_free = free_img_tensor
+            elif torch is not None and free_img_tensor.dtype == torch.uint8:
                 rgb_free = free_img_tensor.cpu().numpy()
-            else:
+            elif torch is not None:
                 rgb_free = (255. * torch.clamp(free_img_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+            else:
+                rgb_free = free_img_tensor
             observation_dict["free_camera"] = rgb_free
         
         return observation_dict

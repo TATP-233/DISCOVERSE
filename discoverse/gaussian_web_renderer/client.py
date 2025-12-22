@@ -3,7 +3,6 @@ import json
 import time
 import numpy as np
 import struct
-import torch
 import mujoco
 from scipy.spatial.transform import Rotation
 from discoverse.gaussian_web_renderer.gaussian_steamer.decoder import H264Decoder
@@ -139,19 +138,18 @@ class GSRendererRemote:
         else:
             decoded_frame_rgb = decoded_frame[..., ::-1].copy()
         
-        decoded_torch = torch.from_numpy(decoded_frame_rgb)
-        if decoded_torch.shape[1] != num_cams * width:
-            print(f"Warning: Decoded frame width {decoded_torch.shape[1]} != expected {num_cams * width}")
+        if decoded_frame_rgb.shape[1] != num_cams * width:
+            print(f"Warning: Decoded frame width {decoded_frame_rgb.shape[1]} != expected {num_cams * width}")
         
         results = {}
         current_cam_indices = fixed_cam_ids + ([-1] if -1 in cam_ids else [])
-        single_w = decoded_torch.shape[1] // num_cams
+        single_w = decoded_frame_rgb.shape[1] // num_cams
         
         for i, cid in enumerate(current_cam_indices):
             w_start = i * single_w
             w_end = (i + 1) * single_w
-            img_slice = decoded_torch[:, w_start:w_end, :]
-            depth_slice = torch.zeros((height, single_w, 1), dtype=torch.float32)
+            img_slice = decoded_frame_rgb[:, w_start:w_end, :]
+            depth_slice = np.zeros((height, single_w, 1), dtype=np.float32)
             results[cid] = (img_slice, depth_slice)
             
         return results
