@@ -121,14 +121,7 @@ class FrankaBase:
         return False
 
     def getObservation(self):
-        evt_start = torch.cuda.Event(enable_timing=True)
-        evt_update = torch.cuda.Event(enable_timing=True)
-        evt_render = torch.cuda.Event(enable_timing=True)
-        evt_end = torch.cuda.Event(enable_timing=True)
-
-        evt_start.record()
         self.renderer.update_gaussians(self.mj_data)
-        evt_update.record()
         
         results_tensor = self.renderer.render(
             self.mj_model,
@@ -138,7 +131,6 @@ class FrankaBase:
             H,
             self.free_camera
         )
-        evt_render.record()
         
         # Handle both float (local GPU) and uint8 (remote CPU) tensors
         img_tensor = results_tensor[0][0]
@@ -147,7 +139,6 @@ class FrankaBase:
         else:
             rgb_np = (255. * torch.clamp(img_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
             
-        evt_end.record()
 
         observation_dict = {
             "state" : self.mj_data.qpos[self._robot_qposadr].copy(),
