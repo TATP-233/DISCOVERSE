@@ -30,7 +30,7 @@ try:
     import PyNvCodec as nvc
     import PytorchNvCodec as pnvc
     HAS_VPF = True
-except ImportError:
+except (ImportError, RuntimeError):
     HAS_VPF = False
 
 class VpfGpuEncoder:

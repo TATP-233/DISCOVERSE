@@ -7,6 +7,7 @@ import mujoco.viewer
 import torch
 import numpy as np
 from etils import epath
+import argparse
 
 try:
     from .mink_arm_ik import MinkIK
@@ -16,6 +17,7 @@ except ImportError:
 from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.utils import update_assets
 from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+from discoverse.gaussian_web_renderer.client import GSRendererRemote
 
 H = 300; W = 400
 _ARM_JOINTS = [
@@ -74,7 +76,7 @@ class FrankaCfg:
     }
 
 class FrankaBase:
-    def __init__(self, config: FrankaCfg):
+    def __init__(self, config: FrankaCfg, use_remote=False, remote_ip="127.0.0.1"):
         self.config = config
         self.free_camera = None
 
@@ -91,7 +93,14 @@ class FrankaBase:
         self._robot_qposadr = np.array([
             self.mj_model.jnt_qposadr[self.mj_model.joint(j).id] for j in _ARM_JOINTS + _FINGER_JOINTS
         ])
-        self.renderer = GSRendererMuJoCo(self.config.gaussians)
+        
+        if use_remote:
+            print(f"Using Remote Renderer at {remote_ip}")
+            self.renderer = GSRendererRemote(self.config.gaussians, server_ip=remote_ip)
+        else:
+            print("Using Local Renderer")
+            self.renderer = GSRendererMuJoCo(self.config.gaussians)
+            
         self.renderer.init_renderer(self.mj_model)
         self.timing_stats = []
 
@@ -131,7 +140,13 @@ class FrankaBase:
         )
         evt_render.record()
         
-        rgb_np = (255. * torch.clamp(results_tensor[0][0], 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+        # Handle both float (local GPU) and uint8 (remote CPU) tensors
+        img_tensor = results_tensor[0][0]
+        if img_tensor.dtype == torch.uint8:
+            rgb_np = img_tensor.cpu().numpy()
+        else:
+            rgb_np = (255. * torch.clamp(img_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+            
         evt_end.record()
 
         observation_dict = {
@@ -140,7 +155,12 @@ class FrankaBase:
         }
 
         if self.free_camera is not None and -1 in results_tensor:
-            rgb_free = (255. * torch.clamp(results_tensor[-1][0], 0.0, 1.0)).to(torch.uint8).cpu().numpy()
+            # Handle free camera similarly
+            free_img_tensor = results_tensor[-1][0]
+            if free_img_tensor.dtype == torch.uint8:
+                rgb_free = free_img_tensor.cpu().numpy()
+            else:
+                rgb_free = (255. * torch.clamp(free_img_tensor, 0.0, 1.0)).to(torch.uint8).cpu().numpy()
             observation_dict["free_camera"] = rgb_free
 
         return observation_dict
@@ -154,10 +174,18 @@ class FrankaBase:
             self.mj_model.geom(f'{target_name}_box').rgba = box_color
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--remote", action="store_true", help="Use remote rendering server")
+    parser.add_argument("--ip", type=str, default="127.0.0.1", help="Remote server IP")
+    parser.add_argument("--latency", action="store_true", help="Monitor communication latency")
+    args = parser.parse_args()
+
     cfg = FrankaCfg()
     cfg.gaussians["banana"] = (_DISCOVERSE_ASSETS_DIR / "3dgs" / "object" / "banana.ply").as_posix()
 
-    exec_node = FrankaBase(cfg)
+    exec_node = FrankaBase(cfg, use_remote=args.remote, remote_ip=args.ip)
+    if args.remote and args.latency:
+        exec_node.renderer.monitor_latency = True
     obs = exec_node.reset()
     exec_node.timing_stats = [] # Clear warmup stats
 
