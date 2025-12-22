@@ -4,13 +4,15 @@ import time
 import numpy as np
 import struct
 import torch
-from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+import mujoco
+from scipy.spatial.transform import Rotation
 from discoverse.gaussian_web_renderer.gaussian_steamer.decoder import H264Decoder
 
-class GSRendererRemote(GSRendererMuJoCo):
+class GSRendererRemote:
     def __init__(self, models_dict: dict, server_ip="127.0.0.1", server_port=5555, monitor_latency=False):
-        super().__init__(models_dict)
+        # Independent implementation, no inheritance from GSRendererMuJoCo to avoid local asset loading
         self.models_dict = models_dict
+        self.gaussian_model_names = list(models_dict.keys())
         self.server_ip = server_ip
         self.server_port = server_port
         self.monitor_latency = monitor_latency
@@ -23,19 +25,30 @@ class GSRendererRemote(GSRendererMuJoCo):
         self.last_pos = None
         self.last_quat = None
         self.is_initialized_on_server = False
+        
+        # Initialize attributes expected by GSRendererMuJoCo methods
+        self.gs_body_ids = []
+        self.gs_idx_start = [] # Not used locally but needed for update_gaussians check
 
     def init_renderer(self, mj_model):
-        super().init_renderer(mj_model)
+        # Re-implement logic to find relevant bodies without loading PLYs
+        self.gs_body_ids = []
+        active_bodies = []
         
-        mapping_list = []
-        for i in range(len(self.gs_body_ids)):
-            start = int(self.gs_idx_start[i])
-            end = int(self.gs_idx_end[i])
-            mapping_list.append(("body_" + str(i), start, end))
-            
+        for i in range(mj_model.nbody):
+            body_name = mujoco.mj_id2name(mj_model, mujoco.mjtObj.mjOBJ_BODY, i)
+            if body_name in self.gaussian_model_names:
+                self.gs_body_ids.append(i)
+                active_bodies.append(body_name)
+
+        self.gs_body_ids = np.array(self.gs_body_ids)
+        # Set gs_idx_start to non-empty to pass the check in update_gaussians (if we used super's method)
+        # But we override update_gaussians anyway.
+        self.gs_idx_start = np.arange(len(self.gs_body_ids)) 
+        
         init_data = {
             "models_dict": self.models_dict,
-            "objects_info": mapping_list
+            "active_bodies": active_bodies
         }
         
         print("Sending Init to Server...")
@@ -48,7 +61,7 @@ class GSRendererRemote(GSRendererMuJoCo):
             print(f"Server Init Failed: {resp}")
 
     def update_gaussians(self, mj_data):
-        if not hasattr(self, 'gs_idx_start') or len(self.gs_idx_start) == 0:
+        if len(self.gs_body_ids) == 0:
             return
         self.last_pos = mj_data.xpos[self.gs_body_ids]
         self.last_quat = mj_data.xquat[self.gs_body_ids]
@@ -79,7 +92,7 @@ class GSRendererRemote(GSRendererMuJoCo):
         if -1 in cam_ids:
             if free_camera is None:
                 raise ValueError("free_camera must be provided")
-            from scipy.spatial.transform import Rotation
+            
             camera_rmat = np.array([[0,0,-1],[-1,0,0],[0,1,0]])
             rotation_matrix = camera_rmat @ Rotation.from_euler('xyz', [free_camera.elevation * np.pi / 180.0, free_camera.azimuth * np.pi / 180.0, 0.0]).as_matrix()
             camera_position = free_camera.lookat + free_camera.distance * rotation_matrix[:3,2]
@@ -115,7 +128,6 @@ class GSRendererRemote(GSRendererMuJoCo):
         if encoded_data:
             decoded_frame = self.decoder.decode(encoded_data)
             if decoded_frame is None:
-                # print(f"Warning: Decoder returned None. Encoded data size: {len(encoded_data)} bytes")
                 pass
         else:
             print("Warning: Received empty encoded data from server.")
@@ -139,7 +151,7 @@ class GSRendererRemote(GSRendererMuJoCo):
             w_start = i * single_w
             w_end = (i + 1) * single_w
             img_slice = decoded_torch[:, w_start:w_end, :]
-            # depth_slice = torch.zeros((height, single_w, 1), dtype=torch.float32)
-            results[cid] = (img_slice, None)
+            depth_slice = torch.zeros((height, single_w, 1), dtype=torch.float32)
+            results[cid] = (img_slice, depth_slice)
             
         return results

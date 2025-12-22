@@ -1,3 +1,5 @@
+import os
+import time
 import json
 import zmq
 import torch
@@ -39,9 +41,17 @@ class GaussianRenderingServer:
         data = json.loads(message.decode('utf-8'))
         
         models_dict = data['models_dict']
-        objects_info = data['objects_info']
+        active_bodies = data['active_bodies']
         
         self.renderer = GSRenderer(models_dict)
+        
+        objects_info = []
+        for name in active_bodies:
+            if name in self.renderer.gaussian_start_indices:
+                start = self.renderer.gaussian_start_indices[name]
+                end = self.renderer.gaussian_end_indices[name]
+                objects_info.append((name, start, end))
+        
         self.renderer.set_objects_mapping(objects_info)
         
         print("Renderer initialized.")
@@ -80,7 +90,7 @@ class GaussianRenderingServer:
         render_width = width
         render_height = height
         
-        rgb_tensor, _ = self.renderer.render_batch(
+        rgb_tensor, depth_tensor = self.renderer.render_batch(
             cam_pos, cam_xmat, render_height, render_width, fovy_arr
         )
         
