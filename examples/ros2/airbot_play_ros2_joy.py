@@ -9,9 +9,15 @@ from sensor_msgs.msg import Joy
 from discoverse.robots import AirbotPlayIK
 from discoverse.robots_env.airbot_play_base import AirbotPlayCfg
 from discoverse.utils.joy_stick_ros2 import JoyTeleopRos2
-from discoverse.examples.ros2.airbot_play_ros2 import AirbotPlayROS2, cfg
 
-cfg.mjcf_file_path = "mjcf/tasks_airbot_play/laptop_close.xml"
+import sys
+# 获取当前文件所在目录（sensor_lidar）
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+from airbot_play_ros2 import AirbotPlayROS2, cfg
+
+cfg.mjcf_file_path = "mjcf/task_environments/close_laptop.xml"
 
 class AirbotPlayROS2JoyCtl(AirbotPlayROS2):
     def __init__(self, config: AirbotPlayCfg):
