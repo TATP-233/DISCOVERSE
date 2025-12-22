@@ -19,7 +19,7 @@ from discoverse.utils import BaseConfig
 if sys.platform == "linux":
     try:
         import torch
-        from discoverse.gaussian_renderer import GSRenderer
+        from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
         DISCOVERSE_GAUSSIAN_RENDERER = True
 
     except ImportError:
@@ -109,7 +109,7 @@ class SimulatorBase:
                     elif not os.path.exists(path):
                         print(f"Warning: Model {name} path {path} is absolute and not found locally.")
 
-                self.gs_renderer = GSRenderer(self.config.gs_model_dict)
+                self.gs_renderer = GSRendererMuJoCo(self.config.gs_model_dict)
                 self.gs_renderer.init_renderer(self.mj_model)
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True

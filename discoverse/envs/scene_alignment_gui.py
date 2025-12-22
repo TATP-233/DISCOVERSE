@@ -33,7 +33,7 @@ class SceneAlignmentGUI:
         self.textboxes = []
         
         self.state = {'is_updating_quat': False}
-         
+        
         # Setup figure
         self.fig = plt.figure(figsize=figsize)
         plt.subplots_adjust(left=0.25, bottom=0.1, right=0.95, top=0.95)

@@ -24,8 +24,6 @@
 
 import numpy as np
 import torch
-import mujoco
-from scipy.spatial.transform import Rotation
 
 try:
     from gsplat.rendering import rasterization
@@ -94,6 +92,10 @@ class GSRenderer:
         self.gaussian_end_indices = {k: v + self.gaussians_size[k] for k, v in self.gaussians_idx.items()}
         self.gaussian_model_names = list(self.gaussians_all.keys())
 
+        # Mapping for dynamic updates
+        self.dynamic_mask = None
+        self.point_to_body_idx = None
+
     @torch.no_grad()
     def update_gaussian_data(self, gaus: GaussianData):
         if type(gaus) is dict:
@@ -140,77 +142,39 @@ class GSRenderer:
         self.gau_xyz_all_cu = torch.zeros(num_points, 3).cuda().requires_grad_(False)
         self.gau_rot_all_cu = torch.zeros(num_points, 4).cuda().requires_grad_(False)
 
-
-
-    def init_renderer(self, mj_model):
-        self.gs_idx_start = []
-        self.gs_idx_end = []
-        self.gs_body_ids = []
+    def set_objects_mapping(self, objects_info: list):
+        """
+        Set mapping from points to objects for dynamic updates.
         
-        for i in range(mj_model.nbody):
-            body_name = mujoco.mj_id2name(mj_model, mujoco.mjtObj.mjOBJ_BODY, i)
-            if body_name in self.gaussian_model_names:
-                start_idx = self.gaussian_start_indices[body_name]
-                end_idx = self.gaussian_end_indices[body_name]
-                self.gs_idx_start.append(start_idx)
-                self.gs_idx_end.append(end_idx)
-                self.gs_body_ids.append(i)
-
-        self.gs_idx_start = np.array(self.gs_idx_start)
-        self.gs_idx_end = np.array(self.gs_idx_end)
-        self.gs_body_ids = np.array(self.gs_body_ids)
-
+        Args:
+            objects_info: List of (name, start_idx, end_idx)
+        """
         device = self.gaussians.device
-        self.gs_idx_start_tensor = torch.tensor(self.gs_idx_start, device=device, dtype=torch.long)
-        self.gs_idx_end_tensor = torch.tensor(self.gs_idx_end, device=device, dtype=torch.long)
-
-        # Precompute point-to-body mapping for vectorized update
         num_points = self.gaussians.xyz.shape[0]
         self.dynamic_mask = torch.zeros(num_points, dtype=torch.bool, device=device)
         self.point_to_body_idx = torch.zeros(num_points, dtype=torch.long, device=device)
         
-        for i in range(len(self.gs_idx_start)):
-            start = self.gs_idx_start[i]
-            end = self.gs_idx_end[i]
+        for i, (name, start, end) in enumerate(objects_info):
             self.dynamic_mask[start:end] = True
             self.point_to_body_idx[start:end] = i
-
-    def update_gaussians(self, mj_data):
-        if not hasattr(self, 'gs_idx_start') or len(self.gs_idx_start) == 0:
-            return
-
-        # Batch extract position (N, 3)
-        pos_values = mj_data.xpos[self.gs_body_ids]
-        
-        # Batch extract quaternion (N, 4) - wxyz
-        quat_values = mj_data.xquat[self.gs_body_ids]
-        
-        # Call batch update interface
-        self.update_gaussian_properties(
-            pos_values,
-            quat_values
-        )
 
     def update_gaussian_properties(self, pos, quat):
         """
         Batch update gaussian properties for multiple objects using vectorized operations.
         
         Args:
-            pos: (N_objects, 3) array of positions
-            quat: (N_objects, 4) array of quaternions (wxyz)
+            pos: (N_objects, 3) array or tensor of positions
+            quat: (N_objects, 4) array or tensor of quaternions (wxyz)
         """
+        if self.dynamic_mask is None or not self.dynamic_mask.any():
+            return
+
         if not isinstance(pos, torch.Tensor):
             pos = torch.from_numpy(pos).float().cuda()
         if not isinstance(quat, torch.Tensor):
             quat = torch.from_numpy(quat).float().cuda()
-            
-        if not self.dynamic_mask.any():
-            return
 
         # Gather poses for all dynamic points
-        # pos is (N_bodies, 3), point_to_body_idx maps each point to a body index
-        # We only care about points where dynamic_mask is True
-        
         mask = self.dynamic_mask
         body_indices = self.point_to_body_idx[mask]
         
@@ -230,56 +194,21 @@ class GSRenderer:
         self.gau_xyz_all_cu = self.gaussians.xyz
         self.gau_rot_all_cu = self.gaussians.rot
 
-    def render(self, mj_model, mj_data, cam_ids, width, height, free_camera=None):
-        if len(cam_ids) == 0:
-            return {}, {}, {}
-
-        # 1. Get fixed camera poses
-        fixed_cam_ids = [cid for cid in cam_ids if cid != -1]
+    def render_batch(self, cam_pos, cam_xmat, height, width, fovy_arr):
+        """
+        Pure rendering call using batch_render.
         
-        if len(fixed_cam_ids) > 0:
-            fixed_cam_indices = np.array(fixed_cam_ids)
-            cam_pos_fixed = mj_data.cam_xpos[fixed_cam_indices]
-            cam_xmat_fixed = mj_data.cam_xmat[fixed_cam_indices]
-            fovy_fixed = mj_model.cam_fovy[fixed_cam_indices]
-        else:
-            cam_pos_fixed = np.empty((0, 3))
-            cam_xmat_fixed = np.empty((0, 9))
-            fovy_fixed = np.empty((0,))
-
-        # 2. Handle free camera (cam_id == -1)
-        if -1 in cam_ids:
-            if free_camera is None:
-                raise ValueError("free_camera must be provided if cam_id -1 is requested")
+        Args:
+            cam_pos: (N_cams, 3) array of camera positions
+            cam_xmat: (N_cams, 9) array of camera rotation matrices
+            height: int
+            width: int
+            fovy_arr: (N_cams,) array of fov values
             
-            # Calculate free camera pose
-            camera_rmat = np.array([
-                [ 0,  0, -1],
-                [-1,  0,  0],
-                [ 0,  1,  0],
-            ])
-            rotation_matrix = camera_rmat @ Rotation.from_euler('xyz', [free_camera.elevation * np.pi / 180.0, free_camera.azimuth * np.pi / 180.0, 0.0]).as_matrix()
-            camera_position = free_camera.lookat + free_camera.distance * rotation_matrix[:3,2]
-            
-            trans = camera_position
-            rmat = rotation_matrix.flatten() # (9,)
-            fovy = mj_model.vis.global_.fovy
-            
-            cam_pos = np.vstack([cam_pos_fixed, trans])
-            cam_xmat = np.vstack([cam_xmat_fixed, rmat])
-            fovy_arr = np.concatenate([fovy_fixed, [fovy]])
-            
-            batch_indices = {cid: i for i, cid in enumerate(fixed_cam_ids)}
-            batch_indices[-1] = len(fixed_cam_ids)
-        else:
-            cam_pos = cam_pos_fixed
-            cam_xmat = cam_xmat_fixed
-            fovy_arr = fovy_fixed
-            batch_indices = {cid: i for i, cid in enumerate(fixed_cam_ids)}
-
-        # Call batch_render directly
-        # batch_render expects numpy arrays for camera params, and handles tensor conversion internally
-        rgb_tensor, depth_tensor = batch_render(
+        Returns:
+            rgb_tensor, depth_tensor
+        """
+        return batch_render(
             self.gaussians,
             cam_pos,
             cam_xmat,
@@ -287,9 +216,3 @@ class GSRenderer:
             width,
             fovy_arr
         )
-        
-        results = {}
-        for cid, idx in batch_indices.items():
-            results[cid] = (rgb_tensor[idx], depth_tensor[idx])
-            
-        return results
