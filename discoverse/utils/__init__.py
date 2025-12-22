@@ -5,6 +5,7 @@ from .camera_spline_interpolation import interpolate_camera_poses
 from .download_from_huggingface import download_from_huggingface
 
 import os
+import sys
 import random
 import mujoco
 import numpy as np
@@ -106,6 +107,22 @@ def update_assets(
       assets[f.name] = f.read_bytes()
     elif f.is_dir() and recursive:
       update_assets(assets, f, glob, recursive)
+
+def get_screen_scale(screen_id=0):
+    if sys.platform == "darwin":
+        try:
+            import AppKit
+        except ImportError:
+            print("pyobjc is required for retina display support on macOS. Run:")
+            print(">>> pip install pyobjc")
+            quit()
+        screens = AppKit.NSScreen.screens()
+        if len(screens) >= screen_id:
+            return screens[screen_id].backingScaleFactor()
+        else:
+            return None
+    else:
+        return 1.
 
 __all__ = [
     "PIDController",

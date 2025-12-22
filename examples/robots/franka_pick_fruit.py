@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, Union
 
+import sys
 import time
 import mink
 import mujoco
@@ -18,7 +19,7 @@ except ImportError:
     from mink_arm_ik import MinkIK
 
 from discoverse import DISCOVERSE_ASSETS_DIR
-from discoverse.utils import update_assets
+from discoverse.utils import update_assets, get_screen_scale
 try:
     from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
 except ImportError:
@@ -27,6 +28,10 @@ except ImportError:
 from discoverse.gaussian_web_renderer.client import GSRendererRemote
 
 H = 300; W = 400
+if sys.platform == "darwin":
+    s = get_screen_scale()
+    H, W = int(H * s), int(W * s)
+
 _ARM_JOINTS = [
     "joint1",
     "joint2",

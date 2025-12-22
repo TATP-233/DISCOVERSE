@@ -14,7 +14,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from discoverse import DISCOVERSE_ASSETS_DIR
-from discoverse.utils import BaseConfig
+from discoverse.utils import BaseConfig, get_screen_scale
 
 if sys.platform == "linux":
     try:
@@ -175,19 +175,6 @@ class SimulatorBase:
                     glfw.set_window_maximize_callback(self.window, self.maximize_callback)
 
                 if sys.platform == "darwin":
-                    try:
-                        import AppKit
-                    except ImportError:
-                        print("pyobjc is required for retina display support on macOS. Run:")
-                        print(">>> pip install pyobjc")
-                        quit()
-
-                    def get_screen_scale(screen_id):
-                        screens = AppKit.NSScreen.screens()
-                        if len(screens) >= screen_id:
-                            return screens[screen_id].backingScaleFactor()
-                        else:
-                            return None
                     self.screen_scale = get_screen_scale(0)
                     gl.glPixelZoom(self.screen_scale, self.screen_scale)
                 else:
