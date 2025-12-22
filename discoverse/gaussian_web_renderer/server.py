@@ -5,6 +5,7 @@ import zmq
 import torch
 import numpy as np
 import struct
+from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.gaussian_renderer.gs_renderer import GSRenderer
 from discoverse.gaussian_web_renderer.gaussian_steamer.encoder import vEncoder
 
@@ -36,6 +37,36 @@ class GaussianRenderingServer:
             except Exception as e:
                 print(f"Error processing message: {e}")
 
+    def _resolve_path(self, path):
+        if os.path.exists(path):
+            return path
+        
+        # Normalize path separators
+        path_norm = path.replace('\\', '/')
+        
+        # Try to resolve path relative to server's assets directory
+        # We look for common keywords in the path
+        keywords = ['3dgs', 'models', 'assets']
+        
+        for kw in keywords:
+            token = f'/{kw}/'
+            if token in path_norm:
+                suffix = path_norm.split(token)[-1]
+                
+                if kw == '3dgs':
+                    # If '3dgs' is found, we assume it's inside the assets dir
+                    candidate = os.path.join(DISCOVERSE_ASSETS_DIR, '3dgs', suffix)
+                else:
+                    # For 'models' or 'assets', we treat the suffix as relative to assets dir
+                    candidate = os.path.join(DISCOVERSE_ASSETS_DIR, suffix)
+                
+                if os.path.exists(candidate):
+                    print(f"Path resolved: {path} -> {candidate}")
+                    return candidate
+                    
+        print(f"Warning: Could not resolve path: {path}")
+        return path
+
     def handle_init(self, message):
         print("Received Init request")
         data = json.loads(message.decode('utf-8'))
@@ -43,6 +74,11 @@ class GaussianRenderingServer:
         models_dict = data['models_dict']
         active_bodies = data['active_bodies']
         
+        # Resolve paths for server environment
+        for name, path in models_dict.items():
+            models_dict[name] = self._resolve_path(path)
+        
+        self.renderer = GSRenderer(models_dict)
         self.renderer = GSRenderer(models_dict)
         
         objects_info = []
