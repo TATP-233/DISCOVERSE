@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 import httpx
 from huggingface_hub import HfApi, upload_folder, create_repo
+from huggingface_hub.hf_api import RepoFile
 from huggingface_hub.utils._http import set_client_factory
 
 # 设置超时环境变量 (30分钟 = 1800秒)
@@ -87,44 +88,94 @@ def ensure_repo_exists(repo_id, token):
             print(f"❌ 仓库创建失败: {e}")
             return False
 
+def get_remote_files(repo_id, token):
+    """获取远程仓库 3dgs 目录下的文件信息"""
+    api = HfApi(token=token)
+    remote_files = {}
+    try:
+        print(f"🔍 正在获取远程仓库文件列表: {repo_id}...")
+        # 递归列出 3dgs 目录下的所有文件
+        tree = api.list_repo_tree(repo_id=repo_id, path_in_repo="3dgs", repo_type="model", recursive=True)
+        for item in tree:
+            # 仅处理文件对象 (RepoFile)，跳过目录对象 (RepoFolder)
+            if isinstance(item, RepoFile) and item.path.startswith("3dgs/"):
+                # 存储相对于 3dgs/ 的路径
+                rel_path = os.path.relpath(item.path, "3dgs")
+                remote_files[rel_path] = {
+                    'size': item.size,
+                    'blob_id': item.blob_id
+                }
+        print(f"✓ 远程仓库共有 {len(remote_files)} 个模型文件")
+        return remote_files
+    except Exception as e:
+        # 如果仓库不存在或目录不存在，返回空字典
+        print(f"ℹ️  无法获取远程列表 (可能是新仓库或网络问题): {e}")
+        return {}
+
 def get_file_size_mb(path):
     """获取文件大小（MB）"""
     return path.stat().st_size / (1024 * 1024)
 
-def list_files_to_upload(models_dir):
-    """列出所有要上传的文件"""
-    files = list(models_dir.rglob("*.ply"))
+def list_files_to_upload(models_dir, remote_files):
+    """列出所有要上传的文件，并与远程进行比较"""
+    all_files = list(models_dir.rglob("*.ply"))
     
-    print(f"\n📋 待上传文件: {len(files)} 个")
-    print("=" * 80)
+    to_upload_paths = []
+    new_count = 0
+    mod_count = 0
+    unchanged_count = 0
+    total_upload_size = 0
     
-    total_size = 0
     by_category = {}
     
-    for f in files:
+    for f in all_files:
+        rel_path = str(f.relative_to(models_dir))
         size_mb = get_file_size_mb(f)
-        total_size += size_mb
-        rel_path = f.relative_to(models_dir)
+        local_size = f.stat().st_size
         
-        # 分类统计
-        category = str(rel_path.parts[0]) if len(rel_path.parts) > 1 else "other"
-        if category not in by_category:
-            by_category[category] = {"count": 0, "size": 0}
-        by_category[category]["count"] += 1
-        by_category[category]["size"] += size_mb
+        status = "unchanged"
+        if rel_path in remote_files:
+            # 简单通过大小判断是否变化，更严谨可以比对 hash
+            if remote_files[rel_path]['size'] != local_size:
+                status = "modified"
+                mod_count += 1
+            else:
+                unchanged_count += 1
+        else:
+            status = "new"
+            new_count += 1
+            
+        if status != "unchanged":
+            to_upload_paths.append(rel_path)
+            total_upload_size += size_mb
+            
+            # 分类统计 (仅统计待上传的)
+            category = str(Path(rel_path).parts[0]) if len(Path(rel_path).parts) > 1 else "other"
+            if category not in by_category:
+                by_category[category] = {"count": 0, "size": 0, "new": 0, "mod": 0}
+            by_category[category]["count"] += 1
+            by_category[category]["size"] += size_mb
+            if status == "new": by_category[category]["new"] += 1
+            else: by_category[category]["mod"] += 1
     
-    # 按类别显示
-    for category, info in sorted(by_category.items()):
-        print(f"  📁 {category:20s} {info['count']:3d} 个文件  {info['size']:8.2f} MB")
-    
+    print(f"\n📋 同步状态报告:")
     print("=" * 80)
-    print(f"总计: {len(files)} 个文件, {total_size:.2f} MB ({total_size/1024:.2f} GB)")
+    if to_upload_paths:
+        print(f"待上传文件统计 (按类别):")
+        for category, info in sorted(by_category.items()):
+            print(f"  📁 {category:20s} {info['count']:3d} 个 (新:{info['new']}, 改:{info['mod']})  {info['size']:8.2f} MB")
+        print("-" * 80)
     
-    return files, total_size
+    print(f"总计本地文件: {len(all_files)} 个")
+    print(f"  - ✨ 未变更: {unchanged_count}")
+    print(f"  - 🚀 待上传: {len(to_upload_paths)} 个 ({total_upload_size:.2f} MB)")
+    print("=" * 80)
+    
+    return to_upload_paths, total_upload_size
 
 def main():
     """主函数"""
-    print("🚀 DISCOVERSE 3DGS 模型上传工具")
+    print("🚀 DISCOVERSE 3DGS 模型上传工具 (增量更新模式)")
     print("=" * 80)
     
     # 检查 token
@@ -136,21 +187,27 @@ def main():
         print(f"❌ 错误: 模型目录不存在: {MODELS_DIR}")
         sys.exit(1)
     
-    print(f"📁 模型目录: {MODELS_DIR}")
+    print(f"📁 本地模型目录: {MODELS_DIR}")
     
-    # 列出文件
-    files, total_size = list_files_to_upload(MODELS_DIR)
-    
-    if not files:
-        print("❌ 没有找到 .ply 文件")
+    # 确保仓库存在
+    if not ensure_repo_exists(REPO_ID, token):
         sys.exit(1)
+
+    # 获取远程文件信息
+    remote_files = get_remote_files(REPO_ID, token)
+    
+    # 列出并比较文件
+    to_upload, total_size = list_files_to_upload(MODELS_DIR, remote_files)
+    
+    if not to_upload:
+        print("\n✨ 所有文件已是最新，无需上传。")
+        sys.exit(0)
     
     # 确认上传
     print(f"\n📤 准备上传到仓库: {REPO_ID}")
     print(f"📊 上传路径: 3dgs/")
     print(f"\n⚠️  注意:")
-    print(f"  - 上传可能需要较长时间（取决于文件大小和网络速度）")
-    print(f"  - 请确保有稳定的网络连接")
+    print(f"  - 将仅上传 {len(to_upload)} 个新增或修改的文件")
     print(f"  - 大文件会使用 Git LFS 存储")
     
     response = input("\n是否继续? (y/N): ").strip().lower()
@@ -158,10 +215,6 @@ def main():
     if response != 'y':
         print("❌ 取消上传")
         sys.exit(0)
-    
-    # 确保仓库存在
-    if not ensure_repo_exists(REPO_ID, token):
-        sys.exit(1)
     
     # 上传文件夹
     print(f"\n⬆️  开始上传...")
@@ -177,14 +230,15 @@ def main():
         )
         
         print(f"⏱️  超时设置: {os.environ.get('HF_HUB_DOWNLOAD_TIMEOUT', '10')}秒")
-        print(f"📊 开始上传，请耐心等待...\n")
+        print(f"📊 开始上传 {len(to_upload)} 个文件，请耐心等待...\n")
         
         api.upload_folder(
             folder_path=str(MODELS_DIR),
             path_in_repo="3dgs",
             repo_id=REPO_ID,
             repo_type="model",
-            commit_message="Upload 3DGS PLY models from DISCOVERSE",
+            allow_patterns=to_upload,  # 关键：只上传变更的文件
+            commit_message=f"Update {len(to_upload)} 3DGS models",
             ignore_patterns=[
                 "*.pyc",
                 "__pycache__",
