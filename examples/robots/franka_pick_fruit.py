@@ -20,12 +20,6 @@ except ImportError:
 
 from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.utils import update_assets, get_screen_scale
-try:
-    from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
-except ImportError:
-    raise ImportError("Please install gsplat to use GSRendererMuJoCo.")   
-
-from discoverse.gaussian_web_renderer.client import GSRendererRemote
 
 H = 300; W = 400
 if sys.platform == "darwin":
@@ -88,7 +82,7 @@ class FrankaCfg:
     }
 
 class FrankaBase:
-    def __init__(self, config: FrankaCfg, use_remote=False, remote_ip="127.0.0.1"):
+    def __init__(self, config: FrankaCfg, use_remote=False, remote_ip="127.0.0.1", port=5555):
         self.config = config
         self.free_camera = None
 
@@ -107,11 +101,14 @@ class FrankaBase:
         ])
         
         if use_remote:
+            from discoverse.gaussian_web_renderer.client import GSRendererRemote
             print(f"Using Remote Renderer at {remote_ip}")
-            self.renderer = GSRendererRemote(self.config.gaussians, server_ip=remote_ip)
+            self.renderer = GSRendererRemote(self.config.gaussians, server_ip=remote_ip, server_port=port)
         else:
-            if GSRendererMuJoCo is None:
-                raise ImportError("Local renderer requires torch and gsplat, but imports failed.")
+            try:
+                from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+            except ImportError:
+                raise ImportError("Please install torch and gsplat to use GSRendererMuJoCo.")   
             print("Using Local Renderer")
             self.renderer = GSRendererMuJoCo(self.config.gaussians)
             
@@ -190,13 +187,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--remote", action="store_true", help="Use remote rendering server")
     parser.add_argument("--ip", type=str, default="127.0.0.1", help="Remote server IP")
+    parser.add_argument("--port", type=int, default=5555, help="Remote server port")
     parser.add_argument("--latency", action="store_true", help="Monitor communication latency")
     args = parser.parse_args()
 
     cfg = FrankaCfg()
     cfg.gaussians["banana"] = (_DISCOVERSE_ASSETS_DIR / "3dgs" / "object" / "banana.ply").as_posix()
 
-    exec_node = FrankaBase(cfg, use_remote=args.remote, remote_ip=args.ip)
+    exec_node = FrankaBase(cfg, use_remote=args.remote, remote_ip=args.ip, port=args.port)
     if args.remote and args.latency:
         exec_node.renderer.monitor_latency = True
     obs = exec_node.reset()

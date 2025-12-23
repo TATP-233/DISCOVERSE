@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import argparse
 import asyncio
 import zmq
 import zmq.asyncio
@@ -226,5 +227,8 @@ class GaussianRenderingServer:
         return encoded_bytes
 
 if __name__ == "__main__":
-    server = GaussianRenderingServer()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=5555, help="Remote server port")
+    args = parser.parse_args()
+    server = GaussianRenderingServer(port=args.port)
     asyncio.run(server.run())
