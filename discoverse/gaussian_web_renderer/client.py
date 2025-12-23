@@ -17,7 +17,7 @@ class GSRendererRemote:
         self.monitor_latency = monitor_latency
         
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PAIR)
+        self.socket = self.context.socket(zmq.REQ)
         self.socket.connect(f"tcp://{self.server_ip}:{self.server_port}")
         
         self.decoder = H264Decoder()
@@ -56,8 +56,12 @@ class GSRendererRemote:
         if resp == b'OK':
             print("Server Initialized.")
             self.is_initialized_on_server = True
+        elif resp == b'Busy':
+            print("Server is busy (max clients reached). Please try again later.")
+            self.is_initialized_on_server = False
         else:
             print(f"Server Init Failed: {resp}")
+            self.is_initialized_on_server = False
 
     def update_gaussians(self, mj_data):
         if len(self.gs_body_ids) == 0:
@@ -120,6 +124,11 @@ class GSRendererRemote:
         encoded_data = self.socket.recv()
         t1 = time.time()
         
+        if encoded_data.startswith(b'Error'):
+            print(f"Server error during render: {encoded_data.decode()}")
+            self.is_initialized_on_server = False
+            return {}
+
         if self.monitor_latency:
             print(f"\rLatency: {(t1-t0)*1000:.2f} ms", end="")
         
