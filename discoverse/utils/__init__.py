@@ -2,7 +2,7 @@ from .controllor import PIDController, PIDarray
 from .base_config import BaseConfig
 from .statemachine import SimpleStateMachine
 from .camera_spline_interpolation import interpolate_camera_poses
-from .download_from_huggingface import download_from_huggingface
+from .download_from_huggingface import download_from_huggingface, check_hf_login_or_exit
 
 import os
 import sys

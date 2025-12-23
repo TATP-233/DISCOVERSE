@@ -13,6 +13,8 @@ def download_from_huggingface(model_path, hf_repo_id="tatp/DISCOVERSE-models"):
     Returns:
         str: 下载后的文件本地路径
     """
+    check_hf_login_or_exit()
+
     try:
         from huggingface_hub import hf_hub_download
         
