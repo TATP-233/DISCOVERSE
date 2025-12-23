@@ -10,6 +10,7 @@ import numpy as np
 import struct
 from concurrent.futures import ThreadPoolExecutor
 from discoverse import DISCOVERSE_ASSETS_DIR
+from discoverse.utils.download_from_huggingface import download_from_huggingface
 from discoverse.gaussian_renderer.gs_renderer import GSRenderer
 from discoverse.gaussian_web_renderer.gaussian_steamer.encoder import vEncoder
 
@@ -67,24 +68,36 @@ class GaussianRenderingServer:
         # Normalize path separators
         path_norm = path.replace('\\', '/')
         
-        # Try to resolve path relative to server's assets directory
-        # We look for common keywords in the path
+        # 1. Try as a relative path under DISCOVERSE_ASSETS_DIR/3dgs
+        if not os.path.isabs(path_norm):
+            candidate = os.path.join(DISCOVERSE_ASSETS_DIR, '3dgs', path_norm)
+            if not os.path.exists(candidate):
+                try:
+                    candidate = download_from_huggingface(path_norm)
+                except Exception as e:
+                    print(f"Failed to download {path_norm} from Hugging Face: {e}")
+            
+            if os.path.exists(candidate):
+                return candidate
+
+        # 2. Try to resolve path by looking for keywords (useful for absolute paths from other machines)
         keywords = ['3dgs', 'models', 'assets']
-        
         for kw in keywords:
             token = f'/{kw}/'
             if token in path_norm:
                 suffix = path_norm.split(token)[-1]
                 
                 if kw == '3dgs':
-                    # If '3dgs' is found, we assume it's inside the assets dir
                     candidate = os.path.join(DISCOVERSE_ASSETS_DIR, '3dgs', suffix)
+                    if not os.path.exists(candidate):
+                        try:
+                            candidate = download_from_huggingface(suffix)
+                        except Exception as e:
+                            print(f"Failed to download {suffix} from Hugging Face: {e}")
                 else:
-                    # For 'models' or 'assets', we treat the suffix as relative to assets dir
                     candidate = os.path.join(DISCOVERSE_ASSETS_DIR, suffix)
                 
                 if os.path.exists(candidate):
-                    # print(f"Path resolved: {path} -> {candidate}")
                     return candidate
                     
         print(f"Warning: Could not resolve path: {path}")
