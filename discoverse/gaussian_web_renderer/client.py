@@ -24,6 +24,8 @@ class GSRendererRemote:
         self.last_pos = None
         self.last_quat = None
         self.is_initialized_on_server = False
+        self.last_total_width = None
+        self.last_total_height = None
         
         # Initialize attributes expected by GSRendererMuJoCo methods
         self.gs_body_ids = []
@@ -108,6 +110,12 @@ class GSRendererRemote:
         num_cams = len(cam_params_list)
         if num_cams == 0:
             return {}
+
+        expected_total_width = num_cams * width
+        if expected_total_width != self.last_total_width or height != self.last_total_height:
+            self.decoder = H264Decoder()
+            self.last_total_width = expected_total_width
+            self.last_total_height = height
 
         cam_data_arr = []
         for cam in cam_params_list:

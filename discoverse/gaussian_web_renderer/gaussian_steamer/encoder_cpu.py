@@ -24,35 +24,59 @@
 
 import av
 import torch
+import numpy as np
+from fractions import Fraction
 from .config import *
 
 class AvFallbackEncoder:
     def __init__(self, width, height, fps=FPS, bitrate=BITRATE, gop=GOP):
         self.width = width
         self.height = height
-        self.output = av.open('pipe:', 'w', format='h264')
-        self.stream = self.output.add_stream(CODEC, rate=fps)
-        self.stream.width = width
-        self.stream.height = height
-        self.stream.pix_fmt = PIX_FMT
-        self.stream.bit_rate = int(bitrate.replace('M', '000000'))
         
-        self.stream.options = {
-            'preset': PRESET, 'tune': 'ull', 'zerolatency': '1',
-            'delay': '0', 'bframes': '0', 'profile': 'high'
+        # Use CodecContext directly for raw H.264 encoding to match GPU encoder behavior
+        codec = av.Codec('libx264', 'w')
+        self.ctx = av.CodecContext.create(codec)
+        
+        self.ctx.width = width
+        self.ctx.height = height
+        self.ctx.pix_fmt = 'yuv420p'
+        self.ctx.time_base = Fraction(1, int(fps))
+        self.ctx.framerate = Fraction(int(fps), 1)
+        
+        # Bitrate conversion
+        if isinstance(bitrate, str):
+            bitrate_val = int(bitrate.replace('M', '000000'))
+        else:
+            bitrate_val = int(bitrate)
+        self.ctx.bit_rate = bitrate_val
+        
+        # x264 options for ultra-low latency
+        self.ctx.options = {
+            'preset': 'ultrafast',
+            'tune': 'zerolatency',
+            'bframes': '0',
+            'threads': '1',
         }
         
         if gop <= 1:
-            self.stream.options['forced-idr'] = '1'
+            self.ctx.options['keyint'] = '1'
         else:
-            self.stream.options['g'] = str(gop)
-            self.stream.options['keyint_min'] = str(gop)
+            self.ctx.options['g'] = str(gop)
+            
+        self.ctx.open()
         
     def encode_frame(self, tensor_cuda: torch.Tensor):
-        # 强制 CPU 拷贝
-        frame_cpu_np = tensor_cuda.cpu().numpy()
+        # Move to CPU and convert to numpy
+        if tensor_cuda.is_cuda:
+            frame_cpu_np = tensor_cuda.cpu().numpy()
+        else:
+            frame_cpu_np = tensor_cuda.numpy()
+            
+        # Ensure the array has the correct shape (H, W, 3)
         frame = av.VideoFrame.from_ndarray(frame_cpu_np, format='rgb24')
-        return [bytes(p) for p in self.stream.encode(frame)]
+        
+        packets = self.ctx.encode(frame)
+        return [bytes(p) for p in packets]
 
     def flush(self):
-        return [bytes(p) for p in self.stream.encode()]
+        return [bytes(p) for p in self.ctx.encode()]
