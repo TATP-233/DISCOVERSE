@@ -66,6 +66,7 @@ def check_supersplat_format(ply_path: Path) -> bool:
 def compress_ply_file(
     input_path: Path,
     backup: bool = False,
+    save_sh_degree: int = None,
 ) -> Tuple[bool, str, int, int, int, Path]:
     """
     压缩单个PLY文件
@@ -103,7 +104,7 @@ def compress_ply_file(
         # 压缩并保存到临时文件
         temp_path = input_path.with_suffix('.ply.tmp')
         try:
-            save_super_splat_ply(gaussian_data, str(temp_path))
+            save_super_splat_ply(gaussian_data, str(temp_path), save_sh_degree=save_sh_degree)
         except Exception as e:
             if temp_path.exists():
                 temp_path.unlink()
@@ -198,6 +199,13 @@ def main():
         type=int,
         default=1,
         help='并行处理的进程数（默认: 1，单进程）。使用 -j 0 自动检测CPU核心数'
+    )
+
+    parser.add_argument(
+        '--sh-degree',
+        type=int,
+        default=None,
+        help='指定保存的SH阶数 (0-3)。默认保持原样。如果指定阶数小于原始阶数则截断，大于则补0'
     )
     
     args = parser.parse_args()
@@ -298,7 +306,8 @@ def main():
         # 多进程并行处理
         compress_func = partial(
             compress_ply_file,
-            backup=args.backup
+            backup=args.backup,
+            save_sh_degree=args.sh_degree
         )
         
         # 使用进程池
@@ -337,10 +346,10 @@ def main():
         for i, ply_file in enumerate(files_to_compress, 1):
             rel_path = ply_file.relative_to(dir_path)
             print(f"\n[{i}/{len(files_to_compress)}] {rel_path}")
-            
             success, message, orig_size, comp_size, num_points, _ = compress_ply_file(
                 ply_file,
-                backup=args.backup
+                backup=args.backup,
+                save_sh_degree=args.sh_degree
             )
             
             if success:

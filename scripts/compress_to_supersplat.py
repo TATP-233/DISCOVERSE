@@ -52,6 +52,13 @@ def main():
         action='store_true',
         help='如果输出文件已存在,强制覆盖'
     )
+
+    parser.add_argument(
+        '--sh-degree',
+        type=int,
+        default=None,
+        help='指定保存的SH阶数 (0-3)。默认保持原样。如果指定阶数小于原始阶数则截断，大于则补0'
+    )
     
     args = parser.parse_args()
     
@@ -119,7 +126,7 @@ def main():
     # 压缩并保存
     print(f"\n正在压缩并保存到: {output_path}")
     try:
-        save_super_splat_ply(gaussian_data, str(output_path))
+        save_super_splat_ply(gaussian_data, str(output_path), save_sh_degree=args.sh_degree)
     except Exception as e:
         traceback.print_exc()
         print(f"错误: 保存失败: {e}", file=sys.stderr)

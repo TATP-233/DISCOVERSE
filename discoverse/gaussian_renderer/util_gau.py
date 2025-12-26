@@ -107,13 +107,14 @@ def load_ply(path):
     else:
         return load_ply_3dgs(plydata)
 
-def save_ply(gaussian_data: GaussianData, path):
+def save_ply(gaussian_data: GaussianData, path, save_sh_degree: int = None):
     """
     保存GaussianData为PLY文件
     
     Args:
         gaussian_data: 要保存的高斯数据
         path: 保存路径
+        save_sh_degree: 保存的SH阶数，如果为None则保持原样
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -129,6 +130,17 @@ def save_ply(gaussian_data: GaussianData, path):
     if len(gaussian_data.sh.shape) > 2:
         gaussian_data.sh = gaussian_data.sh.reshape(gaussian_data.sh.shape[0], -1)
     shs = to_numpy(gaussian_data.sh)
+
+    if save_sh_degree is not None:
+        current_sh_dim = shs.shape[1]
+        target_sh_dim = (save_sh_degree + 1) ** 2 * 3
+        
+        if current_sh_dim > target_sh_dim:
+            shs = shs[:, :target_sh_dim]
+        elif current_sh_dim < target_sh_dim:
+            padding = np.zeros((shs.shape[0], target_sh_dim - current_sh_dim), dtype=shs.dtype)
+            shs = np.concatenate([shs, padding], axis=1)
+
     f_dc = shs[:, :3]
     f_rest = shs[:, 3:]
     

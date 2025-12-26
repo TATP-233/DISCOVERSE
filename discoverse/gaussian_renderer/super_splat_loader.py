@@ -452,7 +452,8 @@ class _Chunk:
 
 def save_super_splat_ply(
     gaussian_data: GaussianData,
-    output_path: str
+    output_path: str,
+    save_sh_degree: int = None
 ) -> None:
     """
     将 GaussianData 压缩保存为 SuperSplat 格式的 PLY 文件
@@ -460,18 +461,33 @@ def save_super_splat_ply(
     Args:
         gaussian_data: 要压缩的高斯数据
         output_path: 输出文件路径
+        save_sh_degree: 保存的SH阶数，如果为None则保持原样
     """
     def to_numpy(x):
         if isinstance(x, torch.Tensor):
             return x.detach().cpu().numpy()
         return x
 
+    shs = to_numpy(gaussian_data.sh)
+    if len(shs.shape) > 2:
+        shs = shs.reshape(shs.shape[0], -1)
+
+    if save_sh_degree is not None:
+        current_sh_dim = shs.shape[1]
+        target_sh_dim = (save_sh_degree + 1) ** 2 * 3
+        
+        if current_sh_dim > target_sh_dim:
+            shs = shs[:, :target_sh_dim]
+        elif current_sh_dim < target_sh_dim:
+            padding = np.zeros((shs.shape[0], target_sh_dim - current_sh_dim), dtype=shs.dtype)
+            shs = np.concatenate([shs, padding], axis=1)
+
     compressed_data = compress_to_super_splat(
         to_numpy(gaussian_data.xyz),
         to_numpy(gaussian_data.rot),
         to_numpy(gaussian_data.scale),
         to_numpy(gaussian_data.opacity),
-        to_numpy(gaussian_data.sh)
+        shs
     )
     
     with open(output_path, 'wb') as f:

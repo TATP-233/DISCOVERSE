@@ -157,6 +157,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--transform', nargs=3, type=float, help='transformation', default=None)
     parser.add_argument('-r', '--rotation', nargs=4, type=float, help='rotation quaternion xyzw', default=None)
     parser.add_argument('-s', '--scale', type=float, help='Scale factor', default=1.0)
+    parser.add_argument('--sh-degree', type=int, help='SH degree to save', default=None)
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--rescale-first', action='store_true', help='Rescale before transforming (default)', default=True)
     group.add_argument('--transform-first', dest='no_rescale_first', action='store_true', help='Transform before rescaling', default=False)
@@ -194,10 +195,10 @@ if __name__ == "__main__":
 
         if args.compress:
             print(f"Compress and save to {args.output_file}...")
-            save_super_splat_ply(gaussian_data_new, args.output_file)
+            save_super_splat_ply(gaussian_data_new, args.output_file, save_sh_degree=args.sh_degree)
         else:
             print(f"Writing to {args.output_file}...")
-            save_ply(gaussian_data_new, args.output_file)
+            save_ply(gaussian_data_new, args.output_file, save_sh_degree=args.sh_degree)
     else:
         if args.output_file is None:
             suffix = os.path.splitext(args.input_file)[-1]
