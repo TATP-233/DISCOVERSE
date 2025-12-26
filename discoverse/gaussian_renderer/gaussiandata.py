@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import torch
+from torch import Tensor
 from dataclasses import dataclass
 
 @dataclass
@@ -52,11 +53,11 @@ class GaussianData:
 
 @dataclass
 class GaussianBatchData:
-    xyz: torch.Tensor      # (B, N, 3)
-    rot: torch.Tensor      # (B, N, 4)
-    scale: torch.Tensor    # (B, N, 3)
-    opacity: torch.Tensor  # (B, N, 1)
-    sh: torch.Tensor       # (B, N, K, 3) or (B, N, D)
+    xyz: Tensor      # (B, N, 3)
+    rot: Tensor      # (B, N, 4)
+    scale: Tensor    # (B, N, 3)
+    opacity: Tensor  # (B, N, 1)
+    sh: Tensor       # (B, N, K, 3) or (B, N, D)
 
     def __len__(self):
         return self.xyz.shape[1]

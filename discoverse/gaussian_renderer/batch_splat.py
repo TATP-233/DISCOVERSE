@@ -39,8 +39,9 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
+from torch import Tensor
 
-from .gaussiandata import GaussianData
+from .gaussiandata import GaussianData, GaussianBatchData
 from .util_gau import load_ply
 from .batch_rasterization import (
     batch_env_render as _batch_env_render,
@@ -66,11 +67,11 @@ class BatchSplatRenderer:
         self.device = device
         self.minibatch = cfg.minibatch
 
-        xyz_list: List[torch.Tensor] = []
-        rot_list: List[torch.Tensor] = []
-        scale_list: List[torch.Tensor] = []
-        opacity_list: List[torch.Tensor] = []
-        sh_list: List[torch.Tensor] = []
+        xyz_list: List[Tensor] = []
+        rot_list: List[Tensor] = []
+        scale_list: List[Tensor] = []
+        opacity_list: List[Tensor] = []
+        sh_list: List[Tensor] = []
 
         self.gs_idx_start: List[int] = []
         self.gs_idx_end: List[int] = []
@@ -139,7 +140,7 @@ class BatchSplatRenderer:
             self.dynamic_mask[start:end] = True
             self.point_to_body_idx[start:end] = body_id
 
-    def batch_update_gaussians(self, body_pos: torch.Tensor, body_quat: torch.Tensor):
+    def batch_update_gaussians(self, body_pos: Tensor, body_quat: Tensor):
         """Update gaussians using body poses.
 
         Args:
@@ -161,13 +162,13 @@ class BatchSplatRenderer:
 
     def batch_env_render(
         self,
-        gsb,
-        cam_pos: torch.Tensor,
-        cam_xmat: torch.Tensor,
+        gsb: GaussianBatchData,
+        cam_pos: Tensor,
+        cam_xmat: Tensor,
         height: int,
         width: int,
         fovy: np.ndarray,
-        bg_imgs: Optional[torch.Tensor] = None,
+        bg_imgs: Optional[Tensor] = None,
     ):
         """Render RGBD for batch envs and cameras."""
         cam_pos = cam_pos.to(self.device)

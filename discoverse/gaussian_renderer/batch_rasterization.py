@@ -66,7 +66,7 @@ def batch_render(
     height: int,
     width: int,
     fovy: np.ndarray, # (Ncam,) degree
-    bg_imgs: Optional[torch.Tensor] = None, # (Ncam, H, W, 3)
+    bg_imgs: Optional[Tensor] = None, # (Ncam, H, W, 3)
     y_up: bool = True,
 ) -> Tuple[Tensor, Tensor]:
     
@@ -157,12 +157,12 @@ def batch_render(
 @torch.no_grad()
 def batch_env_render(
     gaussians: GaussianBatchData,
-    cam_pos: torch.Tensor, # (Nenv, Ncam, 3)
-    cam_xmat: torch.Tensor, # (Nenv, Ncam, 9)
+    cam_pos: Tensor, # (Nenv, Ncam, 3)
+    cam_xmat: Tensor, # (Nenv, Ncam, 9)
     height: int,
     width: int,
     fovy: np.ndarray, # (Nenv, Ncam) degree
-    bg_imgs: Optional[torch.Tensor] = None, # (Nenv, Ncam, H, W, 3)
+    bg_imgs: Optional[Tensor] = None, # (Nenv, Ncam, H, W, 3)
     minibatch: Optional[int] = None,
     y_up: bool = True,
 ) -> Tuple[Tensor, Tensor]:
@@ -280,10 +280,10 @@ def batch_env_render(
 @torch.no_grad()
 def batch_update_gaussians(
     gaussian_template: GaussianData,
-    body_pos: torch.Tensor, # (Nenv, Nbody, 3)
-    body_quat: torch.Tensor, # (Nenv, Nbody, 4)
-    point_to_body_idx: Optional[torch.Tensor], # (N_points,)
-    dynamic_mask: Optional[torch.Tensor], # (N_points,)
+    body_pos: Tensor, # (Nenv, Nbody, 3)
+    body_quat: Tensor, # (Nenv, Nbody, 4)
+    point_to_body_idx: Optional[Tensor], # (N_points,)
+    dynamic_mask: Optional[Tensor], # (N_points,)
 ) -> GaussianBatchData:
     """
     Batch update gaussian positions and rotations based on body poses.

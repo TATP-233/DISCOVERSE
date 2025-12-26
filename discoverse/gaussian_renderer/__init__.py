@@ -27,3 +27,9 @@ from .util_gau import load_ply, save_ply, transform_shs
 from .batch_rasterization import batch_render, batch_env_render, batch_update_gaussians
 from .batch_splat import BatchSplatConfig, BatchSplatRenderer
 from .gs_renderer import GSRenderer
+from .gs_renderer_mujoco import GSRendererMuJoCo
+try:
+    from .gs_renderer_motrixsim import MjMxBridge, GSRendererMotrixSim
+except (ImportError, ModuleNotFoundError):
+    MjMxBridge = None
+    GSRendererMotrixSim = None

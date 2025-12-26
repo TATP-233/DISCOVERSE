@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from typing import Tuple, List, Union, Dict, Optional
 
 import numpy as np
 import torch
@@ -37,7 +38,7 @@ from .gaussiandata import GaussianData
 from .batch_rasterization import batch_render, quaternion_multiply, transform_points
 
 class GSRenderer:
-    def __init__(self, models_dict:dict):
+    def __init__(self, models_dict:Dict[str, str]):
         """
         初始化高斯飞溅渲染器
         
@@ -142,7 +143,7 @@ class GSRenderer:
         self.gau_xyz_all_cu = torch.zeros(num_points, 3).cuda().requires_grad_(False)
         self.gau_rot_all_cu = torch.zeros(num_points, 4).cuda().requires_grad_(False)
 
-    def set_objects_mapping(self, objects_info: list):
+    def set_objects_mapping(self, objects_info: List[Tuple[str, int, int]]):
         """
         Set mapping from points to objects for dynamic updates.
         
@@ -158,7 +159,7 @@ class GSRenderer:
             self.dynamic_mask[start:end] = True
             self.point_to_body_idx[start:end] = i
 
-    def update_gaussian_properties(self, pos, quat):
+    def update_gaussian_properties(self, pos: Union[np.ndarray, torch.Tensor], quat: Union[np.ndarray, torch.Tensor]):
         """
         Batch update gaussian properties for multiple objects using vectorized operations.
         
@@ -194,7 +195,7 @@ class GSRenderer:
         self.gau_xyz_all_cu = self.gaussians.xyz
         self.gau_rot_all_cu = self.gaussians.rot
 
-    def render_batch(self, cam_pos, cam_xmat, height, width, fovy_arr):
+    def render_batch(self, cam_pos: np.ndarray, cam_xmat: np.ndarray, height: int, width: int, fovy_arr: np.ndarray):
         """
         Pure rendering call using batch_render.
         
