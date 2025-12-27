@@ -13,28 +13,40 @@ from pathlib import Path
 
 
 class SimNode(AirbotPlayTaskBase):
+    tmat_cam_trans: np.ndarray = np.array([
+        [ 0, 0,-1, 0],
+        [-1, 0, 0, 0],
+        [ 0, 1, 0, 0],
+        [ 0, 0, 0, 1],
+    ])
     def __init__(self, config: AirbotPlayCfg):
         super().__init__(config)
-        self.camera_0_pose = (self.mj_model.camera("eye_side").pos.copy(), self.mj_model.camera("eye_side").quat.copy())
+        self.dist_v2c = np.linalg.norm(self.mj_model.camera("eye_side").pos - self.mj_data.body("viewpoint").xpos)
+        self.cam_id = 1
 
-        self.camera_pose_random = False
-        self.yaw_range = np.pi/4. * np.array([-1, 1])
-        # self.yaw_range[1] = 0.0
+        self.camera_pose_random = True
+        self.yaw_range = np.pi / 6. * np.array([-1, 1])
+        self.pitch_range = np.pi / 36. * np.array([-1, 1])
+        # self.dis_range = np.random.uniform(0.95, 1.05)
+        self.dis_range = 1.0
 
     def domain_randomization(self):
         # 随机 枣位置
         self.object_pose("block_green")[:2] += 2.*(np.random.random(2) - 0.5) * np.array([0.1, 0.05])
-
         # 随机 eye side 视角
         if self.camera_pose_random:
-            dis = 0.65
-            yaw = np.pi + np.random.uniform(self.yaw_range[0], self.yaw_range[1])
-            tpos = get_body_tmat(self.mj_data, "viewpoint")[:3, 3]
+            yaw = -np.pi / 3 + np.random.uniform(self.yaw_range[0], self.yaw_range[1])
+            pitch = 0 + np.random.uniform(self.pitch_range[0], self.pitch_range[1])
+            tmat_tmp = np.eye(4)
+            tmat_tmp[:3, :3] = Rotation.from_euler("xyz", [0, pitch, yaw], degrees=False).as_matrix()
+            tmat_trans = np.eye(4)
+            tmat_trans[0, 3] = -self.dist_v2c * self.dis_range
+            tpos = get_body_tmat(self.mj_data, "viewpoint")
+            tmat_camera_base = tpos @ tmat_tmp @ tmat_trans
+            tmat_camera = tmat_camera_base @ self.tmat_cam_trans
             camera = self.mj_model.camera("eye_side")
-            camera.pos[0] = tpos[0] + dis * np.cos(yaw)
-            camera.pos[1] = tpos[1] + dis * np.sin(yaw)
-            camera.pos[2] = tpos[2] * np.random.uniform(0.95, 1.05)
-            print(camera.pos)
+            camera.pos[:] = tmat_camera[:3, 3]
+            camera.quat[:] = Rotation.from_matrix(tmat_camera[:3, :3]).as_quat()[[3, 0, 1, 2]]
 
     def check_success(self):
         tmat_jujube = get_body_tmat(self.mj_data, "block_green")

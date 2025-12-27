@@ -11,7 +11,8 @@
 
     <!-- ======= camera ======= -->
     <camera name="fix_cam" mode="targetbody" target="viewpoint" pos="-0.52 0 1.0" fovy="72.02"/>
-    <camera name="eye_side" mode="targetbody" target="viewpoint" pos="-0.28 0.42 0.9" fovy="72.02"/>
+    <!-- <camera name="eye_side" mode="targetbody" target="viewpoint" pos="-0.28 0.42 0.9" fovy="72.02"/> -->
+    <camera name="eye_side" pos="-0.28 0.42 0.9" fovy="72.02"/>
 
     <body name="viewpoint" pos="0.20 0 0.9" />
 
