@@ -11,8 +11,8 @@ import struct
 from concurrent.futures import ThreadPoolExecutor
 from discoverse import DISCOVERSE_ASSETS_DIR
 from discoverse.utils.download_from_huggingface import download_from_huggingface
-from discoverse.gaussian_renderer.gs_renderer import GSRenderer
 from discoverse.gaussian_web_renderer.gaussian_steamer.encoder import vEncoder
+from gaussian_renderer.gs_renderer import GSRenderer
 
 class GaussianRenderingServer:
     def __init__(self, port=5555):

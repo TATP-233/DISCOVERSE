@@ -106,7 +106,7 @@ class FrankaBase:
             self.renderer = GSRendererRemote(self.config.gaussians, server_ip=remote_ip, server_port=port)
         else:
             try:
-                from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+                from gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
             except ImportError:
                 raise ImportError("Please install torch and gsplat to use GSRendererMuJoCo.")   
             print("Using Local Renderer")

@@ -7,7 +7,7 @@ if os.getenv('DISCOVERSE_ASSETS_DIR'):
 else:
     DISCOVERSE_ASSETS_DIR = os.path.join(DISCOVERSE_ROOT_DIR, 'models')
 
-__version__ = "1.8.7"
+__version__ = "1.8.8"
 __logo__ = """
     ____  _                                _____ ______
    / __ \(_)_____________ _   _____  _____/ ___// ____/

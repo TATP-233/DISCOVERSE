@@ -85,7 +85,7 @@ pip install -e ".[gs]"
 ```
 - **包含**: 3D高斯散射、PyTorch
 - **功能**: 逼真的3D场景渲染，支持实时光照
-- **依赖**: `torch>=2.0.0`, `torchvision>=0.14.0`, `plyfile`, `PyGlm`
+- **依赖**: `gaussian_renderer`
 - **适用**: 高保真视觉仿真、3D场景重建、Real2Sim流程
 
 ### 模块功能速览

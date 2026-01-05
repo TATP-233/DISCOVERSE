@@ -19,7 +19,7 @@ from discoverse.utils import BaseConfig, get_screen_scale
 if sys.platform == "linux":
     try:
         import torch
-        from discoverse.gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
+        from gaussian_renderer.gs_renderer_mujoco import GSRendererMuJoCo
         DISCOVERSE_GAUSSIAN_RENDERER = True
 
     except ImportError:
