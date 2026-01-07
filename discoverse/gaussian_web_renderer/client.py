@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation
 from discoverse.gaussian_web_renderer.gaussian_steamer.decoder import H264Decoder
 
 class GSRendererRemote:
-    def __init__(self, models_dict: dict, server_ip="127.0.0.1", server_port=5555, monitor_latency=False):
+    def __init__(self, models_dict: dict, mj_model:mujoco.MjModel, server_ip="127.0.0.1", server_port=5555, monitor_latency=False):
         # Independent implementation, no inheritance from GSRendererMuJoCo to avoid local asset loading
         self.models_dict = models_dict
         self.gaussian_model_names = list(models_dict.keys())
@@ -26,14 +26,13 @@ class GSRendererRemote:
         self.is_initialized_on_server = False
         self.last_total_width = None
         self.last_total_height = None
-        
-        # Initialize attributes expected by GSRendererMuJoCo methods
-        self.gs_body_ids = []
-        self.gs_idx_start = [] # Not used locally but needed for update_gaussians check
+
+        self.init_renderer(mj_model)
 
     def init_renderer(self, mj_model):
         # Re-implement logic to find relevant bodies without loading PLYs
         self.gs_body_ids = []
+        self.gs_idx_start = []
         active_bodies = []
         
         for i in range(mj_model.nbody):

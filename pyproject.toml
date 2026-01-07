@@ -57,7 +57,7 @@ gs = [
     "torch>=2.0.0",
     "torchvision>=0.14.0", 
     "huggingface_hub",
-    "gaussian_renderer",
+    "gaussian_renderer >= 0.1.3",
 ]
 
 # XML场景编辑器

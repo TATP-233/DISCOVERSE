@@ -109,8 +109,7 @@ class SimulatorBase:
                     elif not os.path.exists(path):
                         print(f"Warning: Model {name} path {path} is absolute and not found locally.")
 
-                self.gs_renderer = GSRendererMuJoCo(self.config.gs_model_dict)
-                self.gs_renderer.init_renderer(self.mj_model)
+                self.gs_renderer = GSRendererMuJoCo(self.config.gs_model_dict, self.mj_model)
                 self.last_cam_id = self.cam_id
                 self.show_gaussian_img = True
 
