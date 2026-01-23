@@ -241,3 +241,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+/policies/RL/vlm_rl/CLAUDE.md
+/AGENT.md
+.idea

@@ -1,0 +1,40 @@
+# Default configuration for VLM-RL training
+
+# VLM configuration
+vlm_model: "gpt-4o"
+# openai_api_key: null  # Set via OPENAI_API_KEY environment variable
+
+# Keypoint proposer configuration
+points_per_object: 5
+min_dist_between_keypoints: 0.02
+surface_sample_count: 500
+
+# Renderer configuration
+image_width: 640
+image_height: 480
+camera_name: null  # Use default camera
+
+# Environment configuration
+max_steps: 1000
+max_time: 20.0
+
+# Reward adapter configuration
+reward_config:
+  reward_type: "negative"  # negative, exponential, sparse, tanh
+  subgoal_weight: 2.0
+  path_weight: 1.0
+  action_penalty_weight: 0.1
+  step_penalty_weight: 0.001
+  subgoal_threshold: 0.02
+  stage_bonus: 10.0
+  task_complete_bonus: 100.0
+
+# PPO training configuration (can be overridden via command line)
+ppo:
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  learning_rate: 0.0003
+  clip_range: 0.2
+  ent_coef: 0.01
