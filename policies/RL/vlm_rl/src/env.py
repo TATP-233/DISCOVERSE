@@ -72,13 +72,14 @@ class VLMRLEnv(gymnasium.Env):
         self.points_per_object = config.get("points_per_object", 5)
 
         # Initialize components
-        self._init_keypoint_proposer()
         self._init_renderer()
+        self._init_keypoint_proposer()
 
         # These will be initialized on first reset
         self.keypoint_tracker: Optional[KeypointTracker] = None
         self.reward_adapter: Optional[ConstraintRewardAdapter] = None
         self.keypoints_3d: Optional[np.ndarray] = None
+        self.keypoints_2d: Optional[np.ndarray] = None
         self.generation_result: Optional[GenerationResult] = None
 
         # Action space: robot joint control
@@ -109,7 +110,10 @@ class VLMRLEnv(gymnasium.Env):
         self.keypoint_proposer = KeypointProposer(
             mj_model=self.mj_model,
             mj_data=self.mj_data,
+            renderer=self.renderer,
             points_per_object=self.points_per_object,
+            include_center=self.config.get("keypoint_include_center", True),
+            depth_search_radius=self.config.get("keypoint_depth_search_radius", 6),
         )
 
     def _init_renderer(self):
@@ -122,12 +126,19 @@ class VLMRLEnv(gymnasium.Env):
             height=self.config.get("image_height", 480),
             camera_name=camera_name,
         )
+        camera_config = self.config.get("camera_config", {})
+        if camera_name is None and camera_config:
+            self.renderer.free_camera_lookat = camera_config.get("lookat", self.renderer.free_camera_lookat)
+            self.renderer.free_camera_distance = camera_config.get("distance", self.renderer.free_camera_distance)
+            self.renderer.free_camera_azimuth = camera_config.get("azimuth", self.renderer.free_camera_azimuth)
+            self.renderer.free_camera_elevation = camera_config.get("elevation", self.renderer.free_camera_elevation)
 
     def _init_keypoints_and_constraints(self):
         """Initialize keypoints and load/generate constraints."""
         # Propose keypoints
         proposal = self.keypoint_proposer.propose(self.object_bodies)
         self.keypoints_3d = proposal.keypoints_3d
+        self.keypoints_2d = proposal.keypoints_2d
         self.keypoint_proposal = proposal
 
         # Initialize tracker
@@ -216,9 +227,10 @@ class VLMRLEnv(gymnasium.Env):
             )
         os.makedirs(self.constraints_dir, exist_ok=True)
 
-        # Render annotated image
-        annotated_image = self.renderer.render_with_keypoints_by_object(
-            self.keypoints_3d,
+        # Render raw + annotated images (2D keypoints only)
+        raw_image = self.renderer.render_rgb()
+        annotated_image = self.renderer.render_with_keypoints_2d_by_object(
+            self.keypoints_2d,
             self.keypoint_proposal.object_keypoint_ranges,
         )
 
@@ -236,6 +248,7 @@ class VLMRLEnv(gymnasium.Env):
 
         self.generation_result = generator.generate(
             image=annotated_image,
+            raw_image=raw_image,
             instruction=self.instruction,
             keypoint_description=keypoint_desc,
             output_dir=self.constraints_dir,
@@ -419,10 +432,9 @@ class VLMRLEnv(gymnasium.Env):
     def render(self) -> Optional[np.ndarray]:
         """Render environment."""
         if self.render_mode:
-            if self.keypoints_3d is not None:
-                return self.renderer.render_with_keypoints(self.keypoints_3d)
-            else:
-                return self.renderer.render_rgb()
+            if self.keypoints_2d is not None and len(self.keypoints_2d) > 0:
+                return self.renderer.render_with_keypoints_2d(self.keypoints_2d)
+            return self.renderer.render_rgb()
         return None
 
     def close(self):

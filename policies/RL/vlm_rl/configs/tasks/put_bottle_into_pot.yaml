@@ -1,0 +1,103 @@
+# Task Configuration: Put Bottle into Pot
+# Using Franka Panda + Robotiq gripper with new-desk dataset objects
+
+task_name: "put_bottle_into_pot"
+
+# Natural language instruction for VLM
+instruction: "Pick up the green bottle and place it into the brown pot."
+
+# MuJoCo scene configuration (relative to vlm_rl directory)
+mjcf_file_path: "assets/mjcf/new_desk_scene.xml"
+
+# Objects to sample keypoints from
+object_bodies:
+  - "bottle"
+  - "pot"
+
+# End effector body name (Robotiq gripper site)
+end_effector_body: "robotiq_base"
+end_effector_site: "gripper"
+end_effector_mode: "site"  # Use gripper site directly (jaw_center calculation has issues)
+
+# Keypoint sampling configuration
+keypoint_include_center: true
+keypoint_depth_search_radius: 6
+points_per_object: 5
+
+# Environment parameters
+max_steps: 500
+max_time: 15.0
+max_action_delta: 0.1  # ~6 degrees per step (was 0.05)
+shaped_reward_weight: 0.5  # Stronger guidance (was 0.1)
+enable_gripper_control: true
+gripper_action_mode: "absolute"
+auto_grasp: true
+auto_grasp_distance: 0.03
+auto_grasp_align_steps: 5
+auto_grasp_align_tol: 0.002
+auto_grasp_orientation: true
+auto_grasp_axis_mode: "pca"
+auto_grasp_axis_pair: [0, 4]
+auto_grasp_axis_perpendicular: true
+auto_grasp_axis_cos_threshold: 0.3
+auto_grasp_close_fraction: 0.1
+auto_grasp_close_speed: 0.02
+auto_grasp_stuck_tol: 0.0005
+auto_grasp_stuck_steps: 5
+auto_grasp_follow_ratio: 0.6
+auto_grasp_follow_cos: 0.8
+auto_grasp_follow_min_gripper_move: 0.01
+auto_grasp_follow_steps: 3
+auto_grasp_disable_on_release_stage: true
+
+# Approach configuration (top-down grasp)
+approach_height: 0.12  # 12cm above target before descending
+
+# Grasp enclosure reward (stage 1)
+# Disabled for now - may interfere with learning
+grasp_enclosure_enable: false
+grasp_enclosure_weight: 1.0  # Strong reward for correct grasp position
+grasp_enclosure_radius: 0.03  # 3cm radial tolerance
+grasp_enclosure_margin: 0.01  # 1cm extra margin on jaw gap
+grasp_enclosure_max_open: 0.5  # Allow slightly more open gripper
+grasp_enclosure_penalty: false  # No penalty, just no reward when outside
+
+# Require grasp confirmation for Stage 1 completion
+# This gates stage progression on actual grasp, not just EE position
+require_grasp_for_stage1: true
+# Rendering configuration
+image_width: 640
+image_height: 480
+camera_name: null  # Use free camera with custom settings
+
+# Free camera configuration (facing robot from opposite side)
+camera_config:
+  lookat: [0.4, 0.0, 0.45]  # Look at table center
+  distance: 1.0  # Closer for better object visibility
+  azimuth: 180  # Facing robot from opposite side
+  elevation: -30  # Looking down
+
+# VLM configuration
+vlm_model: "gpt-4o"
+
+# Reward configuration
+reward_config:
+  reward_type: "negative"
+  subgoal_weight: 2.0
+  path_weight: 1.0
+  action_penalty_weight: 0.1
+  step_penalty_weight: 0.001
+  subgoal_threshold: 0.03  # Distance threshold for subgoal satisfaction (meters)
+  path_threshold: 0.1      # Error threshold for path constraint satisfaction
+  stage_bonus: 10.0
+  task_complete_bonus: 100.0
+
+# PPO training parameters
+ppo:
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  learning_rate: 0.0003
+  clip_range: 0.2
+  ent_coef: 0.01

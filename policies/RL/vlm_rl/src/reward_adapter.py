@@ -44,6 +44,7 @@ class ConstraintRewardAdapter:
         step_penalty_weight: float = 0.001,
         # Stage progression
         subgoal_threshold: float = 0.02,
+        path_threshold: float = 0.1,  # Threshold for path constraint satisfaction
         stage_bonus: float = 10.0,
         task_complete_bonus: float = 100.0,
     ):
@@ -59,6 +60,7 @@ class ConstraintRewardAdapter:
             action_penalty_weight: Penalty for large actions
             step_penalty_weight: Penalty per step (encourages efficiency)
             subgoal_threshold: Cost threshold for considering subgoal satisfied
+            path_threshold: Cost threshold for considering path constraint satisfied
             stage_bonus: Bonus reward for completing a stage
             task_complete_bonus: Bonus for completing entire task
         """
@@ -74,6 +76,7 @@ class ConstraintRewardAdapter:
         self.step_penalty_weight = step_penalty_weight
 
         self.subgoal_threshold = subgoal_threshold
+        self.path_threshold = path_threshold
         self.stage_bonus = stage_bonus
         self.task_complete_bonus = task_complete_bonus
 
@@ -138,7 +141,7 @@ class ConstraintRewardAdapter:
 
         # Check if constraints are satisfied
         subgoal_satisfied = all(c <= self.subgoal_threshold for c in subgoal_costs) if subgoal_costs else True
-        path_satisfied = all(c <= 0.0 for c in path_costs) if path_costs else True
+        path_satisfied = all(c <= self.path_threshold for c in path_costs) if path_costs else True
 
         # Convert costs to rewards
         subgoal_reward = self._cost_to_reward(total_subgoal_cost) * self.subgoal_weight
@@ -146,7 +149,7 @@ class ConstraintRewardAdapter:
 
         # Progress reward (encourage improvement)
         progress_reward = 0.0
-        if total_subgoal_cost < self._prev_subgoal_cost:
+        if self._prev_subgoal_cost < float('inf') and total_subgoal_cost < self._prev_subgoal_cost:
             progress_reward = (self._prev_subgoal_cost - total_subgoal_cost) * 0.5
         self._prev_subgoal_cost = total_subgoal_cost
 

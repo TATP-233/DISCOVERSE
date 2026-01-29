@@ -74,11 +74,16 @@ class ConstraintGenerator:
 
     def _get_default_prompt(self) -> str:
         """Return default prompt template."""
-        return '''You are a robot task planner. Given an image of a scene with numbered keypoints and a task instruction, you need to:
+        return '''You are a robot task planner. Given images of a scene and a task instruction, you need to:
 
 1. Analyze the scene and identify relevant objects
 2. Decompose the task into sequential stages (grasping must be a separate stage)
 3. Generate constraint functions for each stage
+
+## Image Input
+{image_note}
+If two images are provided, use the raw scene image for object appearance, geometry, and spatial relations.
+Use the annotated image ONLY to map keypoint indices to locations; ignore marker occlusions.
 
 ## Constraint Function Format
 
@@ -134,12 +139,14 @@ Keypoint description: {keypoint_description}
         instruction: str,
         keypoint_description: str,
         output_dir: str,
+        raw_image: Optional[np.ndarray] = None,
     ) -> GenerationResult:
         """
         Generate constraints from image and instruction.
 
         Args:
             image: RGB image with keypoint annotations (H, W, 3) uint8
+            raw_image: Optional RGB image without keypoint annotations
             instruction: Natural language task instruction
             keypoint_description: Text description of keypoints
             output_dir: Directory to save results
@@ -156,9 +163,21 @@ Keypoint description: {keypoint_description}
             return self._load_cached_result(cache_path, output_dir)
 
         # Prepare prompt
+        if raw_image is not None:
+            image_note = (
+                "You will be given two images in order: "
+                "(1) the raw scene without keypoints, "
+                "(2) the annotated scene with numbered keypoints."
+            )
+        else:
+            image_note = (
+                "You will be given one image: the annotated scene with numbered keypoints."
+            )
+
         prompt = self.prompt_template.format(
             instruction=instruction,
             keypoint_description=keypoint_description,
+            image_note=image_note,
         )
 
         # Save prompt for debugging
@@ -171,9 +190,14 @@ Keypoint description: {keypoint_description}
             os.path.join(output_dir, "input_image.jpg"),
             cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         )
+        if raw_image is not None:
+            cv2.imwrite(
+                os.path.join(output_dir, "raw_scene.jpg"),
+                cv2.cvtColor(raw_image, cv2.COLOR_RGB2BGR)
+            )
 
         # Call VLM
-        raw_output = self._call_vlm(image, prompt)
+        raw_output = self._call_vlm(image, prompt, raw_image=raw_image)
 
         # Save raw output
         with open(os.path.join(output_dir, "raw_output.txt"), "w") as f:
@@ -188,7 +212,7 @@ Keypoint description: {keypoint_description}
 
         return result
 
-    def _call_vlm(self, image: np.ndarray, prompt: str) -> str:
+    def _call_vlm(self, image: np.ndarray, prompt: str, raw_image: Optional[np.ndarray] = None) -> str:
         """Call OpenAI VLM API."""
         try:
             from openai import OpenAI
@@ -200,10 +224,28 @@ Keypoint description: {keypoint_description}
 
         client = OpenAI(api_key=self.api_key)
 
-        # Encode image to base64
+        # Encode image(s) to base64
         import cv2
-        _, buffer = cv2.imencode('.jpg', cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-        image_base64 = base64.b64encode(buffer).decode('utf-8')
+        def _encode(img: np.ndarray) -> str:
+            _, buffer = cv2.imencode('.jpg', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+            return base64.b64encode(buffer).decode('utf-8')
+
+        content = [{"type": "text", "text": prompt}]
+        if raw_image is not None:
+            raw_base64 = _encode(raw_image)
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{raw_base64}",
+                },
+            })
+        image_base64 = _encode(image)
+        content.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{image_base64}",
+            },
+        })
 
         # Call API
         response = client.chat.completions.create(
@@ -211,18 +253,7 @@ Keypoint description: {keypoint_description}
             messages=[
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": prompt,
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}",
-                            },
-                        },
-                    ],
+                    "content": content,
                 }
             ],
             max_tokens=4096,
@@ -379,10 +410,10 @@ class ConstraintLoader:
     Provides safe execution of VLM-generated constraint code.
     """
 
-    # Blacklist of dangerous operations
+    # Blacklist of dangerous operations (use regex word boundaries for precise matching)
     BLACKLIST = [
-        "import ", "exec", "eval", "__", "open", "file",
-        "os.", "sys.", "subprocess", "compile", "globals", "locals"
+        "import ", "exec(", "eval(", "__", "open(", "file(",
+        "os.", "sys.", "subprocess", "compile(", "globals(", "locals("
     ]
 
     def __init__(self):

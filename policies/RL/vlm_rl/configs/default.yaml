@@ -6,8 +6,8 @@ vlm_model: "gpt-4o"
 
 # Keypoint proposer configuration
 points_per_object: 5
-min_dist_between_keypoints: 0.02
-surface_sample_count: 500
+keypoint_include_center: true
+keypoint_depth_search_radius: 6
 
 # Renderer configuration
 image_width: 640

@@ -1,14 +1,18 @@
 """
-KeypointProposer: Generate candidate keypoints from MuJoCo scene geometry.
+KeypointProposer: Sample keypoints from 2D segmentation masks and back-project to 3D.
 
-Unlike ReKep which uses DINOv2 features from images, we sample directly from
-MuJoCo geom surfaces since we have access to exact geometry in simulation.
+Pipeline:
+1) Render segmentation + depth from MuJoCo
+2) Sample 2D keypoints on object masks (center + FPS)
+3) Back-project to 3D using depth + camera intrinsics/extrinsics
 """
 
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import cv2
 import numpy as np
 import mujoco
-from typing import List, Tuple, Dict, Optional
-from dataclasses import dataclass
 
 
 @dataclass
@@ -18,69 +22,122 @@ class KeypointProposalResult:
     keypoint_object_ids: List[int]     # which object each keypoint belongs to
     object_names: List[str]            # names of objects
     object_keypoint_ranges: Dict[str, Tuple[int, int]]  # {obj_name: (start_idx, end_idx)}
+    keypoints_2d: Optional[np.ndarray] = None           # (N, 2) pixel coordinates
+    object_masks: Optional[Dict[str, np.ndarray]] = None  # {obj_name: (H, W) mask}
+
+
+def _farthest_point_sampling_2d(points: np.ndarray, n_samples: int) -> np.ndarray:
+    """Farthest Point Sampling for 2D points."""
+    points = np.array(points)
+    if len(points) <= n_samples:
+        return points
+    if len(points) == 0:
+        return points
+
+    n_points = len(points)
+    sample_inds = np.zeros(n_samples, dtype=int)
+    dists = np.full(n_points, np.inf)
+
+    sample_inds[0] = 0
+
+    for i in range(1, n_samples):
+        last_added = sample_inds[i - 1]
+        dist_to_last = np.sum((points - points[last_added]) ** 2, axis=1)
+        dists = np.minimum(dists, dist_to_last)
+        sample_inds[i] = np.argmax(dists)
+
+    return points[sample_inds]
+
+
+def _mask_to_vertices(mask: np.ndarray) -> np.ndarray:
+    """Convert binary mask to contour vertices."""
+    contours, _ = cv2.findContours(
+        mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+    )
+    if not contours:
+        return np.zeros((0, 2), dtype=np.float32)
+
+    vertices = np.vstack([c.reshape(-1, 2) for c in contours if len(c) >= 3])
+    return vertices.astype(np.float32)
+
+
+def sample_keypoints_from_mask(
+    mask: np.ndarray,
+    num_samples: int = 5,
+    include_center: bool = True,
+) -> np.ndarray:
+    """Sample keypoints from a segmentation mask using FPS."""
+    vertices = _mask_to_vertices(mask)
+
+    if vertices.size == 0:
+        ys, xs = np.where(mask > 0)
+        if len(xs) == 0:
+            return np.zeros((0, 2), dtype=np.int32)
+        center = np.array([[xs.mean(), ys.mean()]])
+        return center.astype(np.int32)
+
+    points = vertices.copy()
+
+    if include_center:
+        center = points.mean(axis=0, keepdims=True)
+        points = np.vstack([center, points])
+
+    if points.shape[0] > num_samples:
+        kps = _farthest_point_sampling_2d(points, num_samples)
+    else:
+        kps = points
+
+    if kps.shape[0] > 1 and include_center:
+        kps = np.vstack([kps[[0]], kps[1:][np.argsort(kps[1:, 1])]])
+
+    return kps.astype(np.int32)
 
 
 class KeypointProposer:
     """
-    Generate candidate keypoints by sampling from MuJoCo geom surfaces.
+    Propose keypoints from rendered segmentation masks and depth.
 
-    For each object body, we:
-    1. Find all geoms belonging to that body
-    2. Sample points from the geom surfaces
-    3. Apply Farthest Point Sampling (FPS) to get diverse keypoints
+    Uses 2D mask sampling (center + FPS) and back-projects to 3D using depth.
     """
 
     def __init__(
         self,
         mj_model: mujoco.MjModel,
         mj_data: mujoco.MjData,
+        renderer,
         points_per_object: int = 5,
-        min_dist_between_keypoints: float = 0.02,
-        surface_sample_count: int = 500,
+        include_center: bool = True,
+        depth_search_radius: int = 6,
     ):
-        """
-        Args:
-            mj_model: MuJoCo model
-            mj_data: MuJoCo data
-            points_per_object: Number of keypoints to generate per object
-            min_dist_between_keypoints: Minimum distance between keypoints (meters)
-            surface_sample_count: Number of points to sample from each geom surface
-        """
         self.mj_model = mj_model
         self.mj_data = mj_data
+        self.renderer = renderer
         self.points_per_object = points_per_object
-        self.min_dist = min_dist_between_keypoints
-        self.surface_sample_count = surface_sample_count
+        self.include_center = include_center
+        self.depth_search_radius = depth_search_radius
 
     def propose(
         self,
         object_body_names: List[str],
         exclude_keywords: Optional[List[str]] = None,
     ) -> KeypointProposalResult:
-        """
-        Generate candidate keypoints for specified objects.
-
-        Args:
-            object_body_names: List of MuJoCo body names to generate keypoints for
-            exclude_keywords: Body names containing these keywords are skipped
-
-        Returns:
-            KeypointProposalResult with keypoints and metadata
-        """
         if exclude_keywords is None:
             exclude_keywords = ['robot', 'floor', 'wall', 'ground']
 
-        all_keypoints = []
+        seg = self.renderer.render_segmentation()
+        depth = self.renderer.render_depth()
+
+        all_keypoints_2d = []
+        all_keypoints_3d = []
         keypoint_object_ids = []
         object_keypoint_ranges = {}
+        object_masks: Dict[str, np.ndarray] = {}
         valid_object_names = []
 
         for obj_idx, body_name in enumerate(object_body_names):
-            # Skip excluded objects
             if any(kw in body_name.lower() for kw in exclude_keywords):
                 continue
 
-            # Get body ID
             body_id = mujoco.mj_name2id(
                 self.mj_model, mujoco.mjtObj.mjOBJ_BODY, body_name
             )
@@ -88,279 +145,129 @@ class KeypointProposer:
                 print(f"Warning: Body '{body_name}' not found, skipping")
                 continue
 
-            # Sample surface points from all geoms of this body
-            surface_points = self._sample_body_surface(body_id)
+            geom_ids = [
+                gid for gid in range(self.mj_model.ngeom)
+                if self.mj_model.geom_bodyid[gid] == body_id
+            ]
 
-            if len(surface_points) < self.points_per_object:
-                print(f"Warning: Not enough surface points for '{body_name}'")
+            if not geom_ids:
+                print(f"Warning: Body '{body_name}' has no geoms, skipping")
                 continue
 
-            # Apply FPS to get diverse keypoints
-            keypoints = self._farthest_point_sampling(
-                surface_points, self.points_per_object
+            geom_ids_arr = np.array(geom_ids, dtype=np.int32)
+            objtype = int(mujoco.mjtObj.mjOBJ_GEOM)
+
+            mask = (seg[:, :, 1] == objtype) & np.isin(seg[:, :, 0], geom_ids_arr)
+            object_masks[body_name] = mask
+
+            if not np.any(mask):
+                print(f"Warning: No visible pixels for '{body_name}', skipping")
+                continue
+
+            kps_2d = sample_keypoints_from_mask(
+                mask,
+                num_samples=self.points_per_object,
+                include_center=self.include_center,
             )
 
-            # Record range
-            start_idx = len(all_keypoints)
-            all_keypoints.extend(keypoints)
-            end_idx = len(all_keypoints)
+            if len(kps_2d) == 0:
+                print(f"Warning: No keypoints sampled for '{body_name}', skipping")
+                continue
+
+            center_index = 0 if self.include_center and len(kps_2d) > 0 else None
+            kps_3d = self._keypoints_2d_to_world(
+                kps_2d,
+                depth,
+                mask,
+                body_id=body_id,
+                center_index=center_index,
+            )
+
+            start_idx = len(all_keypoints_2d)
+            all_keypoints_2d.extend(kps_2d)
+            all_keypoints_3d.extend(kps_3d)
+            end_idx = len(all_keypoints_2d)
 
             object_keypoint_ranges[body_name] = (start_idx, end_idx)
-            keypoint_object_ids.extend([obj_idx] * len(keypoints))
+            keypoint_object_ids.extend([obj_idx] * len(kps_2d))
             valid_object_names.append(body_name)
 
         return KeypointProposalResult(
-            keypoints_3d=np.array(all_keypoints) if all_keypoints else np.zeros((0, 3)),
+            keypoints_3d=np.array(all_keypoints_3d) if all_keypoints_3d else np.zeros((0, 3)),
             keypoint_object_ids=keypoint_object_ids,
             object_names=valid_object_names,
             object_keypoint_ranges=object_keypoint_ranges,
+            keypoints_2d=np.array(all_keypoints_2d) if all_keypoints_2d else np.zeros((0, 2)),
+            object_masks=object_masks if object_masks else None,
         )
 
-    def _sample_body_surface(self, body_id: int) -> np.ndarray:
-        """Sample points from all geom surfaces of a body."""
-        all_points = []
+    def _keypoints_2d_to_world(
+        self,
+        keypoints_2d: np.ndarray,
+        depth: np.ndarray,
+        mask: np.ndarray,
+        body_id: int,
+        center_index: Optional[int] = None,
+    ) -> np.ndarray:
+        intr = self.renderer.get_camera_intrinsics()
+        cam_pos, cam_forward, cam_up, cam_right = self.renderer.get_camera_frame()
 
-        for geom_id in range(self.mj_model.ngeom):
-            if self.mj_model.geom_bodyid[geom_id] != body_id:
+        valid = mask & np.isfinite(depth) & (depth > 1e-6)
+        ys, xs = np.where(valid)
+        depths = depth[ys, xs] if len(xs) > 0 else None
+
+        body_pos = self.mj_data.xpos[body_id].copy()
+
+        points_3d = []
+        for idx, pt in enumerate(keypoints_2d):
+            x, y = int(pt[0]), int(pt[1])
+            z = None
+
+            if 0 <= x < depth.shape[1] and 0 <= y < depth.shape[0]:
+                d = depth[y, x]
+                if np.isfinite(d) and d > 1e-6 and (mask[y, x] if mask is not None else True):
+                    z = float(d)
+
+            if z is None and center_index is not None and idx == center_index:
+                points_3d.append(body_pos.copy())
                 continue
 
-            geom_type = self.mj_model.geom_type[geom_id]
-            geom_size = self.mj_model.geom_size[geom_id].copy()
-            geom_pos = self.mj_data.geom_xpos[geom_id].copy()
-            geom_mat = self.mj_data.geom_xmat[geom_id].reshape(3, 3)
+            if z is None and depths is not None and len(xs) > 0:
+                r = max(0, int(self.depth_search_radius))
+                if r > 0:
+                    x0 = max(0, x - r)
+                    x1 = min(depth.shape[1], x + r + 1)
+                    y0 = max(0, y - r)
+                    y1 = min(depth.shape[0], y + r + 1)
+                    local_valid = valid[y0:y1, x0:x1]
+                    if np.any(local_valid):
+                        ly, lx = np.where(local_valid)
+                        lx = lx + x0
+                        ly = ly + y0
+                        dx = lx - x
+                        dy = ly - y
+                        dist2 = dx * dx + dy * dy
+                        nearest = int(np.argmin(dist2))
+                        z = float(depth[ly[nearest], lx[nearest]])
+                        x = int(lx[nearest])
+                        y = int(ly[nearest])
 
-            # Sample based on geom type
-            local_points = self._sample_geom_surface(geom_type, geom_size)
+                if z is None:
+                    dx = xs - x
+                    dy = ys - y
+                    dist2 = dx * dx + dy * dy
+                    nearest = int(np.argmin(dist2))
+                    z = float(depths[nearest])
+                    x = int(xs[nearest])
+                    y = int(ys[nearest])
 
-            # Transform to world coordinates
-            world_points = (geom_mat @ local_points.T).T + geom_pos
-            all_points.append(world_points)
+            if z is None:
+                points_3d.append(body_pos.copy())
+                continue
 
-        if not all_points:
-            return np.zeros((0, 3))
+            x_cam = (x - intr.cx) / intr.fx * z
+            y_cam = (intr.cy - y) / intr.fy * z
+            world = cam_pos + cam_right * x_cam + cam_up * y_cam + cam_forward * z
+            points_3d.append(world.astype(np.float64))
 
-        return np.vstack(all_points)
-
-    def _sample_geom_surface(
-        self,
-        geom_type: int,
-        geom_size: np.ndarray
-    ) -> np.ndarray:
-        """Sample points from a geom surface in local coordinates."""
-        n = self.surface_sample_count
-
-        if geom_type == mujoco.mjtGeom.mjGEOM_BOX:
-            return self._sample_box_surface(geom_size, n)
-        elif geom_type == mujoco.mjtGeom.mjGEOM_SPHERE:
-            return self._sample_sphere_surface(geom_size[0], n)
-        elif geom_type == mujoco.mjtGeom.mjGEOM_CYLINDER:
-            return self._sample_cylinder_surface(geom_size, n)
-        elif geom_type == mujoco.mjtGeom.mjGEOM_CAPSULE:
-            return self._sample_capsule_surface(geom_size, n)
-        elif geom_type == mujoco.mjtGeom.mjGEOM_ELLIPSOID:
-            return self._sample_ellipsoid_surface(geom_size, n)
-        elif geom_type == mujoco.mjtGeom.mjGEOM_MESH:
-            # For mesh, sample from bounding box as approximation
-            # In production, should sample from actual mesh vertices
-            return self._sample_box_surface(geom_size, n)
-        else:
-            # Default: sample from bounding sphere
-            max_size = np.max(geom_size) if len(geom_size) > 0 else 0.05
-            return self._sample_sphere_surface(max_size, n)
-
-    def _sample_box_surface(self, half_sizes: np.ndarray, n: int) -> np.ndarray:
-        """Sample points uniformly from box surface."""
-        hx, hy, hz = half_sizes[:3]
-
-        # Calculate face areas
-        areas = np.array([
-            hy * hz,  # +x, -x faces
-            hx * hz,  # +y, -y faces
-            hx * hy,  # +z, -z faces
-        ]) * 2  # two faces per axis
-
-        total_area = 2 * np.sum(areas)
-        probs = np.repeat(areas, 2) / total_area
-
-        points = []
-        for _ in range(n):
-            # Choose a face
-            face = np.random.choice(6, p=probs)
-            axis = face // 2
-            sign = 1 if face % 2 == 0 else -1
-
-            # Sample on that face
-            pt = np.zeros(3)
-            pt[axis] = sign * half_sizes[axis]
-
-            other_axes = [i for i in range(3) if i != axis]
-            for ax in other_axes:
-                pt[ax] = np.random.uniform(-half_sizes[ax], half_sizes[ax])
-
-            points.append(pt)
-
-        return np.array(points)
-
-    def _sample_sphere_surface(self, radius: float, n: int) -> np.ndarray:
-        """Sample points uniformly from sphere surface."""
-        # Use spherical coordinates with uniform distribution
-        phi = np.random.uniform(0, 2 * np.pi, n)
-        cos_theta = np.random.uniform(-1, 1, n)
-        sin_theta = np.sqrt(1 - cos_theta ** 2)
-
-        x = radius * sin_theta * np.cos(phi)
-        y = radius * sin_theta * np.sin(phi)
-        z = radius * cos_theta
-
-        return np.stack([x, y, z], axis=1)
-
-    def _sample_cylinder_surface(self, size: np.ndarray, n: int) -> np.ndarray:
-        """Sample from cylinder surface (radius=size[0], half_height=size[1])."""
-        radius = size[0]
-        half_height = size[1]
-
-        # Allocate points between lateral surface and caps
-        lateral_area = 2 * np.pi * radius * 2 * half_height
-        cap_area = 2 * np.pi * radius ** 2
-        total_area = lateral_area + cap_area
-
-        n_lateral = int(n * lateral_area / total_area)
-        n_caps = n - n_lateral
-
-        points = []
-
-        # Lateral surface
-        theta = np.random.uniform(0, 2 * np.pi, n_lateral)
-        z = np.random.uniform(-half_height, half_height, n_lateral)
-        x = radius * np.cos(theta)
-        y = radius * np.sin(theta)
-        points.append(np.stack([x, y, z], axis=1))
-
-        # Caps
-        for _ in range(n_caps):
-            r = radius * np.sqrt(np.random.uniform())
-            theta = np.random.uniform(0, 2 * np.pi)
-            z = half_height if np.random.random() > 0.5 else -half_height
-            points.append([[r * np.cos(theta), r * np.sin(theta), z]])
-
-        return np.vstack(points)
-
-    def _sample_capsule_surface(self, size: np.ndarray, n: int) -> np.ndarray:
-        """Sample from capsule surface (radius=size[0], half_length=size[1])."""
-        radius = size[0]
-        half_length = size[1]
-
-        # Capsule = cylinder + two hemispheres
-        cyl_area = 2 * np.pi * radius * 2 * half_length
-        sphere_area = 4 * np.pi * radius ** 2
-        total_area = cyl_area + sphere_area
-
-        n_cyl = int(n * cyl_area / total_area)
-        n_sphere = n - n_cyl
-
-        points = []
-
-        # Cylinder part
-        theta = np.random.uniform(0, 2 * np.pi, n_cyl)
-        z = np.random.uniform(-half_length, half_length, n_cyl)
-        x = radius * np.cos(theta)
-        y = radius * np.sin(theta)
-        points.append(np.stack([x, y, z], axis=1))
-
-        # Hemisphere caps
-        sphere_points = self._sample_sphere_surface(radius, n_sphere)
-        sphere_points[:, 2] = np.abs(sphere_points[:, 2])  # upper hemisphere
-
-        # Split between top and bottom
-        half = len(sphere_points) // 2
-        top_pts = sphere_points[:half].copy()
-        top_pts[:, 2] += half_length
-
-        bottom_pts = sphere_points[half:].copy()
-        bottom_pts[:, 2] = -bottom_pts[:, 2] - half_length
-
-        points.append(top_pts)
-        points.append(bottom_pts)
-
-        return np.vstack(points)
-
-    def _sample_ellipsoid_surface(self, half_sizes: np.ndarray, n: int) -> np.ndarray:
-        """Sample from ellipsoid surface."""
-        # Sample from unit sphere and scale
-        sphere_pts = self._sample_sphere_surface(1.0, n)
-        return sphere_pts * half_sizes[:3]
-
-    def _farthest_point_sampling(
-        self,
-        points: np.ndarray,
-        num_samples: int
-    ) -> np.ndarray:
-        """
-        Farthest Point Sampling (FPS) for diverse point selection.
-
-        Args:
-            points: (N, 3) candidate points
-            num_samples: number of points to select
-
-        Returns:
-            (num_samples, 3) selected points
-        """
-        if len(points) <= num_samples:
-            return points
-
-        n = len(points)
-        selected_indices = [np.random.randint(n)]
-        distances = np.full(n, np.inf)
-
-        for _ in range(num_samples - 1):
-            # Update distances to nearest selected point
-            last_selected = points[selected_indices[-1]]
-            dist_to_last = np.linalg.norm(points - last_selected, axis=1)
-            distances = np.minimum(distances, dist_to_last)
-
-            # Select point with maximum distance to any selected point
-            next_idx = np.argmax(distances)
-            selected_indices.append(next_idx)
-
-        return points[selected_indices]
-
-    def merge_close_keypoints(
-        self,
-        keypoints: np.ndarray,
-        min_distance: Optional[float] = None
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Merge keypoints that are too close together.
-
-        Args:
-            keypoints: (N, 3) keypoints
-            min_distance: minimum distance threshold (uses self.min_dist if None)
-
-        Returns:
-            merged_keypoints: (M, 3) merged keypoints
-            mapping: (N,) index mapping from original to merged
-        """
-        if min_distance is None:
-            min_distance = self.min_dist
-
-        if len(keypoints) == 0:
-            return keypoints, np.array([])
-
-        # Simple greedy merging
-        merged = []
-        mapping = np.zeros(len(keypoints), dtype=int)
-
-        for i, kp in enumerate(keypoints):
-            merged_idx = -1
-            for j, mkp in enumerate(merged):
-                if np.linalg.norm(kp - mkp) < min_distance:
-                    merged_idx = j
-                    break
-
-            if merged_idx >= 0:
-                mapping[i] = merged_idx
-            else:
-                mapping[i] = len(merged)
-                merged.append(kp)
-
-        return np.array(merged), mapping
+        return np.array(points_3d)

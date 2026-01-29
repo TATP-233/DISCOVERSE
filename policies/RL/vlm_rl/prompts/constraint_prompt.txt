@@ -5,6 +5,11 @@ Given an image of a scene with numbered keypoints and a task instruction, you ne
 2. Decompose the task into sequential stages
 3. Generate Python constraint functions for each stage
 
+## Image Input
+{image_note}
+If two images are provided, use the raw scene image for object appearance, geometry, and spatial relations.
+Use the annotated image ONLY to map keypoint indices to locations; ignore marker occlusions.
+
 ## Scene Analysis
 
 The image shows a robot manipulation scene with keypoints marked as numbered circles.
@@ -15,23 +20,26 @@ Each keypoint has an index (0, 1, 2, ...) that you'll use in your constraint fun
 1. **Grasping must be a separate stage** - If the task involves picking up an object, make grasping Stage 1
 2. **Each stage has a clear goal** - Define what must be achieved at the end of each stage
 3. **Progressive complexity** - Earlier stages should enable later stages
+4. **Keypoint ordering** - For each object, the FIRST keypoint listed for that object is the object center (if include_center is enabled). For uniformly graspable objects (e.g., potato, tomato, cube), use the center as the default grasp/position point unless a different point is explicitly required.
 
 ## Constraint Types
 
-### Subgoal Constraints
+### Subgoal Constraints (REQUIRED for every stage)
 - Must be satisfied at the END of the stage
 - Define the success condition for completing the stage
+- **EVERY stage MUST have at least one subgoal constraint** - This is used to determine when to transition to the next stage
 - Example: "End effector must be within 2cm of keypoint 3"
 
-### Path Constraints
+### Path Constraints (Optional)
 - Must be satisfied THROUGHOUT the stage
 - Define conditions that must hold during movement
 - Example: "Keep the object upright during transport"
+- Path constraints are optional - only add them when there are important conditions to maintain during movement
 
 ## Constraint Function Format
 
 ```python
-def stage{N}_{type}_constraint{M}(end_effector, keypoints):
+def stage{{N}}_{{type}}_constraint{{M}}(end_effector, keypoints):
     """
     Brief description of what this constraint enforces.
 
@@ -40,35 +48,46 @@ def stage{N}_{type}_constraint{M}(end_effector, keypoints):
         keypoints: np.ndarray [K, 3] - all keypoint positions
 
     Returns:
-        cost: float - constraint cost
-            - cost <= 0: constraint is SATISFIED
-            - cost > 0: constraint is VIOLATED (larger = worse)
+        cost: float - constraint cost (distance/error measure)
+            - cost = 0: constraint is PERFECTLY satisfied
+            - cost > 0: constraint is violated (larger = worse)
+            - DO NOT hardcode thresholds - just return the raw distance/error
+            - The threshold for "satisfied" is controlled by external config
     """
     # Implementation
     return cost
 ```
 
+**IMPORTANT: Do NOT hardcode thresholds in constraint functions!**
+- Return raw distance/error values directly (e.g., `return distance`, NOT `return distance - 0.02`)
+- The satisfaction threshold is configured externally in the reward system
+- This allows flexible tuning without regenerating constraints
+- When using a target height, prefer symmetric penalties (e.g., `abs(current_z - target_z)`), unless the task explicitly allows being only above or only below
+
 ## Common Constraint Patterns
 
-### Distance Constraint
+### Distance Constraint (approach/grasp)
 ```python
 def stage1_subgoal_constraint1(end_effector, keypoints):
-    """Move end effector close to keypoint 2."""
+    """Move end effector close to grasp point."""
     target = keypoints[2]
     distance = np.linalg.norm(end_effector - target)
-    return distance - 0.02  # satisfied when distance < 2cm
+    return distance  # returns raw distance in meters
 ```
 
-### Height Constraint
+### Height Constraint (lift / transport height)
 ```python
 def stage2_subgoal_constraint1(end_effector, keypoints):
-    """Ensure object is above target height."""
-    object_height = keypoints[0][2]  # z coordinate
-    target_height = keypoints[5][2] + 0.1  # 10cm above keypoint 5
-    return target_height - object_height  # satisfied when object is high enough
+    """Keep object near a target height (penalize too high/low)."""
+    object_height = keypoints[0][2]  # z coordinate of object
+    # If table height is not explicitly provided, approximate it from the lowest z of the container keypoints
+    table_height = np.min(keypoints[5:10][:, 2])
+    target_height = table_height + 0.15  # 15cm above table
+    height_error = np.abs(object_height - target_height)
+    return height_error
 ```
 
-### Alignment Constraint
+### Alignment Constraint (keep upright)
 ```python
 def stage2_path_constraint1(end_effector, keypoints):
     """Keep object vertical during movement."""
@@ -79,21 +98,30 @@ def stage2_path_constraint1(end_effector, keypoints):
     # Desired direction (vertical)
     vertical = np.array([0, 0, 1])
 
-    # Alignment error
-    alignment = np.linalg.norm(np.cross(object_vector, vertical))
-    return alignment - 0.1  # satisfied when nearly vertical
+    # Alignment error (0 = perfectly vertical, 1 = horizontal)
+    alignment_error = np.linalg.norm(np.cross(object_vector, vertical))
+    return alignment_error
 ```
 
-### Position Above Target
+### Horizontal Position Constraint (place)
 ```python
 def stage3_subgoal_constraint1(end_effector, keypoints):
-    """Position object above container opening."""
-    object_pos = keypoints[2]  # object center
-    target_pos = np.mean(keypoints[5:8], axis=0)  # average of container keypoints
-    target_pos[2] += 0.05  # 5cm above
+    """Align object horizontally above container opening."""
+    object_pos = keypoints[0]  # object center position
+    target_pos = np.mean(keypoints[5:10], axis=0)  # center of container keypoints (5..9 inclusive)
 
-    distance = np.linalg.norm(object_pos[:2] - target_pos[:2])  # horizontal distance
-    return distance - 0.03  # satisfied when horizontally aligned
+    horizontal_distance = np.linalg.norm(object_pos[:2] - target_pos[:2])
+    return horizontal_distance  # returns raw horizontal distance
+```
+
+### Release Height Constraint (near rim, not necessarily deep)
+```python
+def stage3_subgoal_constraint2(end_effector, keypoints):
+    """Keep object near the container rim height for release."""
+    object_z = keypoints[0][2]
+    pot_rim = np.max(keypoints[5:10][:, 2])
+    target_z = pot_rim + 0.02  # ~2cm above rim is acceptable for release
+    return np.abs(object_z - target_z)
 ```
 
 ## Output Format
@@ -103,18 +131,26 @@ First, provide a brief scene analysis explaining what you see and your plan.
 Then output the following metadata:
 
 ```
-NUM_STAGES: {number}
-GRASP_KEYPOINTS: [{comma-separated keypoint indices, -1 for no grasp in that stage}]
-RELEASE_KEYPOINTS: [{comma-separated keypoint indices, -1 for no release in that stage}]
+NUM_STAGES: {{number}}
+GRASP_KEYPOINTS: [{{comma-separated keypoint indices, -1 for no grasp in that stage}}]
+RELEASE_KEYPOINTS: [{{comma-separated keypoint indices, -1 for no release in that stage}}]
 ```
 
-Example for a pick-and-place task:
+**IMPORTANT about GRASP/RELEASE_KEYPOINTS:**
+- GRASP_KEYPOINTS: The keypoint index on the object to be grasped (gripper closes at this point)
+- RELEASE_KEYPOINTS: The SAME keypoint that was grasped earlier, now being released (gripper opens)
+- These refer to the GRASPED OBJECT's keypoint, NOT the target/destination location
+- If you grasp keypoint X, you must release keypoint X (not the target container's keypoint)
+- Prefer using the object's center keypoint (first keypoint of that object) for grasp/release unless a different grasp point is required
+
+Example for a pick-and-place task (pick object at keypoint 2, place into container at keypoints 5-8):
 ```
 NUM_STAGES: 3
 GRASP_KEYPOINTS: [2, -1, -1]
 RELEASE_KEYPOINTS: [-1, -1, 2]
 ```
-This means: grasp keypoint 2 in stage 1, release keypoint 2 in stage 3.
+This means: grasp keypoint 2 (on the object) in stage 1, release keypoint 2 (the same grasped point) in stage 3.
+Note: The target container keypoints (5-8) are used in subgoal constraints, NOT in RELEASE_KEYPOINTS.
 
 Finally, provide all constraint functions.
 
@@ -123,9 +159,13 @@ Finally, provide all constraint functions.
 1. Use ONLY numpy operations: np.linalg.norm, np.dot, np.cross, np.mean, np.array, etc.
 2. Reference keypoints by index: keypoints[0], keypoints[3], etc.
 3. Return a SCALAR cost value
-4. Negative or zero cost means the constraint is satisfied
+4. Cost should be non-negative; 0 means perfectly satisfied
 5. Do NOT use any imports other than numpy (which is available as np)
 6. Keep constraints simple and focused on geometric relationships
+7. Avoid redundant constraints: if a subgoal already enforces a target height, do not add a conflicting height path constraint
+
+## Indexing Reminder
+- Python slicing is end-exclusive. If the container keypoints are 5,6,7,8,9 then use `keypoints[5:10]` (not `5:9`).
 
 ---
 

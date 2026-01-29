@@ -18,6 +18,7 @@ from .constraint_generator import ConstraintGenerator, ConstraintLoader
 from .keypoint_tracker import KeypointTracker
 from .reward_adapter import ConstraintRewardAdapter
 from .env import VLMRLEnv
+from .standalone_env import StandaloneVLMRLEnv, make_standalone_env
 
 __all__ = [
     "KeypointProposer",
@@ -27,4 +28,6 @@ __all__ = [
     "KeypointTracker",
     "ConstraintRewardAdapter",
     "VLMRLEnv",
+    "StandaloneVLMRLEnv",
+    "make_standalone_env",
 ]

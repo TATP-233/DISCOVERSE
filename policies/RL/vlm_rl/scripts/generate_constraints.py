@@ -102,24 +102,6 @@ def main():
     mj_model = task_base.mj_model
     mj_data = task_base.mj_data
 
-    # Initialize keypoint proposer
-    print("Proposing keypoints...")
-    object_bodies = config.get("object_bodies", [])
-    points_per_object = config.get("points_per_object", 5)
-
-    proposer = KeypointProposer(
-        mj_model=mj_model,
-        mj_data=mj_data,
-        points_per_object=points_per_object,
-    )
-
-    proposal = proposer.propose(object_bodies)
-    keypoints_3d = proposal.keypoints_3d
-
-    print(f"Generated {len(keypoints_3d)} keypoints from {len(proposal.object_names)} objects")
-    for obj_name, (start, end) in proposal.object_keypoint_ranges.items():
-        print(f"  {obj_name}: keypoints {start}-{end-1}")
-
     # Initialize renderer
     print("Rendering annotated image...")
     camera_name = config.get("camera_name", None)
@@ -132,9 +114,38 @@ def main():
         camera_name=camera_name,
     )
 
-    # Render annotated image
-    annotated_image = renderer.render_with_keypoints_by_object(
-        keypoints_3d,
+    camera_config = config.get("camera_config", {})
+    if camera_name is None and camera_config:
+        renderer.free_camera_lookat = camera_config.get("lookat", renderer.free_camera_lookat)
+        renderer.free_camera_distance = camera_config.get("distance", renderer.free_camera_distance)
+        renderer.free_camera_azimuth = camera_config.get("azimuth", renderer.free_camera_azimuth)
+        renderer.free_camera_elevation = camera_config.get("elevation", renderer.free_camera_elevation)
+
+    # Initialize keypoint proposer
+    print("Proposing keypoints...")
+    object_bodies = config.get("object_bodies", [])
+    points_per_object = config.get("points_per_object", 5)
+    proposer = KeypointProposer(
+        mj_model=mj_model,
+        mj_data=mj_data,
+        renderer=renderer,
+        points_per_object=points_per_object,
+        include_center=config.get("keypoint_include_center", True),
+        depth_search_radius=config.get("keypoint_depth_search_radius", 6),
+    )
+
+    proposal = proposer.propose(object_bodies)
+    keypoints_3d = proposal.keypoints_3d
+    keypoints_2d = proposal.keypoints_2d
+
+    print(f"Generated {len(keypoints_3d)} keypoints from {len(proposal.object_names)} objects")
+    for obj_name, (start, end) in proposal.object_keypoint_ranges.items():
+        print(f"  {obj_name}: keypoints {start}-{end-1}")
+
+    # Render raw + annotated image (2D keypoints only)
+    raw_image = renderer.render_rgb()
+    annotated_image = renderer.render_with_keypoints_2d_by_object(
+        keypoints_2d,
         proposal.object_keypoint_ranges,
     )
 
@@ -147,13 +158,18 @@ def main():
     print("\nKeypoint description:")
     print(keypoint_desc)
 
-    # Save annotated image
+    # Save raw and annotated images
     os.makedirs(output_dir, exist_ok=True)
     import cv2
+    cv2.imwrite(
+        os.path.join(output_dir, "raw_scene.jpg"),
+        cv2.cvtColor(raw_image, cv2.COLOR_RGB2BGR)
+    )
     cv2.imwrite(
         os.path.join(output_dir, "annotated_scene.jpg"),
         cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
     )
+    print(f"Saved raw image to {output_dir}/raw_scene.jpg")
     print(f"Saved annotated image to {output_dir}/annotated_scene.jpg")
 
     # Save keypoint data
@@ -174,6 +190,7 @@ def main():
 
     result = generator.generate(
         image=annotated_image,
+        raw_image=raw_image,
         instruction=instruction,
         keypoint_description=keypoint_desc,
         output_dir=output_dir,

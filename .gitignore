@@ -244,3 +244,7 @@ __marimo__/
 /policies/RL/vlm_rl/CLAUDE.md
 /AGENT.md
 .idea
+/policies/RL/vlm_rl/assets/
+/policies/RL/vlm_rl/outputs/
+/ai_readmes/
+/CLAUDE.md

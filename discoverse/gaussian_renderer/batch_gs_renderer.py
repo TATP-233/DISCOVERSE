@@ -71,11 +71,13 @@ def batch_render(
     viewmats = torch.inverse(Tmats)
     
     # 3. Rasterization
+    # Note: gsplat expects opacities as [G,] not [G, 1]
+    opacities = gaussians.opacity.squeeze(-1) if gaussians.opacity.dim() == 2 else gaussians.opacity
     renders, alphas, meta = rasterization(
         means=gaussians.xyz,         # [G, 3]
         quats=gaussians.rot,         # [G, 4]
         scales=gaussians.scale,      # [G, 3]
-        opacities=gaussians.opacity, # [G, 1]
+        opacities=opacities,         # [G,]
         colors=gaussians.sh,         # [G, SH_coeffs]
         viewmats=viewmats,           # [Ncam, 4, 4]
         Ks=Ks,                       # [Ncam, 3, 3]
@@ -192,11 +194,13 @@ def batch_env_render(
     viewmats = torch.inverse(Tmats)
     
     # 3. Rasterization
+    # Note: gsplat expects opacities as [Nenv, G] not [Nenv, G, 1]
+    opacities = gaussians.opacity.squeeze(-1) if gaussians.opacity.dim() == 3 else gaussians.opacity
     renders, alphas, meta = rasterization(
         means=gaussians.xyz,         # [Nenv, G, 3]
         quats=gaussians.rot,         # [Nenv, G, 4]
         scales=gaussians.scale,      # [Nenv, G, 3]
-        opacities=gaussians.opacity, # [Nenv, G, 1]
+        opacities=opacities,         # [Nenv, G]
         colors=gaussians.sh,         # [Nenv, G, SH_coeffs]
         viewmats=viewmats,           # [Nenv, Ncam, 4, 4]
         Ks=Ks,                       # [Nenv, Ncam, 3, 3]
