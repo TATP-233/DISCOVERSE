@@ -85,7 +85,7 @@ pip install -e ".[gs]"
 ```
 - **包含**: 3D高斯散射、PyTorch
 - **功能**: 逼真的3D场景渲染，支持实时光照
-- **依赖**: `torch>=2.0.0`, `torchvision>=0.14.0`, `plyfile`, `PyGlm`
+- **依赖**: `gaussian_renderer`
 - **适用**: 高保真视觉仿真、3D场景重建、Real2Sim流程
 
 ### 模块功能速览
@@ -201,7 +201,10 @@ models/
 └── urdf/           # 机器人描述
 ```
 
-国内用户自动使用 [HF-Mirror 镜像](https://hf-mirror.com/)加速下载。
+国内用户使用 [HF-Mirror 镜像](https://hf-mirror.com/)加速下载。
+```
+export HF_ENDPOINT="https://hf-mirror.com"
+```
 
 ### 4. 模型可视化
 使用[SuperSplat](https://playcanvas.com/supersplat/editor)在线查看和编辑3DGS模型 - 只需拖放`.ply`文件。

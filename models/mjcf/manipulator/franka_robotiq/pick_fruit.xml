@@ -1,0 +1,61 @@
+<mujoco model="panda pick fruit">
+  <include file="panda_robotiq.xml"/>
+  <!-- For now, we copy over mjx_scene.xml to ensure there's no extra light source -->
+  <statistic center="0.3 0 0.4" extent="1"/>
+
+  <option timestep="0.005" iterations="5" ls_iterations="8" integrator="implicitfast">
+    <flag eulerdamp="disable"/>
+  </option>
+
+  <custom>
+    <numeric data="12" name="max_contact_points"/>
+  </custom>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+    <scale contactwidth="0.075" contactheight="0.025" forcewidth="0.05" com="0.05" framewidth="0.01" framelength="0.2"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+
+    <mesh name="banana_part_0" file="banana/part_0.obj" />
+    <mesh name="banana_part_1" file="banana/part_1.obj" />
+    <mesh name="banana_part_2" file="banana/part_2.obj" />
+    <mesh name="banana_part_3" file="banana/part_3.obj" />
+
+  </asset>
+
+  <worldbody>
+    <!-- Matching the Realsense D435 -->
+    <camera fovy="42" name="front" pos="-1.302 0.035 1.354" xyaxes="-0.029 -1.000 -0.000 0.592 -0.017 0.806"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" contype="1"/>
+    <geom name="table" pos="-0.5 0 0.55" size="0.4 0.6 0.01" type="box" contype="1" rgba="0.6 0.6 0.6 1"/>
+    <body name="banana" pos="-0.273405 -0.0338736 0.549731" quat="0.0635946 0.0247438 0.458839 0.885895">
+      <joint type="free" frictionloss="0.0001"/>
+      <geom type="mesh" mesh="banana_part_0" />
+      <geom type="mesh" mesh="banana_part_1" />
+      <geom type="mesh" mesh="banana_part_2" />
+      <geom type="mesh" mesh="banana_part_3" />
+    </body>
+    <body mocap="true" name="mocap_target">
+      <site name="mocap_target_site" size='0.001' type='sphere'/>
+      <geom name="mocap_target_box" type="box" size="0.02 0.02 0.02" density="0" contype="0" conaffinity="0" rgba="0.3 0.6 0.3 0.2"/>
+      <geom type="cylinder" pos="0.02 0 0" euler="0 1.5708 0" size=".003 0.02" density="0" contype="0" conaffinity="0" rgba="1 0 0 .2"/>
+      <geom type="cylinder" pos="0 0.02 0" euler="1.5708 0 0" size=".003 0.02" density="0" contype="0" conaffinity="0" rgba="0 1 0 .2"/>
+      <geom type="cylinder" pos="0 0 0.02" euler="0 0 0"      size=".003 0.02" density="0" contype="0" conaffinity="0" rgba="0 0 1 .2"/>
+    </body>
+  </worldbody>
+
+  <keyframe>
+    <key name="home"
+      qpos="0 -0.76219644  0 -2.75629741 0 1.96083466 0 0 0 0 0 0 0  -0.273405 -0.0338736 0.549731 0.0635946 0.0247438 0.458839 0.885895"
+      ctrl="0 -0.76219644  0 -2.75629741 0 1.96083466 0 0"
+    />
+  </keyframe>
+
+</mujoco>

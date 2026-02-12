@@ -17,16 +17,7 @@ class TOK2Cfg(BaseConfig):
     }
     obs_rgb_cam_id   = None
     obs_depth_cam_id = None
-    rb_link_list   = [
-        "tok2", "agv_link",
-        "lft_arm_base", "lft_arm_link1", "lft_arm_link2", 
-        "lft_arm_link3", "lft_arm_link4", "lft_arm_link5", "lft_arm_link6",
-        "lft_finger_left_link", "lft_finger_right_link", 
-        "rgt_arm_base", "rgt_arm_link1", "rgt_arm_link2", 
-        "rgt_arm_link3", "rgt_arm_link4", "rgt_arm_link5", "rgt_arm_link6",
-        "rgt_finger_left_link", "rgt_finger_right_link"
-    ]
-    obj_list       = []
+
     use_gaussian_renderer = False
     gs_model_dict  = {
         "tok2"                  :   "tok2/tok2_base.ply",

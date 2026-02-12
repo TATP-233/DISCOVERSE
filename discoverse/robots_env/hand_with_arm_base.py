@@ -18,15 +18,6 @@ class HandWithArmCfg(BaseConfig):
         "height" : 1080,
     }
     obs_rgb_cam_id  = [0,1]
-    rb_link_list   = ["arm_base", "link1", "link2", "link3", "link4", "link5", "link6", 
-                      "base_link", "palm_link", "palm_link_1", 
-                      "right_thumb_1", "right_thumb_2", "right_thumb_3", "right_thumb_4", 
-                      "right_index_1", "right_index_2", 
-                      "right_middle", "right_middle_2", 
-                      "right_ring_1", "right_ring_2", 
-                      "right_little_1", "right_little_2"]
-    
-    obj_list       = []
     use_gaussian_renderer = False #不使用高保真渲染
     
 class HandWithArmBase(SimulatorBase):

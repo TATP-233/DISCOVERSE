@@ -41,7 +41,6 @@ cfg.gs_model_dict["flower_bowl"] = "object/flower_bowl.ply"
 cfg.gs_model_dict["background"]  = "scene/s2r2025/point_cloud.ply"
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/kiwi_place.xml"
-cfg.obj_list    = ["kiwi", "flower_bowl"]
 cfg.sync     = True
 cfg.headless = False
 cfg.render_set  = {

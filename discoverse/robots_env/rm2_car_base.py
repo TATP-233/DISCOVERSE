@@ -20,15 +20,7 @@ class CARCfg(BaseConfig):
     }
     obs_rgb_cam_id   = None
     obs_depth_cam_id = None
-    rb_link_list   = [
-        "rm2" , "wheel1", "wheel2", "wheel3", "wheel4" , 
-        "steering1", "steering2", "steering3", "steering4",
-        "arm_base", "arm_link1", "arm_link2", 
-        "arm_link3", "arm_link4", "arm_link5", "arm_link6",
-        "finger_left_link", "finger_right_link", 
-    ]
 
-    obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict  = {
         "rm2"               :   "rm2_car/library/rm2.ply",

@@ -58,7 +58,6 @@ cfg.gs_model_dict["jujube"]          = "object/jujube.ply"
 cfg.gs_model_dict["background"]      = "scene/Lab3/environment.ply"
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/jujube_pick.xml"
-cfg.obj_list    = ["bowl_yellow", "wood", "jujube"]
 cfg.sync     = True
 cfg.headless = False
 cfg.render_set  = {

@@ -65,18 +65,6 @@ cfg = HandWithArmCfg()
 cfg.use_gaussian_renderer = False
 cfg.init_key = "0"
 cfg.mjcf_file_path = "mjcf/inspire_hand_arm/hand_arm_bridge.xml"
-cfg.obj_list = [
-    "bridge1",
-    "bridge2",
-    "block1_green",
-    "block2_green",
-    "block_purple1",
-    "block_purple2",
-    "block_purple3",
-    "block_purple4",
-    "block_purple5",
-    "block_purple6",
-]
 
 cfg.timestep = 0.001
 cfg.sync = False

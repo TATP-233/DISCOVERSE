@@ -84,18 +84,6 @@ cfg.mjcf_file_path = f"mjcf/tmp/{robot_name}_{task_name}.xml"
 env = make_env(robot_name, task_name)
 env.export_xml(os.path.join(DISCOVERSE_ASSETS_DIR, cfg.mjcf_file_path))
 
-cfg.obj_list = [
-    "bridge1",
-    "bridge2",
-    "block1_green",
-    "block2_green",
-    "block_purple1",
-    "block_purple2",
-    "block_purple3",
-    "block_purple4",
-    "block_purple5",
-    "block_purple6",
-]
 cfg.timestep = 1 / 240
 cfg.decimation = 4
 cfg.sync = True

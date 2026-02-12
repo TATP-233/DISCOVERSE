@@ -26,7 +26,6 @@ cfg = MMK2Cfg()
 cfg.use_gaussian_renderer = False
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/cabinet_door_open.xml"
-cfg.obj_list    = ["cabinet_door"]
 
 cfg.sync     = True
 cfg.headless = False

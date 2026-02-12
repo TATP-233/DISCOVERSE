@@ -36,7 +36,6 @@ cfg.gs_model_dict["box"]             = "object/box.ply"
 cfg.gs_model_dict["background"]      = "scene/tsimf_library_0/point_cloud_for_mmk2.ply"
 
 cfg.mjcf_file_path = "mjcf/tasks_mmk2/pick_box.xml"
-cfg.obj_list    = ["box"]
 cfg.sync     = True
 cfg.headless = False
 cfg.render_set  = {

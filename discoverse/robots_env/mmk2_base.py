@@ -28,16 +28,6 @@ class MMK2Cfg(BaseConfig):
     obs_rgb_cam_id   = None
     obs_depth_cam_id = None
     lidar_s2_sim = False
-    rb_link_list   = [
-        "agv_link", "slide_link", "head_yaw_link", "head_pitch_link",
-        "lft_arm_base", "lft_arm_link1", "lft_arm_link2", 
-        "lft_arm_link3", "lft_arm_link4", "lft_arm_link5", "lft_arm_link6",
-        "lft_finger_left_link", "lft_finger_right_link", 
-        "rgt_arm_base", "rgt_arm_link1", "rgt_arm_link2", 
-        "rgt_arm_link3", "rgt_arm_link4", "rgt_arm_link5", "rgt_arm_link6",
-        "rgt_finger_left_link", "rgt_finger_right_link"
-    ]
-    obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict  = {
         "agv_link"              :   "mobile_chassis/mmk2/agv_link.ply",

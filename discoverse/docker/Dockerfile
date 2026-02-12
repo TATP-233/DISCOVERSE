@@ -49,8 +49,7 @@ RUN python3 -m pip install --no-cache-dir torch>=2.0.0 --index-url https://downl
 
 # Install 3DGS related dependencies
 RUN python3 -m pip install --no-cache-dir \
-    plyfile \
-    PyGlm -i https://pypi.tuna.tsinghua.edu.cn/simple
+    gaussian_renderer -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /root/DISCOVERSE
 RUN python3 -m pip install -e .

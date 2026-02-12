@@ -26,50 +26,7 @@ class SkyRoverOnCarCfg(BaseConfig):
     }
     obs_rgb_cam_id   = [-1, 0, 1, 2, 3, 4]
     obs_depth_cam_id = None
-    rb_link_list   = [
-        ########################### skyrover ###########################
-        "skyrover",
-        "skyrover_base_link",
-        "skyrover_folder1_link",
-        "skyrover_folder2_link",
-        "skyrover_wheel1_link",
-        "skyrover_wheel2_link",
-        "skyrover_wheel3_link",
-        "skyrover_wheel4_link",
-        "skyrover_rotor1_link",
-        "skyrover_rotor2_link",
-        "skyrover_rotor3_link",
-        "skyrover_rotor4_link",
-        ############################## car ##############################
-        # "rm2" , "wheel1", "wheel2", "wheel3", "wheel4" , 
-        # "steering1", "steering2", "steering3", "steering4",
 
-        "rm2" , "rm2_wheel1", "rm2_wheel2", "rm2_wheel3", "rm2_wheel4" , 
-        "rm2_steering1", "rm2_steering2", "rm2_steering3", "rm2_steering4",
-
-        # BG
-
-        "rm2_1" , 
-        "rm2_1_wheel1", 
-        "rm2_1_wheel2", 
-        "rm2_1_wheel3", 
-        "rm2_1_wheel4" , 
-        "rm2_1_steering1", 
-        "rm2_1_steering2", 
-        "rm2_1_steering3", 
-        "rm2_1_steering4",
-
-        "rm2_2" , 
-        "rm2_2_wheel1", 
-        "rm2_2_wheel2", 
-        "rm2_2_wheel3", 
-        "rm2_2_wheel4" , 
-        "rm2_2_steering1", 
-        "rm2_2_steering2", 
-        "rm2_2_steering3", 
-        "rm2_2_steering4",
-    ]
-    obj_list       = []
     use_gaussian_renderer = False
     gs_model_dict  = {
         "skyrover"              :   "skyrover/stretch_link.ply",

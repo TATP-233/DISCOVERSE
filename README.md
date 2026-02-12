@@ -87,7 +87,7 @@ pip install -e ".[gs]"
 ```
 - **Includes**: 3D Gaussian Splatting, PyTorch
 - **Function**: Photorealistic 3D scene rendering with real-time lighting
-- **Dependencies**: `torch>=2.0.0`, `torchvision>=0.14.0`, `plyfile`, `PyGlm`
+- **Dependencies**: `gaussian_renderer`
 - **Use Cases**: High-fidelity visual simulation, 3D scene reconstruction, Real2Sim pipeline
 
 ### Module Feature Overview

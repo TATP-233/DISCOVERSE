@@ -2,14 +2,18 @@ from .controllor import PIDController, PIDarray
 from .base_config import BaseConfig
 from .statemachine import SimpleStateMachine
 from .camera_spline_interpolation import interpolate_camera_poses
+from .download_from_huggingface import download_from_huggingface, check_hf_login_or_exit
 
 import os
+import sys
 import random
 import mujoco
 import numpy as np
 from PIL import Image
+from etils import epath
 from scipy.spatial.transform import Rotation
 from discoverse import DISCOVERSE_ASSETS_DIR
+from typing import Any, Dict, Optional, Union
 
 def get_mocap_tmat(mj_data, mocap_id):
     tmat = np.eye(4)
@@ -92,6 +96,34 @@ def get_random_texture():
         print("Warning: TEXTURE_1K_PATH not found! Please set the TEXTURE_1K_PATH environment variable to the path of the textures_1k directory.")
         return Image.fromarray(np.random.randint(0, 255, (768, 768, 3), dtype=np.uint8))
 
+def update_assets(
+    assets: Dict[str, Any],
+    path: Union[str, epath.Path],
+    glob: str = "*",
+    recursive: bool = False,
+):
+  for f in epath.Path(path).glob(glob):
+    if f.is_file():
+      assets[f.name] = f.read_bytes()
+    elif f.is_dir() and recursive:
+      update_assets(assets, f, glob, recursive)
+
+def get_screen_scale(screen_id=0):
+    if sys.platform == "darwin":
+        try:
+            import AppKit
+        except ImportError:
+            print("pyobjc is required for retina display support on macOS. Run:")
+            print(">>> pip install pyobjc")
+            quit()
+        screens = AppKit.NSScreen.screens()
+        if len(screens) >= screen_id:
+            return screens[screen_id].backingScaleFactor()
+        else:
+            return None
+    else:
+        return 1.
+
 __all__ = [
     "PIDController",
     "PIDarray",
@@ -105,5 +137,6 @@ __all__ = [
     "get_sensor_idx",
     "step_func",
     "camera2k",
-    "get_random_texture"
+    "get_random_texture",
+    "update_assets"
 ]
