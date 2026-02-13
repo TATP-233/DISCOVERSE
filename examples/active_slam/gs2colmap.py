@@ -92,6 +92,30 @@ def load_ply_points(ply_path: str, max_points: int = 50000) -> Tuple[np.ndarray,
     return xyz, rgb
 
 
+def generate_random_points(min_bound: np.ndarray, max_bound: np.ndarray,
+                           num_points: int = 50000) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    在边界范围内生成随机点云
+
+    Args:
+        min_bound: 最小边界 (3,)
+        max_bound: 最大边界 (3,)
+        num_points: 生成的点数
+
+    Returns:
+        xyz: 点位置 (N, 3)
+        rgb: 点颜色 (N, 3) uint8，随机灰度
+    """
+    # 在边界范围内均匀随机采样
+    xyz = np.random.uniform(min_bound, max_bound, size=(num_points, 3))
+
+    # 生成随机灰度颜色 (用于可视化)
+    gray = np.random.randint(100, 200, size=(num_points, 1), dtype=np.uint8)
+    rgb = np.repeat(gray, 3, axis=1)
+
+    return xyz, rgb
+
+
 def generate_orbit_trajectory(
     center: np.ndarray,
     radius: float,
@@ -280,6 +304,8 @@ def main():
                         help='显示渲染窗口')
     parser.add_argument('--max-points', type=int, default=50000,
                         help='points3D最大点数 (默认: 50000，设为0则不生成点云)')
+    parser.add_argument('--random-points', action='store_true',
+                        help='使用随机点云而非从3DGS提取点云')
     args = parser.parse_args()
 
     # 检查输入文件
@@ -423,9 +449,13 @@ def main():
 
     # 生成点云
     if args.max_points > 0:
-        print(f"从3DGS提取点云 (最大{args.max_points}点)...")
-        points_xyz, points_rgb = load_ply_points(args.gsply, max_points=args.max_points)
-        print(f"  提取了 {len(points_xyz)} 个点")
+        if args.random_points:
+            print(f"生成随机点云 ({args.max_points}点)...")
+            points_xyz, points_rgb = generate_random_points(min_bound, max_bound, num_points=args.max_points)
+        else:
+            print(f"从3DGS提取点云 (最大{args.max_points}点)...")
+            points_xyz, points_rgb = load_ply_points(args.gsply, max_points=args.max_points)
+        print(f"  生成了 {len(points_xyz)} 个点")
         write_colmap_points3d(
             os.path.join(sparse_dir, "points3D.txt"),
             xyz=points_xyz,
