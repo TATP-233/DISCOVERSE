@@ -1,0 +1,128 @@
+<mujoco model="wx250s">
+  <compiler angle="radian" meshdir="meshes" inertiafromgeom="auto"/>
+
+  <option gravity="0 0 -9.81" timestep="0.005"/>
+
+  <visual>
+    <global offwidth="1920" offheight="1080"/>
+  </visual>
+
+  <default>
+    <geom type="mesh" rgba="0.15 0.15 0.15 1" contype="1" conaffinity="1"/>
+    <joint damping="0.5" armature="0.01"/>
+  </default>
+
+  <asset>
+    <mesh name="base" file="wx250s_1_base.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="shoulder" file="wx250s_2_shoulder.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="upper_arm" file="wx250s_3_upper_arm.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="upper_forearm" file="wx250s_4_upper_forearm.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="lower_forearm" file="wx250s_5_lower_forearm.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="wrist" file="wx250s_6_wrist.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="gripper_base" file="wx250s_7_gripper.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="gripper_prop" file="wx250s_8_gripper_prop.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="gripper_bar" file="wx250s_9_gripper_bar.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="gripper_finger" file="wx250s_10_gripper_finger.stl" scale="0.001 0.001 0.001"/>
+    <texture type="skybox" builtin="gradient" rgb1="0.6 0.7 0.9" rgb2="0.2 0.3 0.5" width="512" height="512"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="0.85 0.85 0.85" rgb2="0.7 0.7 0.7" width="512" height="512"/>
+    <material name="ground" texture="grid" texrepeat="4 4" reflectance="0.1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0.5 -0.5 1.5" dir="-0.3 0.3 -1" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3"/>
+    <light pos="-0.5 0.5 1.5" dir="0.3 -0.3 -1" diffuse="0.5 0.5 0.5" specular="0.1 0.1 0.1"/>
+    <geom type="plane" size="0.5 0.5 0.01" material="ground"/>
+
+    <!-- base_link: fixed to world -->
+    <body name="base_link" pos="0 0 0">
+      <geom mesh="base" pos="0 0 0" quat="0.7071068 0 0 0.7071068"/>
+
+      <!-- shoulder_link: waist joint (revolute, Z axis) -->
+      <body name="shoulder_link" pos="0 0 0.072">
+        <joint name="waist" type="hinge" axis="0 0 1" range="-3.1415827 3.1415827"/>
+        <geom mesh="shoulder" pos="0 0 -0.003" quat="0.7071068 0 0 0.7071068"/>
+
+        <!-- upper_arm_link: shoulder joint (revolute, Y axis) -->
+        <body name="upper_arm_link" pos="0 0 0.03865">
+          <joint name="shoulder" type="hinge" axis="0 1 0" range="-1.8849556 1.9896753"/>
+          <geom mesh="upper_arm" pos="0 0 0" quat="0.7071068 0 0 0.7071068"/>
+
+          <!-- upper_forearm_link: elbow joint (revolute, Y axis) -->
+          <body name="upper_forearm_link" pos="0.04975 0 0.25">
+            <joint name="elbow" type="hinge" axis="0 1 0" range="-2.1467550 1.6057029"/>
+            <geom mesh="upper_forearm" pos="0 0 0"/>
+
+            <!-- lower_forearm_link: forearm_roll joint (revolute, X axis) -->
+            <body name="lower_forearm_link" pos="0.175 0 0">
+              <joint name="forearm_roll" type="hinge" axis="1 0 0" range="-3.1415827 3.1415827"/>
+              <geom mesh="lower_forearm" pos="0 0 0" quat="0 1 0 0"/>
+
+              <!-- wrist_link: wrist_angle joint (revolute, Y axis) -->
+              <body name="wrist_link" pos="0.075 0 0">
+                <joint name="wrist_angle" type="hinge" axis="0 1 0" range="-1.7453293 2.1467550"/>
+                <geom mesh="wrist" pos="0 0 0" quat="0.7071068 0 0 0.7071068"/>
+
+                <!-- gripper_link: wrist_rotate joint (revolute, X axis) -->
+                <body name="gripper_link" pos="0.065 0 0">
+                  <joint name="wrist_rotate" type="hinge" axis="1 0 0" range="-3.1415827 3.1415827"/>
+                  <geom mesh="gripper_base" pos="-0.02 0 0" quat="0.7071068 0 0 0.7071068"/>
+
+                  <!-- ee_arm_link: fixed joint -->
+                  <body name="ee_arm_link" pos="0.043 0 0">
+
+                    <!-- gripper_prop_link: gripper joint (continuous, X axis) -->
+                    <body name="gripper_prop_link" pos="0.0055 0 0">
+                      <joint name="gripper" type="hinge" axis="1 0 0"/>
+                      <geom mesh="gripper_prop" pos="-0.0685 0 0" quat="0.7071068 0 0 0.7071068"/>
+                    </body>
+
+                    <!-- gripper_bar_link: fixed joint -->
+                    <body name="gripper_bar_link" pos="0 0 0">
+                      <geom mesh="gripper_bar" pos="-0.063 0 0" quat="0.7071068 0 0 0.7071068"/>
+
+                      <!-- fingers_link: fixed ee_bar joint -->
+                      <body name="fingers_link" pos="0.023 0 0">
+
+                        <!-- left_finger: prismatic, Y axis -->
+                        <body name="left_finger_link" pos="0 0 0">
+                          <joint name="left_finger" type="slide" axis="0 1 0" range="0.015 0.037"/>
+                          <geom mesh="gripper_finger" pos="0 0.005 0" quat="0 0 0 1"/>
+                        </body>
+
+                        <!-- right_finger: prismatic, Y axis (mimic left_finger * -1) -->
+                        <body name="right_finger_link" pos="0 0 0">
+                          <joint name="right_finger" type="slide" axis="0 1 0" range="-0.037 -0.015"/>
+                          <geom mesh="gripper_finger" pos="0 -0.005 0" quat="0 0 1 0"/>
+                        </body>
+
+                        <!-- end-effector site for reference -->
+                        <site name="ee_gripper" pos="0.027575 0 0" size="0.005" rgba="1 0 0 0.5"/>
+
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- Couple right finger to mirror left finger -->
+  <equality>
+    <joint joint1="right_finger" joint2="left_finger" polycoef="0 -1 0 0 0"/>
+  </equality>
+
+  <!-- Position actuators for all joints -->
+  <actuator>
+    <position name="act_waist" joint="waist" kp="100" ctrlrange="-3.1415827 3.1415827"/>
+    <position name="act_shoulder" joint="shoulder" kp="200" ctrlrange="-1.8849556 1.9896753"/>
+    <position name="act_elbow" joint="elbow" kp="150" ctrlrange="-2.1467550 1.6057029"/>
+    <position name="act_forearm_roll" joint="forearm_roll" kp="50" ctrlrange="-3.1415827 3.1415827"/>
+    <position name="act_wrist_angle" joint="wrist_angle" kp="50" ctrlrange="-1.7453293 2.1467550"/>
+    <position name="act_wrist_rotate" joint="wrist_rotate" kp="10" ctrlrange="-3.1415827 3.1415827"/>
+    <position name="act_gripper" joint="left_finger" kp="30" ctrlrange="0.015 0.037"/>
+  </actuator>
+</mujoco>

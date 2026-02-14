@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-WX250 robot arm visualization tool.
+WX250s robot arm visualization tool.
 
 Generate point cloud (PLY) and rendered image (PNG) from joint angles.
 
 Usage:
     # Default pose (all zeros, gripper half open)
-    python wx250_visualize.py
+    python wx250s_visualize.py
 
     # Custom joint angles + gripper
-    python wx250_visualize.py --joints 0.08 0.048 0.032 0.0015 1.569 0.0 --gripper 0.5
+    python wx250s_visualize.py --joints 0.08 0.048 0.032 0.0 0.0015 1.569 --gripper 0.5
 
     # Higher density point cloud, fully open gripper
-    python wx250_visualize.py --joints 0 -0.5 0.8 0 1.57 0 --gripper 1.0 --density 100
+    python wx250s_visualize.py --joints 0 -0.5 0.8 0 0 1.57 --gripper 1.0 --density 100
 
     # Only render image (no point cloud)
-    python wx250_visualize.py --no-pointcloud
+    python wx250s_visualize.py --no-pointcloud
 
 Arguments:
-    --joints   : 6 joint angles in radians [waist, shoulder, elbow, wrist_angle, wrist_rotate, gripper_rotate]
+    --joints   : 6 joint angles in radians [waist, shoulder, elbow, forearm_roll, wrist_angle, wrist_rotate]
     --gripper  : gripper open ratio, 0.0=closed, 1.0=fully open (default: 0.5)
     --density  : point cloud sampling density in pts/cm^2 (default: 50)
     --output   : output directory (default: same as this script)
-    --prefix   : output filename prefix (default: "wx250")
+    --prefix   : output filename prefix (default: "wx250s")
     --no-pointcloud : skip point cloud generation
     --no-render     : skip image rendering
     --show     : launch interactive MuJoCo viewer
@@ -30,17 +30,15 @@ Arguments:
 
 import argparse
 import os
-import sys
 
 import numpy as np
 import mujoco
 
 # --- Constants ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MJCF_PATH = os.path.join(SCRIPT_DIR, "wx250.xml")
+MJCF_PATH = os.path.join(SCRIPT_DIR, "wx250s.xml")
 
-ARM_JOINT_NAMES = ["waist", "shoulder", "elbow", "wrist_angle", "wrist_rotate"]
-GRIPPER_JOINT_NAME = "gripper"       # revolute (prop rotation)
+ARM_JOINT_NAMES = ["waist", "shoulder", "elbow", "forearm_roll", "wrist_angle", "wrist_rotate"]
 FINGER_LEFT = "left_finger"          # prismatic [0.015, 0.037]
 FINGER_RIGHT = "right_finger"        # prismatic [-0.037, -0.015]
 FINGER_RANGE = (0.015, 0.037)        # left finger range (meters)
@@ -51,13 +49,13 @@ SKIP_BODIES = {"gripper_prop_link"}
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="WX250 robot arm visualization: generate point cloud and rendered image.",
+        description="WX250s robot arm visualization: generate point cloud and rendered image.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "--joints", type=float, nargs=6, default=[0, 0, 0, 0, 0, 0],
-        metavar=("WAIST", "SHOULDER", "ELBOW", "WRIST_A", "WRIST_R", "GRIP_R"),
-        help="6 joint angles in radians: waist, shoulder, elbow, wrist_angle, wrist_rotate, gripper_rotate",
+        metavar=("WAIST", "SHOULDER", "ELBOW", "FOREARM_R", "WRIST_A", "WRIST_R"),
+        help="6 joint angles in radians: waist, shoulder, elbow, forearm_roll, wrist_angle, wrist_rotate",
     )
     parser.add_argument(
         "--gripper", type=float, default=0.5,
@@ -72,8 +70,8 @@ def parse_args():
         help="Output directory (default: script directory)",
     )
     parser.add_argument(
-        "--prefix", type=str, default="wx250",
-        help="Output filename prefix (default: wx250)",
+        "--prefix", type=str, default="wx250s",
+        help="Output filename prefix (default: wx250s)",
     )
     parser.add_argument(
         "--no-pointcloud", action="store_true",
@@ -96,7 +94,7 @@ def load_and_pose(joints, gripper_open):
     """Load model and set to desired pose.
 
     Args:
-        joints: list of 6 floats [waist, shoulder, elbow, wrist_angle, wrist_rotate, gripper_rotate]
+        joints: list of 6 floats [waist, shoulder, elbow, forearm_roll, wrist_angle, wrist_rotate]
         gripper_open: float 0.0 (closed) to 1.0 (fully open)
 
     Returns:
@@ -105,9 +103,8 @@ def load_and_pose(joints, gripper_open):
     model = mujoco.MjModel.from_xml_path(MJCF_PATH)
     data = mujoco.MjData(model)
 
-    # Set 5 arm joints + gripper rotation
-    all_joint_names = ARM_JOINT_NAMES + [GRIPPER_JOINT_NAME]
-    for name, angle in zip(all_joint_names, joints):
+    # Set 6 arm joints
+    for name, angle in zip(ARM_JOINT_NAMES, joints):
         jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, name)
         if jid >= 0:
             data.qpos[model.jnt_qposadr[jid]] = angle
@@ -360,8 +357,8 @@ def main():
     gripper = args.gripper
 
     print(f"Joint angles (rad): waist={joints[0]:.4f}  shoulder={joints[1]:.4f}  "
-          f"elbow={joints[2]:.4f}  wrist_angle={joints[3]:.4f}  "
-          f"wrist_rotate={joints[4]:.4f}  gripper_rotate={joints[5]:.4f}")
+          f"elbow={joints[2]:.4f}  forearm_roll={joints[3]:.4f}  "
+          f"wrist_angle={joints[4]:.4f}  wrist_rotate={joints[5]:.4f}")
     print(f"Gripper open: {gripper:.2f} "
           f"(finger={FINGER_RANGE[0] + gripper * (FINGER_RANGE[1] - FINGER_RANGE[0]):.4f} m)")
 
@@ -388,7 +385,7 @@ def main():
         pc_img_path = os.path.join(args.output, f"{args.prefix}_pointcloud.png")
         save_pointcloud_image(
             pc_img_path, points, body_ids,
-            title=f"WX250 Point Cloud  |  {len(points):,} pts  |  {args.density:.0f} pts/cm$^2$"
+            title=f"WX250s Point Cloud  |  {len(points):,} pts  |  {args.density:.0f} pts/cm$^2$"
         )
         print(f"  PNG: {pc_img_path}")
 
@@ -399,7 +396,7 @@ def main():
         render_path = os.path.join(args.output, f"{args.prefix}_render.png")
         save_render(
             render_path, images,
-            title=f"WX250  |  gripper={gripper:.0%} open"
+            title=f"WX250s  |  gripper={gripper:.0%} open"
         )
         print(f"  PNG: {render_path}")
 

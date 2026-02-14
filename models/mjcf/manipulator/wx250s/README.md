@@ -1,24 +1,25 @@
-# WX250 机械臂可视化与点云生成工具
+# WX250s 机械臂可视化与点云生成工具
 
-基于 [Interbotix WX250](https://www.trossenrobotics.com/widowx-250-robot-arm.aspx) 机械臂的 MuJoCo 仿真模型，通过指定关节角度和夹爪开合度，生成对应姿态的渲染图和表面点云。
+基于 [Interbotix WX250s](https://www.trossenrobotics.com/widowx-250-6dof-robot-arm.aspx) 6DOF 机械臂的 MuJoCo 仿真模型，通过指定关节角度和夹爪开合度，生成对应姿态的渲染图和表面点云。
 
 ## 文件结构
 
 ```
-wx250/
-├── wx250.xml              # MuJoCo MJCF 模型文件
-├── wx250_visualize.py     # 主脚本
-├── README.md              # 本文档
-└── meshes/                # STL 网格文件 (来自 interbotix_ros_manipulators)
-    ├── wx250_1_base.stl
-    ├── wx250_2_shoulder.stl
-    ├── wx250_3_upper_arm.stl
-    ├── wx250_4_forearm.stl
-    ├── wx250_5_wrist.stl
-    ├── wx250_6_gripper.stl
-    ├── wx250_7_gripper_prop.stl
-    ├── wx250_8_gripper_bar.stl
-    └── wx250_9_gripper_finger.stl
+wx250s/
+├── wx250s.xml              # MuJoCo MJCF 模型文件
+├── wx250s_visualize.py     # 主脚本
+├── README.md               # 本文档
+└── meshes/                 # STL 网格文件 (来自 interbotix_ros_manipulators)
+    ├── wx250s_1_base.stl
+    ├── wx250s_2_shoulder.stl
+    ├── wx250s_3_upper_arm.stl
+    ├── wx250s_4_upper_forearm.stl
+    ├── wx250s_5_lower_forearm.stl
+    ├── wx250s_6_wrist.stl
+    ├── wx250s_7_gripper.stl
+    ├── wx250s_8_gripper_prop.stl
+    ├── wx250s_9_gripper_bar.stl
+    └── wx250s_10_gripper_finger.stl
 ```
 
 ## 依赖
@@ -40,16 +41,16 @@ pip install mujoco numpy matplotlib
 
 ## 运动学参数
 
-WX250 具有 5 个手臂旋转关节 + 1 个夹爪旋转关节 + 1 对棱柱手指关节：
+WX250s 具有 6 个手臂旋转关节 + 1 个夹爪旋转关节 + 1 对棱柱手指关节：
 
 | 序号 | 关节名 | 类型 | 旋转轴 | 范围 (rad) | 说明 |
 |-----|--------|------|-------|-----------|------|
 | 0 | `waist` | 旋转 | Z | [-3.14, 3.14] | 底座旋转 |
 | 1 | `shoulder` | 旋转 | Y | [-1.88, 1.99] | 肩部俯仰 |
 | 2 | `elbow` | 旋转 | Y | [-2.15, 1.61] | 肘部俯仰 |
-| 3 | `wrist_angle` | 旋转 | Y | [-1.75, 2.15] | 腕部俯仰 |
-| 4 | `wrist_rotate` | 旋转 | X | [-3.14, 3.14] | 腕部旋转 |
-| 5 | `gripper` | 旋转 | X | 无限制 | 夹爪传动螺杆 |
+| 3 | `forearm_roll` | 旋转 | X | [-3.14, 3.14] | 前臂旋转 |
+| 4 | `wrist_angle` | 旋转 | Y | [-1.75, 2.15] | 腕部俯仰 |
+| 5 | `wrist_rotate` | 旋转 | X | [-3.14, 3.14] | 腕部旋转 |
 | - | `left/right_finger` | 棱柱 | Y | [0.015, 0.037] m | 由 `--gripper` 参数控制 |
 
 ## 使用方法
@@ -57,18 +58,18 @@ WX250 具有 5 个手臂旋转关节 + 1 个夹爪旋转关节 + 1 对棱柱手�
 ### 基本用法
 
 ```bash
-python wx250_visualize.py --joints <6个关节角> --gripper <开合度>
+python wx250s_visualize.py --joints <6个关节角> --gripper <开合度>
 ```
 
 ### 命令行参数
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `--joints` | 6个浮点数 | `0 0 0 0 0 0` | 关节角度 (弧度制)，依次为 waist, shoulder, elbow, wrist_angle, wrist_rotate, gripper_rotate |
+| `--joints` | 6个浮点数 | `0 0 0 0 0 0` | 关节角度 (弧度制)，依次为 waist, shoulder, elbow, forearm_roll, wrist_angle, wrist_rotate |
 | `--gripper` | 浮点数 | `0.5` | 夹爪开合比例：`0.0`=完全闭合, `1.0`=完全张开 |
 | `--density` | 浮点数 | `50` | 点云采样密度 (点/cm²) |
 | `--output` | 路径 | 脚本所在目录 | 输出文件目录 |
-| `--prefix` | 字符串 | `wx250` | 输出文件名前缀 |
+| `--prefix` | 字符串 | `wx250s` | 输出文件名前缀 |
 | `--no-pointcloud` | 开关 | - | 跳过点云生成 |
 | `--no-render` | 开关 | - | 跳过渲染图生成 |
 | `--show` | 开关 | - | 启动 MuJoCo 交互式 3D 查看器 |
@@ -77,24 +78,24 @@ python wx250_visualize.py --joints <6个关节角> --gripper <开合度>
 
 ```bash
 # 使用一组实际关节角数据，夹爪闭合
-python wx250_visualize.py \
-  --joints 0.08 0.048 0.032 0.0015 1.569 0.0 \
+python wx250s_visualize.py \
+  --joints 0.08 0.048 0.032 0.0 0.0015 1.569 \
   --gripper 0.0
 
 # 手臂弯曲姿态，夹爪全开，高密度点云
-python wx250_visualize.py \
-  --joints 0 -0.5 0.8 0 1.57 0 \
+python wx250s_visualize.py \
+  --joints 0 -0.5 0.8 0 0 1.57 \
   --gripper 1.0 \
   --density 100
 
 # 仅渲染图像（不生成点云）
-python wx250_visualize.py --joints 0 0 0 0 0 0 --no-pointcloud
+python wx250s_visualize.py --joints 0 0 0 0 0 0 --no-pointcloud
 
 # 仅生成点云（不渲染图像）
-python wx250_visualize.py --joints 0 0 0 0 0 0 --no-render
+python wx250s_visualize.py --joints 0 0 0 0 0 0 --no-render
 
 # 打开交互式查看器
-python wx250_visualize.py --joints 0 0.5 -0.3 0 0 0 --show
+python wx250s_visualize.py --joints 0 0.5 -0.3 0 0 0 --show
 ```
 
 ## 输出文件
@@ -117,9 +118,20 @@ python wx250_visualize.py --joints 0 0.5 -0.3 0 0 0 --show
 4. 在每个三角面内使用随机重心坐标均匀采样
 5. 将所有部件的点合并为完整点云
 
-采样密度由 `--density` 参数控制（单位：点/cm²）。默认 50 pts/cm² 约产生 12 万点。
+采样密度由 `--density` 参数控制（单位：点/cm²）。默认 50 pts/cm² 约产生 13 万点。
 
 > 注：`gripper_prop_link`（夹爪内部传动螺杆）在点云中被默认跳过。
+
+## 与 WX250 的区别
+
+WX250s 相比 WX250 多了一个 `forearm_roll` 关节（前臂旋转），使手臂从 5DOF 升级为 6DOF：
+
+| | WX250 (5DOF) | WX250s (6DOF) |
+|---|---|---|
+| 手臂关节数 | 5 | 6 |
+| 关节链 | waist → shoulder → elbow → wrist_angle → wrist_rotate | waist → shoulder → elbow → **forearm_roll** → wrist_angle → wrist_rotate |
+| `--joints` 参数 | 5 个浮点数 | 6 个浮点数 |
+| 前臂结构 | 单段 forearm | 上下两段 upper_forearm + lower_forearm |
 
 ## Mesh 来源
 
@@ -127,7 +139,7 @@ STL 文件来自 Interbotix 官方仓库：
 
 ```
 https://github.com/Interbotix/interbotix_ros_manipulators/tree/main/
-  interbotix_ros_xsarms/interbotix_xsarm_descriptions/meshes/wx250_meshes
+  interbotix_ros_xsarms/interbotix_xsarm_descriptions/meshes/wx250s_meshes
 ```
 
-MJCF 模型 (`wx250.xml`) 基于原始 [wx250.urdf.xacro](https://github.com/Interbotix/interbotix_ros_manipulators/blob/main/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/wx250.urdf.xacro) 手工转换而来。
+MJCF 模型 (`wx250s.xml`) 基于原始 [wx250s.urdf.xacro](https://github.com/Interbotix/interbotix_ros_manipulators/blob/main/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/wx250s.urdf.xacro) 手工转换而来。
