@@ -1,0 +1,11 @@
+<mujocoinclude>
+  <!-- 与 MRMP play_g3 完全一致的 actuator 定义 -->
+  <position name="joint1" joint="joint1" ctrllimited="true" ctrlrange="-2.9671 2.9671"  kp="300" user="1"/>
+  <position name="joint2" joint="joint2" ctrllimited="true" ctrlrange="-2.618 0.0873"  kp="300" user="1"/>
+  <position name="joint3" joint="joint3" ctrllimited="true" ctrlrange="-2.9671 2.9671"  kp="300" user="1"/>
+  <position name="joint4" joint="joint4" ctrllimited="true" ctrlrange="0 2.618"  kp="300.8" user="1"/>
+  <position name="joint5" joint="joint5" ctrllimited="true" ctrlrange="-2.9671 2.9671"  kp="300.2" user="1"/>
+  <position name="joint6" joint="joint6" ctrllimited="true" ctrlrange="-0.7854 0.7854"  kp="300.56" user="1"/>
+  <position name="joint7" joint="joint7" ctrllimited="true" ctrlrange="-0.7853 0.7853"  kp="300.4" user="1"/>
+  <position name="gripper" tendon="gripper_gear" ctrllimited="true" ctrlrange="0 1" kp="1" user="1"/>
+</mujocoinclude>

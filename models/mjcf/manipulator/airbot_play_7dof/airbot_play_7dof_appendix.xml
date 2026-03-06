@@ -1,0 +1,17 @@
+<mujocoinclude>
+  <!-- Play G3 7DOF 夹爪 equality 与 tendon -->
+  <!-- 与 MRMP 一致：base_link/Link1 排除；额外排除 block 避免初始接触不稳 -->
+  <contact>
+    <exclude body1="arm_base" body2="Link1"/>
+    <exclude body1="arm_base" body2="block"/>
+  </contact>
+  <equality>
+    <joint joint1="endleft" joint2="endright" polycoef="0 -1 0 0 0"/>
+  </equality>
+  <tendon>
+    <fixed name="gripper_gear">
+      <joint joint="endleft" coef="-12.5"/>
+      <joint joint="endright" coef="12.5"/>
+    </fixed>
+  </tendon>
+</mujocoinclude>

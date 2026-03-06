@@ -1,0 +1,219 @@
+<mujoco model="airbot_play_table_scene">
+  <!-- 与 new_airbot_play 一致：meshdir 指向 meshes，mesh 用 airbot_play_7dof/ 子目录 -->
+  <compiler angle="radian"
+            meshdir="../../../meshes/"
+            texturedir="../../../meshes/"
+            balanceinertia="true"
+            autolimits="true"/>
+
+  <!-- physics options must be inside <mujoco> and as a direct child -->
+ <option timestep="0.001" gravity="0 0 -9.81" integrator="implicitfast" iterations="15"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient"
+             rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+             rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8"
+             width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true"
+              texrepeat="5 5" reflectance="0.2"/>
+
+    <!-- <material name="table_mat" rgba="0.85 0.85 0.85 1" reflectance="0.2"/> -->
+    <material name="table_mat" rgba="0.25 0.25 0.25 1" reflectance="0.2"/>
+    <material name="block_mat" rgba="0.95 0.3 0.3 1" reflectance="0.1"/>
+
+    <material name="plate_mat"
+              rgba="1.0 0.55 0.80 1"
+              reflectance="0.00"
+              specular="0.0"
+              shininess="0.02"/>
+
+    <material name="plate_top_mat"
+              rgba="1.0 0.40 0.75 1"
+              reflectance="0.00"
+              specular="0.0"
+              shininess="0.02"
+              emission="0.12"/>
+
+    <material name="wall_mat" rgba="0.55 0.55 0.58 1" reflectance="0.15"/>
+    <material name="bottle_mat" rgba="0.3 0.6 0.9 1" reflectance="0.2"/>
+  </asset>
+
+  <include file="../airbot_play_7dof/airbot_play_7dof_dependencies.xml"/>
+  <include file="../airbot_play_7dof/airbot_play_7dof_appendix.xml"/>
+
+  <worldbody>
+
+    <body name="airbot_play_pose" pos="0 0 0.005" euler="0 0 3.14159">
+      <body name="robot_axes" pos="0 0 0.05">
+        <geom name="r_axis_x" type="capsule" fromto="0 0 0  0.15 0 0"
+              size="0.004" rgba="1 0 0 1" contype="0" conaffinity="0"/>
+        <geom name="r_axis_y" type="capsule" fromto="0 0 0  0 0.15 0"
+              size="0.004" rgba="0 1 0 1" contype="0" conaffinity="0"/>
+        <geom name="r_axis_z" type="capsule" fromto="0 0 0  0 0 0.15"
+              size="0.004" rgba="0 0 1 1" contype="0" conaffinity="0"/>
+      </body>
+
+      <include file="../airbot_play_7dof/airbot_play_7dof_body.xml"/>
+    </body>
+
+    <!-- ===== World Frame Axes (at origin) ===== -->
+    <body name="world_axes" pos="0 0 0">
+      <geom name="axis_x" type="capsule" fromto="0 0 0  0.30 0 0"
+            size="0.006" rgba="1 0 0 1" contype="0" conaffinity="0"/>
+      <geom name="axis_y" type="capsule" fromto="0 0 0  0 0.30 0"
+            size="0.006" rgba="0 1 0 1" contype="0" conaffinity="0"/>
+      <geom name="axis_z" type="capsule" fromto="0 0 0  0 0 0.30"
+            size="0.006" rgba="0 0 1 1" contype="0" conaffinity="0"/>
+    </body>
+
+    <!-- camera direction debug -->
+    <!-- <body name="stream_cam_dir" pos="0 0.5 0.2">
+      <geom name="stream_cam_ray" type="capsule"
+            fromto="0 0 0  0.20889 -0.20889 -0.15222"
+            size="0.004" rgba="1 0 1 1" contype="0" conaffinity="0"/>
+    </body> -->
+
+    <camera name="stream_cam"
+            mode="fixed"
+            pos="0 0.5 0.2"
+            xyaxes="-0.707107 -0.707107 0   0.323886 -0.323886 0.888930"
+            fovy="75"/>
+
+    <light pos="1 0 2"   dir="-0.5 0 -0.8"/>
+    <light pos="0.3 1 2" dir="0 -0.5 -0.8"/>
+
+    <geom name="floor" type="plane" size="0 0 0.05" pos="0 0 -0.80"
+          material="groundplane"/>
+
+    <!-- gray walls enclosing the scene (larger room for arm workspace) -->
+    <body name="walls" pos="0 0 0">
+      <!-- back wall -->
+      <geom name="wall_back" type="box" size="0.05 1.35 0.95"
+            pos="1.35 0 0.15" material="wall_mat"/>
+      <!-- front wall -->
+      <geom name="wall_front" type="box" size="0.05 1.35 0.95"
+            pos="-10.55 0 0.15" material="wall_mat"/>
+      <!-- left wall -->
+      <geom name="wall_left" type="box" size="0.95 0.05 0.95"
+            pos="0.40 1.35 0.15" material="wall_mat"/>
+      <!-- right wall -->
+      <geom name="wall_right" type="box" size="0.95 0.05 0.95"
+            pos="0.40 -1.35 0.15" material="wall_mat"/>
+    </body>
+
+    <!-- table -->
+    <body name="table" pos="0.30 0 0">
+      <geom name="table_top" type="box"
+            size="0.30 0.60 0.01"
+            pos="0 0 -0.01"
+            material="table_mat"
+            condim="4"
+            solimp="2 1 0.01"
+            solref="0.01 1"
+            friction="1 0.005 0.0001"/>
+
+      <geom name="leg1" type="box" size="0.02 0.02 0.39" pos=" 0.28  0.56 -0.40"
+            material="table_mat" contype="0" conaffinity="0"/>
+      <geom name="leg2" type="box" size="0.02 0.02 0.39" pos="-0.28  0.56 -0.40"
+            material="table_mat" contype="0" conaffinity="0"/>
+      <geom name="leg3" type="box" size="0.02 0.02 0.39" pos=" 0.28 -0.56 -0.40"
+            material="table_mat" contype="0" conaffinity="0"/>
+      <geom name="leg4" type="box" size="0.02 0.02 0.39" pos="-0.28 -0.56 -0.40"
+            material="table_mat" contype="0" conaffinity="0"/>
+    </body>
+
+    <!-- plate (static for now) -->
+    <body name="plate" pos="0.35 0.300 0.0">
+      <geom name="plate_geom" type="cylinder"
+            size="0.08 0.005"
+            material="plate_mat"
+            friction="1 0.005 0.0001"
+            mass="0.05"/>
+      <geom name="plate_top_visual" type="cylinder"
+            size="0.079 0.0006"
+            pos="0 0 0.0056"
+            material="plate_top_mat"
+            contype="0" conaffinity="0" density="0"/>
+    </body>
+
+    <!-- block (FREE body at top-level so it falls / can be dragged) -->
+    <body name="block" pos="0.20 0.25 0.06">
+    <!-- <body name="block" pos="0.4 0.20 0.030"> -->
+      <freejoint/>
+      <!-- <geom name="block_geom"
+            type="box"
+            size="0.02 0.02 0.04"
+            material="block_mat"
+            friction="0.000001 0.00009 0.00009"
+            mass="0.0002
+            "/> -->
+
+<!-- <geom name="block_geom"
+      type="box"
+      size="0.02 0.02 0.017" 
+      material="block_mat"
+      condim="3"
+      solref="0.005 1"
+      solimp="0.99 0.95 0.01"
+      friction="0.99 0.01 0.001"
+      mass="0.03"/> -->
+
+      <!-- <geom name="block_geom"
+      type="cylinder"
+      size="0.02 0.06"
+      material="block_mat"
+      condim="3"
+      solref="0.005 1"
+      solimp="0.99 0.95 0.01"
+      friction="0.99 0.01 0.001"
+      mass="0.03"/> -->
+
+            <geom name="block_geom"
+                  type="cylinder"
+                  size="0.02 0.06"
+                  material="bottle_mat"
+                  condim="3"
+                  solref="0.005 1"
+                  solimp="0.99 0.95 0.01"
+                  friction="0.99 0.01 0.001"
+                  mass="0.02"/>
+            <!-- 小圆柱: 半径0.015, 半高0.015, 总高0.03 (瓶口 ~20%), 叠在瓶身之上 -->
+            <geom name="block_geom_1"
+                  type="cylinder"
+                  pos="0 0 0.065"
+                  size="0.015 0.015"
+                  material="bottle_mat"
+                  condim="3"
+                  solref="0.005 1"
+                  solimp="0.99 0.95 0.01"
+                  friction="0.99 0.01 0.001"
+                  mass="0.01"/>
+    </body>
+
+    <!-- robot at origin -->
+  </worldbody>
+
+  <actuator>
+    <include file="../airbot_play_7dof/airbot_play_7dof_control.xml"/>
+  </actuator>
+
+  <sensor>
+    <include file="../airbot_play_7dof/airbot_play_7dof_sensor.xml"/>
+  </sensor>
+
+  <!-- nq: 9 arm (7 joints + 2 fingers) + 7 block freejoint; ctrl: 8 (7 arm + 1 gripper)
+       7DOF joint6/7 限位 [-0.785, 0.785]，不能用 6DOF 的 -1.5708 -->
+  <keyframe>
+    <key name="home"
+         qpos="0 -1 1.2 1.5708 -1.2 0 0 0 0   0.30 0.30 0.030  1 0 0 0"
+         ctrl="0 -1 1.2 1.5708 -1.2 0 0 0"/>
+  </keyframe>
+</mujoco>

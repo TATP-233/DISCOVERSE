@@ -1,0 +1,32 @@
+<mujocoinclude>
+  <!-- Play G3 7DOF 机械臂 sensor -->
+  <jointpos name="joint1_pos" joint="joint1"/>
+  <jointpos name="joint2_pos" joint="joint2"/>
+  <jointpos name="joint3_pos" joint="joint3"/>
+  <jointpos name="joint4_pos" joint="joint4"/>
+  <jointpos name="joint5_pos" joint="joint5"/>
+  <jointpos name="joint6_pos" joint="joint6"/>
+  <jointpos name="joint7_pos" joint="joint7"/>
+  <jointpos name="gripper_pos" joint="endleft"/>
+  <jointvel name="joint1_vel" joint="joint1"/>
+  <jointvel name="joint2_vel" joint="joint2"/>
+  <jointvel name="joint3_vel" joint="joint3"/>
+  <jointvel name="joint4_vel" joint="joint4"/>
+  <jointvel name="joint5_vel" joint="joint5"/>
+  <jointvel name="joint6_vel" joint="joint6"/>
+  <jointvel name="joint7_vel" joint="joint7"/>
+  <jointvel name="gripper_vel" joint="endleft"/>
+  <jointactuatorfrc name="joint1_torque" joint="joint1"/>
+  <jointactuatorfrc name="joint2_torque" joint="joint2"/>
+  <jointactuatorfrc name="joint3_torque" joint="joint3"/>
+  <jointactuatorfrc name="joint4_torque" joint="joint4"/>
+  <jointactuatorfrc name="joint5_torque" joint="joint5"/>
+  <jointactuatorfrc name="joint6_torque" joint="joint6"/>
+  <jointactuatorfrc name="joint7_torque" joint="joint7"/>
+  <jointactuatorfrc name="gripper_torque" joint="endleft"/>
+  <framepos name="endpoint_pos" objtype="site" objname="endpoint" reftype="site" refname="armbase"/>
+  <framequat name="endpoint_quat" objtype="site" objname="endpoint" reftype="site" refname="armbase"/>
+  <framelinvel name="endpoint_vel" objtype="site" objname="endpoint" reftype="site" refname="armbase"/>
+  <gyro name="endpoint_gyro" site="endpoint"/>
+  <accelerometer name="endpoint_acc" site="endpoint"/>
+</mujocoinclude>

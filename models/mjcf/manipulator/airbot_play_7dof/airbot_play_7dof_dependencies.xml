@@ -1,0 +1,73 @@
+<mujocoinclude>
+  <!-- Play G3 7DOF 机械臂 defaults 与 asset -->
+  <default>
+    <default class="airbot_play_7dof">
+      <default class="visual">
+        <geom contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom contype="0" conaffinity="1" group="3"/>
+      </default>
+      <default class="joint1">
+        <joint range="-2.9671 2.9671" actuatorfrcrange="-96 96" damping="5" frictionloss="20"/>
+        <general ctrlrange="-2.9671 2.9671" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint2">
+        <joint range="-2.618 0.0873" actuatorfrcrange="-96 96" damping="5" frictionloss="20"/>
+        <general ctrlrange="-2.618 0.0873" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint3">
+        <joint range="-2.9671 2.9671" actuatorfrcrange="-96 96" damping="5" frictionloss="20"/>
+        <general ctrlrange="-2.9671 2.9671" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint4">
+        <joint range="0 2.618" actuatorfrcrange="-96 96" damping="5" frictionloss="20"/>
+        <general ctrlrange="0 2.618" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint5">
+        <joint range="-2.9671 2.9671" actuatorfrcrange="-69.24 69.24" damping="2" frictionloss="27"/>
+        <general ctrlrange="-2.9671 2.9671" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint6">
+        <joint range="-0.7854 0.7854" actuatorfrcrange="-69.12 69.12" damping="2" frictionloss="7.776"/>
+        <general ctrlrange="-0.7854 0.7854" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="joint7">
+        <joint range="-1.5175 1.5175" actuatorfrcrange="-69.12 69.12" damping="2" frictionloss="2.592"/>
+        <general ctrlrange="-1.5175 1.5175" biastype="affine" biasprm="0 -1"/>
+      </default>
+      <default class="finger1">
+        <joint type="slide" range="-0.04 0" damping="0.9" frictionloss="27"/>
+      </default>
+      <default class="finger2">
+        <joint type="slide" range="0 0.04" damping="0.9" frictionloss="27"/>
+      </default>
+    </default>
+  </default>
+
+  <!-- 与 new_airbot_play 一致：mesh 用 airbot_play_7dof/ 子路径，meshdir=../../../meshes/ -->
+  <asset>
+    <material name="default_material" rgba="0.1 0.1 0.1 1"/>
+    <mesh name="collision_base_link" file="airbot_play_7dof/base_link.STL"/>
+    <mesh name="base_link_base_link" file="airbot_play_7dof/base_link.STL"/>
+    <mesh name="collision_Link1" file="airbot_play_7dof/Link1.STL"/>
+    <mesh name="Link1_Link1" file="airbot_play_7dof/Link1.STL"/>
+    <mesh name="collision_Link2" file="airbot_play_7dof/Link2.STL"/>
+    <mesh name="Link2_Link2" file="airbot_play_7dof/Link2.STL"/>
+    <mesh name="collision_Link3" file="airbot_play_7dof/Link3.STL"/>
+    <mesh name="Link3_Link3" file="airbot_play_7dof/Link3.STL"/>
+    <mesh name="collision_Link4" file="airbot_play_7dof/Link4.STL"/>
+    <mesh name="Link4_Link4" file="airbot_play_7dof/Link4.STL"/>
+    <mesh name="collision_Link5" file="airbot_play_7dof/Link5.STL"/>
+    <mesh name="Link5_Link5" file="airbot_play_7dof/Link5.STL"/>
+    <mesh name="collision_Link6" file="airbot_play_7dof/Link6.STL"/>
+    <mesh name="Link6_Link6" file="airbot_play_7dof/Link6.STL"/>
+    <mesh name="collision_Link7" file="airbot_play_7dof/Link7.STL"/>
+    <mesh name="Link7_Link7" file="airbot_play_7dof/Link7.STL"/>
+    <mesh name="gripper" file="airbot_play_7dof/gripper.obj"/>
+    <mesh name="left" file="airbot_play_7dof/left.obj"/>
+    <mesh name="right" file="airbot_play_7dof/right.obj"/>
+    <mesh name="collision_eff_connect_base_link" file="airbot_play_7dof/eff_connect_base_link.STL"/>
+    <mesh name="eff_connect_base_link_eff_connect_base_link" file="airbot_play_7dof/eff_connect_base_link.STL"/>
+  </asset>
+</mujocoinclude>
